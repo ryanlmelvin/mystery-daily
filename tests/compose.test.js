@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { composeDay, composedId, gate, crimeOf, SETTING_IDS, COMPOSER } from '../src/compose.js';
-import { caseById, trialCases, reviewCases, CASES } from '../src/cases/index.js';
+import { caseById, reviewCases, CASES } from '../src/cases/index.js';
 import { tellExhibit } from '../src/tell.js';
 import { proveCase } from '../src/logic.js';
 import { sceneFocus, scenePins, sceneSvg } from '../src/art/scenes.js';
@@ -279,14 +279,11 @@ test('its scene has a tag for every exhibit, mirrored or not', () => {
   }
 });
 
-test('a composed case is found by its date, and one in each setting is on trial', () => {
+test('a composed practice case is found by its date or versioned id', () => {
   assert.equal(caseById('day-2026-11-26'), composeDay('2026-11-26'));
   assert.equal(caseById(composeDay('2026-11-26').id), composeDay('2026-11-26'));
   assert.equal(caseById('day-nonsense'), undefined);
   assert.equal(caseById('study'), CASES[4]);
-  const trial = trialCases('2026-11-22');
-  assert.deepEqual(trial.map((c) => c.composed.setting).sort(), [...SETTING_IDS].sort());
-  assert.ok(trial.every((c) => c.composed.date > '2026-11-22'));
 });
 
 test('composed close looks frame the printed props on either side of the window', () => {

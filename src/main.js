@@ -10,7 +10,7 @@ import '@fontsource/cinzel/latin-700.css';
 import '@fontsource/caveat/latin-600.css';
 import './style.css';
 import './archive.css';
-import { CASES, caseById, trialCases, reviewCases } from './cases/index.js';
+import { CASES, caseById } from './cases/index.js';
 import { restoreTutorial, tutorialCase } from './tutorial.js';
 import { LAUNCH, caseIdForDate, dailyForDate, utcDate } from './daily.js';
 import { archiveCalendar } from './archive.js';
@@ -659,28 +659,10 @@ function others(month) {
     ${sum.played ? `<p class="record-line">Streak ${sum.streak} · Best ${sum.best} · Solved ${sum.solved} of ${sum.played}</p>` : ''}
     ${calendar}
     ${selected !== today ? '<button class="plain row" id="today">Back to today</button>' : ''}
-    <button class="plain row trial" id="trials"><span><b>On trial</b></span></button>
     <div class="actions"><button class="plain" data-close>Close</button><button class="plain" id="how">How to play</button><button class="plain" id="sound" aria-pressed="${Sound.soundOn()}">Sound ${Sound.soundOn() ? 'on' : 'off'}</button><button class="plain" id="install-help"${P.isInstalled() ? ' hidden' : ''}>Install</button></div>
     <p class="about">By <a href="https://ryanlmelvin.com" target="_blank" rel="noopener">Ryan L. Melvin</a> · Release ${esc(RELEASE)} · <a href="./update.html">Update help</a></p>`);
   $('#dialog').setAttribute('aria-labelledby', 'archive-title');
   if (!month) $(`[data-date="${selected || today}"]`)?.focus({ preventScroll: true });
-}
-
-function trialList(cases) {
-  return `<ul class="arcade">${cases.map((k) => {
-    const g = savedGame(k.id, false);
-    const mark = !g ? 'Not played' : g.status === 'won' ? `Solved, ${g.tries.length} of ${E.PENNIES}` : g.status === 'lost' ? 'Out of pennies' : 'In play';
-    return `<li><button class="plain row" data-case="${k.id}"><span><b>${esc(k.title)}</b></span><span>${mark}</span></button></li>`;
-  }).join('')}</ul>`;
-}
-
-function trials() {
-  ui.dialog = 'menu';
-  const reviews = reviewCases();
-  dialog(`<h3>On trial</h3>
-    <h4>Samples for review</h4>${trialList(reviews)}
-    <h4>From the composer</h4>${trialList(trialCases(utcDate()).filter((k) => !reviews.some((r) => r.id === k.id)))}
-    <div class="actions"><button class="plain" id="others">Back</button><button class="plain" data-close>Close</button></div>`);
 }
 
 function installDialog() {
@@ -1013,7 +995,6 @@ app.addEventListener('click', (ev) => {
     return target?.focus();
   }
   if (el.dataset.date) return navigate(el.dataset.date === utcDate() ? '' : '?edition=' + el.dataset.date);
-  if (el.dataset.case) return navigate('?case=' + encodeURIComponent(el.dataset.case));
   if (el.dataset.ex) return ui.open === el.dataset.ex ? closeExhibit() : openExhibit(el.dataset.ex);
   if (el.dataset.i !== undefined) return tapSlot(Number(el.dataset.i));
   if (el.dataset.w) return tapTile(el.dataset.w, el);
@@ -1056,7 +1037,6 @@ app.addEventListener('click', (ev) => {
       return $('#admire-scene').focus();
     case 'today': case 'play-today': return navigate('');
     case 'others': case 'menu': return others();
-    case 'trials': return trials();
     case 'install': return install();
     case 'install-help': return installDialog();
     case 'how': return startTutorial();

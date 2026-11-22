@@ -29,7 +29,7 @@ Dev pages and switches:
 - `/?edition=2026-11-21` opens the first official edition. The **?** button and
   **Archive** on the end playbill open the calendar of released editions.
 - `/?case=brooch` opens the fixed composer sample. `?case=foxes`, `seance`, `encore` and
-  `fanciers` open the other samples under **On trial → Samples for review**.
+  `fanciers` open the other fixed playtests by direct link.
 - `/art.html` shows every scene with its tags; `?scene=train`, `?big=1`, `?nopins=1`.
 
 ## Architecture
@@ -182,8 +182,7 @@ scene from the case's `scene` object. Each crime has one arrangement that can be
 mirrored. A doll's trade determines its costume. Expressions and free-hand poses
 are drawn independently of guilt. A doll carrying the tray or cloak keeps its carry pose.
 
-- **On trial** in the arcade offers fixed review samples and a composed preview in
-  each setting. `/?date=2026-11-26` opens that date's composed case for practice.
+- `/?date=2026-11-26` opens that date's composed case for practice.
 - `/art.html?composed=1` shows a composed scene for each setting, plain and mirrored.
 - `tests/compose.test.js` checks the gate and the mix of culprits and clues across
   dates. Two dates pin the expected output. When a deliberate change alters a date's

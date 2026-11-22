@@ -64,9 +64,9 @@ device.
 
 ## Composed cabinets and practice
 
-The arcade’s **On trial** menu offers a composed cabinet in each of nine settings. The composer builds the cast,
-clues and scene from a date, then uses the same proof as the hand-written cases to
-check that the clues lead to one solution. Three crimes rotate.
+The composer builds the cast, clues and scene from a date, then uses the same proof
+as the hand-written cases to check that the clues lead to one solution. Three
+crimes rotate across nine settings.
 
 - **The interrupted theft** takes place in a glasshouse, library or plate room.
   The same eight tags let you investigate both the visitor and the servant.
@@ -77,7 +77,7 @@ check that the clues lead to one solution. Three crimes rotate.
 - **The Mourning Brooch** takes place at a memorial supper. Three mourners can each be the
   killer, the thief who arrived afterward, or the bystander.
 
-**Samples for review** opens five fixed playtests. Play [The Mourning Brooch](https://ryanlmelvin.github.io/mystery-daily/?case=brooch),
+Direct links open the five fixed playtests. Play [The Mourning Brooch](https://ryanlmelvin.github.io/mystery-daily/?case=brooch),
 [Death at the Foxes’ Ball](https://ryanlmelvin.github.io/mystery-daily/?case=foxes),
 [The Shilling Séance](https://ryanlmelvin.github.io/mystery-daily/?case=seance),
 [An Encore for Nobody](https://ryanlmelvin.github.io/mystery-daily/?case=encore), or
