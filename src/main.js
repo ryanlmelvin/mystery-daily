@@ -162,9 +162,27 @@ function frame() {
   });
   draw();
   chrome();
+  fitTitle();
 }
 
-const INSTALL_ICON = '<svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M10 2.5v9.2M6 8l4 4 4-4M3.5 13.5v3h13v-3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+// A long title is set in smaller type so the slip stays one line. A second line pushes
+// the window down, and the last row of the tray slides under the penny dock. Below the
+// smallest size it is left to wrap after all (a very narrow screen and a very long title).
+const TITLE_SMALLEST = 12;
+
+function fitTitle() {
+  const h = document.querySelector('.marquee h2');
+  if (!h) return;
+  h.style.fontSize = '';
+  const style = getComputedStyle(h);
+  const line = parseFloat(style.lineHeight);
+  for (let size = parseFloat(style.fontSize); h.offsetHeight > line * 1.5 && size > TITLE_SMALLEST;) {
+    size = Math.max(TITLE_SMALLEST, size - 0.5);
+    h.style.fontSize = size + 'px';
+  }
+}
+
+const INSTALL_ICON ='<svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M10 2.5v9.2M6 8l4 4 4-4M3.5 13.5v3h13v-3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 // The install knob and the update bar sit outside draw() because the installer and the
 // service worker change them on their own schedule.
@@ -668,4 +686,7 @@ P.initInstall(chrome, () => {
 });
 
 window.addEventListener('popstate', () => loadLocation());
+// The slip's width changes with the screen, and the title's with its font once loaded.
+window.addEventListener('resize', fitTitle);
+document.fonts?.ready.then(fitTitle);
 loadLocation(read('seen') !== 1);

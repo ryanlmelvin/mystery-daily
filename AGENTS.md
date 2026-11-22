@@ -239,6 +239,10 @@ ink. Fonts are Abril Fatface (signs), Fraunces (text), Cinzel (engraving) and Ca
   screen, so the lever is always in reach. With every word collected, a three-doll
   case of up to 13 words fits one 375 by 812 screen without scrolling. Check 375 by
   812 and 375 by 667 when changing the layout.
+- The title stays on one line. That fit has no slack: a second line of title pushes
+  the last row of the tray under the dock. `fitTitle` in `src/main.js` sets a long
+  title in smaller type (19px down to 12px) until it fits the slip, and a test keeps
+  titles to 40 characters. Check a new long title at 375 wide.
 
 ## Licence
 

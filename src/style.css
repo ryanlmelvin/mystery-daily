@@ -215,7 +215,9 @@ h1, h2, h3, h4, p { margin: 0; }
   transform: rotate(-1.4deg);
 }
 
-.marquee h2 { font-family: var(--show); font-weight: 400; font-size: 19px; line-height: 1.08; }
+/* The line keeps its height when main.js sets a long title smaller (fitTitle), so the
+   slip and everything under it sit in the same place for every case. */
+.marquee h2 { font-family: var(--show); font-weight: 400; font-size: 19px; line-height: 20.5px; }
 
 .window {
   --sheet: var(--red);

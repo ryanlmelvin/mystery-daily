@@ -80,6 +80,18 @@ test('later UTC editions publish the composed cabinet for that date', () => {
   }
 });
 
+// The title is a slip pasted on one line across the window frame. main.js sets a long
+// title in smaller type to keep it there (a second line pushes the last row of the tray
+// under the penny dock), down to 12px. On a 375-wide phone the longest title today, at
+// 38 characters, needs 13.5px; much longer and it would wrap after all.
+test('every title is short enough to stay on one line of the slip', () => {
+  const titles = [...CASES, ...SAMPLES].map((c) => c.title);
+  for (let i = 0; i < 365; i++) {
+    titles.push(composeDay(new Date(Date.UTC(2026, 10, 26 + i)).toISOString().slice(0, 10)).title);
+  }
+  for (const title of titles) assert.ok(title.length <= 40, `"${title}" is ${title.length} characters`);
+});
+
 test('pre-launch dates and invalid calendar dates have no edition to open', () => {
   for (const date of ['2026-11-20', '2026-11-31', '2026-2-1', 'abc']) {
     assert.equal(dailyForDate(date), null);
