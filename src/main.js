@@ -20,6 +20,8 @@ const KIND = { person: 'who', thing: 'what', place: 'where' };
 const TRAY = { person: 'People', thing: 'Things', place: 'Places' };
 const ORDINAL = ['First', 'Second', 'Third', 'Fourth'];
 const STORE = 'penny:v1:';
+// Keep the shadow on the paper alone, including when the exhibit above it is moving.
+const PAPER_BACK = '<span class="paper" aria-hidden="true"></span>';
 
 const app = document.getElementById('app');
 const daily = today();
@@ -182,7 +184,7 @@ function plates() {
         ? '<span class="flag ok">All right</span>'
         : `<span class="flag bad${stale ? ' stale' : ''}">${stale ? 'was ' : ''}${wrong} wrong</span>`;
     }
-    return `<div class="plate paper" data-panel="${panel.id}"><div class="plate-head"><h3>${esc(panel.title)}</h3>${flag}</div>${body}</div>`;
+    return `<div class="plate" data-panel="${panel.id}">${PAPER_BACK}<div class="plate-head"><h3>${esc(panel.title)}</h3>${flag}</div>${body}</div>`;
   }).join('')}</div>`;
 }
 
@@ -207,6 +209,7 @@ function coinbar() {
   // bottom of the screen so the lever is always in reach, however big the case.
   return `${log ? `<ol class="log">${log}</ol>` : ''}
     <div class="dock">
+      ${PAPER_BACK}
       <p class="status" role="status">${esc(ui.message)}</p>
       <div class="coinbar">
         <div class="coins" aria-label="${left} pennies left">${coins}</div>
@@ -255,7 +258,8 @@ function card() {
   const n = c.exhibits.indexOf(ex) + 1;
   const lines = ex.lines.map(([style, text]) => `<p class="line ${style}">${E.segments(text).map((part) =>
     part.word ? `<mark class="k-${c.words[part.word]}">${esc(part.text)}</mark>` : esc(part.text)).join('')}</p>`).join('');
-  return `<div class="card paper" role="dialog" aria-label="${esc(ex.title)}">
+  return `<div class="card" role="dialog" aria-label="${esc(ex.title)}">
+      ${PAPER_BACK}
       <div class="card-head"><span class="badge">${n}</span><h3>${esc(ex.title)}</h3><button class="close" id="close" aria-label="Put it back">×</button></div>
       ${closeup(ex)}
       <div class="card-body">${lines}</div>
@@ -276,7 +280,8 @@ function playbill() {
   const how = c.path.map((s) => `<li><b>${esc(s.how)}.</b> ${esc(s.say)}</li>`).join('');
   const traps = (c.traps || []).map((t) => `<li>${esc(t.say)}</li>`).join('');
   const date = new Date(daily.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
-  return `<div class="playbill paper">
+  return `<div class="playbill">
+      ${PAPER_BACK}
       <div class="canopy" aria-hidden="true"></div>
       <p class="playbill-sign">Penny Tableau</p>
       <div class="stub"><span>Tonight's bill</span><span>${practice ? 'Practice' : `No. ${daily.edition} · ${esc(date)}`}</span></div>

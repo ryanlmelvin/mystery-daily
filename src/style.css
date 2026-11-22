@@ -346,28 +346,49 @@ h1, h2, h3, h4, p { margin: 0; }
 
 /* ---------- the works: plates, tray, coins ---------- */
 
-.works { position: relative; padding: 9px 10px calc(24px + env(safe-area-inset-bottom, 0px)); }
+.works {
+  --cut-edge: #fff8e6;
+  --pasted: 1px 1px 0 rgba(63, 38, 20, .26), 1px 2px 2px rgba(51, 29, 15, .16);
+  --loose: 0 0 0 1px var(--cut-edge), 1px 2px 0 1px rgba(85, 54, 27, .38), 2px 4px 4px rgba(51, 29, 15, .22);
+  position: relative;
+  padding: 10px 10px calc(24px + env(safe-area-inset-bottom, 0px));
+}
 
 .works:has(.dock) { padding-bottom: 0; }
 
-.plates { display: grid; gap: 6px; }
+.plate, .card, .playbill, .dock { position: relative; isolation: isolate; }
+
+/* Cast two shadows from the cut silhouette: contact at the edge and soft falloff
+   across the sheet underneath. The text and the moving close-up sit above this layer. */
+.works .paper {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  filter: drop-shadow(1px 1px .6px rgba(55, 31, 16, .32)) drop-shadow(2px 3px 2.5px rgba(55, 31, 16, .18));
+}
+
+.works .paper::before { background: var(--sheet) var(--noise); }
+.works .paper::after { background: var(--cut-edge); transform: translate(.4px, 1px); filter: none; }
+
+.plates { display: grid; gap: 8px; }
 
 .plate {
   --sheet: var(--paper);
-  padding: 6px 12px 8px;
+  padding: 7px 12px 9px;
   transform: rotate(.5deg);
 }
 
 .plate + .plate { --sheet: #e8f4ff; transform: rotate(-.5deg); }
 
-.plate-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 19px; margin-bottom: 3px; padding-bottom: 2px; border-bottom: 1.5px solid var(--ink); }
+.plate-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 19px; margin-bottom: 4px; padding-bottom: 2px; border-bottom: 1px solid rgba(65, 39, 25, .45); }
 
 .plate h3 {
-  font-family: var(--body);
-  font-style: italic;
-  font-weight: 750;
-  font-size: 13.5px;
-  color: var(--red);
+  font-family: var(--show);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.1;
+  color: var(--red-dark);
 }
 
 .plate p {
@@ -411,7 +432,7 @@ h1, h2, h3, h4, p { margin: 0; }
   margin: 0 1px;
   vertical-align: middle;
   border-radius: 2px;
-  border: 1.5px dashed var(--ink);
+  border: 1px solid rgba(75, 50, 30, .46);
   font-size: 14px;
   font-weight: 650;
   line-height: 24px;
@@ -420,8 +441,9 @@ h1, h2, h3, h4, p { margin: 0; }
 }
 
 .slot.empty {
-  background: rgba(255, 210, 58, .18);
-  color: rgba(28, 20, 16, .55);
+  background: color-mix(in srgb, var(--k) 17%, var(--sheet));
+  box-shadow: inset 1px 2px 2px rgba(63, 38, 20, .19), 0 1px 0 var(--cut-edge);
+  color: #594635;
   font-family: var(--cut);
   font-size: 9.5px;
   letter-spacing: .18em;
@@ -430,11 +452,11 @@ h1, h2, h3, h4, p { margin: 0; }
 
 /* A word is a scrap of tinted paper: yellow for people, blue for things, pink for places. */
 .slot.filled, .tile {
-  border: 0;
+  border: 1px solid rgba(66, 42, 25, .48);
   border-radius: 3px 6px 2px 5px / 5px 2px 6px 3px;
   background: var(--k);
   color: var(--ink);
-  box-shadow: 1px 2px 2px rgba(40, 10, 5, .45);
+  box-shadow: var(--pasted);
   transform: rotate(var(--r, 0deg));
 }
 
@@ -448,24 +470,24 @@ h1, h2, h3, h4, p { margin: 0; }
 .k-thing { --k: var(--thing); }
 .k-place { --k: var(--place); }
 
-.slot.sel { outline: 3px solid var(--paper); outline-offset: 1px; animation: nudge 1s ease-in-out infinite alternate; }
+.slot.sel { outline: 2px solid var(--red-dark); outline-offset: 1px; }
 
-@keyframes nudge { to { outline-color: var(--red); } }
-
-.slot.fixed { cursor: default; opacity: 1; --r: 0deg; box-shadow: 0 0 0 1px rgba(28, 20, 16, .25); }
+.slot.fixed { cursor: default; opacity: 1; --r: 0deg; box-shadow: none; }
 
 .slot:disabled { color: var(--ink); }
 
 .tray {
-  margin-top: 8px;
-  padding: 6px 7px 2px;
-  border: 2px dashed rgba(28, 20, 16, .45);
-  border-radius: 3px;
+  margin-top: 10px;
+  padding: 7px 8px 3px;
+  border: 1px solid #ae9162;
+  border-radius: 4px 6px 3px 5px;
+  background: #f1e1bb var(--noise);
+  box-shadow: inset 1px 2px 3px rgba(76, 47, 21, .20), inset 0 -1px 0 var(--cut-edge), 0 1px 0 var(--cut-edge);
 }
 
 .tray.empty { padding: 10px 12px; color: var(--ink); font-size: 14px; font-style: italic; text-align: center; }
 
-.tray-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-bottom: 4px; transition: opacity .15s; }
+.tray-row { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-bottom: 5px; transition: opacity .15s; }
 
 .tray-row.dim { opacity: .38; }
 
@@ -483,13 +505,16 @@ h1, h2, h3, h4, p { margin: 0; }
 
 .tile {
   height: 30px;
-  padding: 0 8px 2px;
+  padding: 0 7px 2px;
   font-size: 13.5px;
   font-weight: 650;
   white-space: nowrap;
+  box-shadow: var(--loose);
 }
 
-.tile:active { transform: rotate(var(--r, 0deg)) translateY(1px); }
+.tile:active { transform: translate(1px, 2px) rotate(var(--r, 0deg)); box-shadow: var(--pasted); }
+
+.works button:focus-visible { outline: 2px solid var(--teal-deep); outline-offset: 2px; }
 
 .tile.fresh { animation: land .45s cubic-bezier(.2, 1.5, .4, 1) both; }
 
@@ -497,13 +522,13 @@ h1, h2, h3, h4, p { margin: 0; }
 
 /* The dock is pinned to the bottom of the screen while the plates scroll under it. */
 .dock {
+  --sheet: var(--red);
+  --clip: var(--torn-top);
   position: sticky;
   bottom: 0;
   z-index: 5;
-  margin: 8px -10px 0;
-  padding: 13px 10px max(10px, env(safe-area-inset-bottom));
-  background: var(--red);
-  clip-path: var(--torn-top);
+  margin: 10px -6px 0;
+  padding: 17px 10px max(10px, env(safe-area-inset-bottom));
 }
 
 .coinbar { display: flex; align-items: center; gap: 10px; }
@@ -515,10 +540,11 @@ h1, h2, h3, h4, p { margin: 0; }
   height: 22px;
   border-radius: 50%;
   background: radial-gradient(circle, transparent 54%, #6a3a18 55% 60%, transparent 61%), repeating-linear-gradient(-35deg, rgba(60, 25, 8, .45) 0 .7px, transparent .7px 2.4px), radial-gradient(circle at 35% 30%, #ffc48a, var(--copper));
-  box-shadow: 0 0 0 2px var(--paper), 1px 2px 2px 1px rgba(0, 0, 0, .35);
+  border: 1px solid #78441f;
+  box-shadow: inset 1px 1px 0 #ffe4b5, inset -1px -1px 0 #ae5e27, var(--loose);
 }
 
-.coin.spent { background: transparent; box-shadow: none; outline: 2px dashed rgba(255, 250, 240, .6); outline-offset: -2px; }
+.coin.spent { background: rgba(87, 17, 10, .17); border: 1px dashed #ffdfbb; box-shadow: inset 1px 2px 2px rgba(62, 14, 8, .28); }
 
 .lever {
   flex: 1;
@@ -538,7 +564,16 @@ h1, h2, h3, h4, p { margin: 0; }
 
 .lever:active { transform: rotate(-.6deg) translate(1px, 2px); box-shadow: 0 1px 1px rgba(40, 10, 5, .5); }
 
+.works .lever, .works .knob.small, .works .plain {
+  border: 1px solid #705022;
+  box-shadow: var(--loose);
+}
+
+.works .lever:active, .works .knob.small:active, .works .plain:active { box-shadow: var(--pasted); }
+
 .status { min-height: 20px; margin-bottom: 4px; color: var(--paper); font-size: 14px; font-style: italic; text-align: center; white-space: pre-line; }
+
+.works .status:empty { min-height: 0; margin: 0; }
 
 .log { list-style: none; margin: 6px 0 0; padding: 0; color: var(--ink); font-size: 13px; text-align: center; }
 
@@ -568,7 +603,7 @@ h1, h2, h3, h4, p { margin: 0; }
   padding-top: 3px;
   border-radius: 2px 4px 2px 5px;
   background: radial-gradient(circle at 50% 3px, #f0cc66 0 2px, #6a4a18 2.2px 2.8px, transparent 3px), var(--red);
-  box-shadow: 1.5px 2.5px 2px rgba(28, 20, 16, .45);
+  box-shadow: var(--loose);
   color: var(--paper);
   font-family: var(--body);
   font-style: italic;
@@ -590,7 +625,7 @@ h1, h2, h3, h4, p { margin: 0; }
   overflow: hidden;
   border: 3px solid #fff;
   background: var(--paper);
-  box-shadow: 2px 3px 3px var(--cast);
+  box-shadow: 1px 2px 0 rgba(63, 38, 20, .25), 2px 4px 5px rgba(51, 29, 15, .20);
   transform: rotate(.6deg);
 }
 
@@ -609,7 +644,7 @@ h1, h2, h3, h4, p { margin: 0; }
   background: repeating-linear-gradient(transparent 0 25px, rgba(47, 98, 200, .18) 25px 26px), #fff8e0;
   background-position: 0 6px;
   border-radius: 3px 12px 4px 10px / 10px 4px 12px 3px;
-  box-shadow: 1.5px 2.5px 2px rgba(40, 10, 5, .35);
+  box-shadow: var(--pasted);
   transform: rotate(-.8deg);
 }
 
@@ -617,7 +652,7 @@ h1, h2, h3, h4, p { margin: 0; }
   padding: 7px 11px 8px;
   border-radius: 2px;
   background: #fff;
-  box-shadow: 1.5px 2.5px 2px rgba(40, 10, 5, .35), inset 0 0 0 3px #fff, inset 0 0 0 4px var(--ink);
+  box-shadow: var(--pasted), inset 0 0 0 3px #fff, inset 0 0 0 4px var(--ink);
   font-size: 15px;
   font-weight: 600;
   font-variant-caps: small-caps;
@@ -631,7 +666,7 @@ h1, h2, h3, h4, p { margin: 0; }
   padding: 5px 12px 6px;
   border-radius: 3px 6px 2px 5px;
   background: repeating-linear-gradient(-35deg, rgba(60, 25, 8, .14) 0 .7px, transparent .7px 2.6px), var(--brass-light);
-  box-shadow: 1.5px 2.5px 2px rgba(40, 10, 5, .35);
+  box-shadow: var(--pasted);
   font-family: var(--cut);
   font-weight: 700;
   font-size: 13.5px;
@@ -645,7 +680,7 @@ mark { background: none; color: inherit; font-weight: 750; box-shadow: inset 0 -
 
 .got span { font-family: var(--cut); font-weight: 700; font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--red-dark); margin-right: 2px; }
 
-.got i { font-style: normal; font-weight: 650; padding: 2px 8px 4px; border-radius: 3px 6px 2px 5px / 5px 2px 6px 3px; background: var(--k); box-shadow: 1px 2px 2px rgba(40, 10, 5, .45); animation: land .45s cubic-bezier(.2, 1.5, .4, 1) both; }
+.got i { font-style: normal; font-weight: 650; padding: 2px 8px 4px; border-radius: 3px 6px 2px 5px / 5px 2px 6px 3px; background: var(--k); box-shadow: var(--loose); animation: land .45s cubic-bezier(.2, 1.5, .4, 1) both; }
 
 .got i:nth-of-type(odd) { transform: rotate(-1.5deg); }
 .got i:nth-of-type(even) { transform: rotate(1.2deg); }
@@ -691,7 +726,7 @@ mark { background: none; color: inherit; font-weight: 750; box-shadow: inset 0 -
   text-align: center;
 }
 
-.playbill-sign { margin-top: 2px; }
+.playbill-sign { margin-top: 2px; color: var(--red-dark); text-shadow: 0 1px 0 var(--cut-edge); }
 
 .dialog-sign { font-size: 22px; }
 
@@ -718,7 +753,7 @@ dialog .edition { margin-top: 2px; }
 
 .grid-row { display: flex; gap: 4px; justify-content: center; }
 
-.grid i { width: 20px; height: 20px; border-radius: 2px 4px 2px 3px; background: var(--ink); box-shadow: 1px 1.5px 1px rgba(40, 10, 5, .4); }
+.grid i { width: 20px; height: 20px; border-radius: 2px 4px 2px 3px; background: var(--ink); box-shadow: var(--pasted); }
 
 .grid i.ok { background: #2f9a4a; }
 
