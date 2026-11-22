@@ -107,7 +107,7 @@ export function clearBlank(c, s, i, now) {
 
 export const ready = (s) => s.fills.every(Boolean);
 
-// Drop a penny: the machine checks the plates and says only how many tiles are wrong on each.
+// Inserting a penny checks the plates and reports how many tiles are wrong on each.
 export function dropPenny(c, s, now) {
   if (s.status !== 'play') return { ok: false, why: 'over' };
   if (!ready(s)) return { ok: false, why: 'unfilled' };

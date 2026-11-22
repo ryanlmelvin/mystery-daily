@@ -13,7 +13,7 @@ moment of a death. Nothing is explained. You work out who everyone is and what h
    is in a pocket, a letter, a label. Words you find drop into your tray.
 2. **Set the plates.** Tap a gap on a brass plate, then a tile. The first plate names
    the cast. The second says what happened.
-3. **Drop a penny.** The machine tells you only how many tiles are wrong on each plate,
+3. **Insert penny.** The machine tells you only how many tiles are wrong on each plate,
    never which. A plate with nothing wrong locks. You have four pennies.
 
 Looking costs nothing. The attendant has three tips: the first is free, and the other two

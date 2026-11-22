@@ -216,7 +216,7 @@ function coinbar() {
       <p class="status" role="status">${esc(ui.message)}</p>
       <div class="coinbar">
         <div class="coins" aria-label="${left} pennies left">${coins}</div>
-        <button class="lever" id="drop">Drop a penny</button>
+        <button class="lever" id="drop">Insert penny</button>
         <button class="knob small" id="tip" aria-label="Ask the attendant for a tip">Tip</button>
       </div>
     </div>`;
@@ -325,7 +325,7 @@ function howTo() {
     <ol class="steps">
       <li><b>Inspect.</b> The machine has jammed at the fatal moment. Tap the numbered tags to look closer. Words you find drop into your tray.</li>
       <li><b>Set the plates.</b> Tap a gap on a brass plate, then a tile. Name the cast, then say what happened.</li>
-      <li><b>Drop a penny.</b> The machine tells you only how many tiles are wrong on each plate. You have four pennies.</li>
+      <li><b>Insert penny.</b> The machine tells you only how many tiles are wrong on each plate. You have four pennies.</li>
     </ol>
     <div class="actions"><button class="lever" data-close>Play</button><button class="plain" id="others">Other cabinets</button></div>`);
 }

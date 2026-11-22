@@ -6,7 +6,7 @@ The Penny Murders is a daily clockwork mystery. Each five-minute case is a
 coin-operated arcade cabinet of cut-paper dolls, jammed at the moment of a death.
 The player reads numbered tags in the cabinet window, collects the words they find,
 sets them as tiles into two brass plates (who the dolls are, and what happened), and
-drops a penny to test the plates. Four pennies; each says only how many tiles are wrong
+inserts a penny to test the plates. Four pennies; each says only how many tiles are wrong
 on each plate. The daily rotation uses five hand-written cases. The arcade also offers composed cases and four hand-written approval samples.
 
 Static site, no server. Vanilla JS (ES modules), built with Vite. No framework, no
@@ -32,7 +32,7 @@ Dev pages and switches:
 ## Architecture
 
 - `src/engine.js`: the rules, pure and deterministic: collecting words, placing tiles,
-  dropping a penny, locking a plate, tips, the shared playbill. No DOM, no clock of its own.
+  inserting a penny, locking a plate, tips, the shared playbill. No DOM, no clock of its own.
 - `src/cases/*.js`: one case per file, as data. `src/cases/index.js` lists them in order
   of difficulty and renders their text.
 - `src/tell.js`: the telling. Renders each exhibit's text from its facts, and checks
