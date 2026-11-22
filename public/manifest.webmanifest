@@ -1,0 +1,17 @@
+{
+  "name": "Penny Tableau",
+  "short_name": "Penny Tableau",
+  "description": "A daily five-minute mystery in a penny arcade cabinet.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1f7f7c",
+  "theme_color": "#1f7f7c",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

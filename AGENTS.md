@@ -43,6 +43,10 @@ Dev pages and switches:
   plus where each exhibit's tag sits. `src/art/cogs.js`: the cog strip under the window.
 - `src/main.js`: the cabinet front (window, tags, plates, tray, lever, ticket, dialogs)
   and local saves. `src/style.css`: all styling.
+- `src/pwa.js`: install prompt and the update controller. `scripts/sw-template.js` is
+  the service worker; `scripts/sw-build.mjs` (run by the Vite build) writes `dist/sw.js`
+  with a version hashed from every shipped file. `public/update.html` is the standalone
+  update recovery page. `scripts/make-icons.mjs` draws `public/icons/*.png`.
 
 ## Writing a case
 
@@ -150,6 +154,23 @@ The repository belongs to the GitHub account `ryanlmelvin`. On the development m
 `gh` may have a different account active. Do not switch accounts; run `gh` and
 `git push` for this repository with `GH_TOKEN=$(gh auth token --user ryanlmelvin)` set
 for that command. Commits use the identity in this repository's own git config.
+
+## Installing and updating
+
+It is an installable PWA following `../GITHUB_PAGES_PWA_TIPS.md` (in the parent
+`side_projects` folder). The essentials:
+
+- The worker URL stays `./sw.js`. Its version changes by itself whenever any shipped file
+  changes, so there is nothing to bump. A new release installs in the background and
+  waits; the page shows **Update now** in a bar above the marquee and inside every
+  dialog. Accepting saves the game, activates the worker and reloads once; a stall
+  offers a retry and the recovery page.
+- The menu shows the release (the commit's short SHA) and the creator credit.
+- The Install knob (top left) stays visible in the browser and hides when installed.
+- `update.html` is never served from the worker's cache and never touches saves.
+- The worker is registered only in production builds. To test updates locally, build,
+  serve `dist` with `npx vite preview`, change something, build again, and wait for the
+  bar (or open `update.html`).
 
 ## Local saves
 

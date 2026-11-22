@@ -14,6 +14,7 @@ import { today } from './daily.js';
 import * as E from './engine.js';
 import { sceneSvg, scenePins } from './art/scenes.js';
 import { cogStrip } from './art/cogs.js';
+import * as P from './pwa.js';
 
 const KIND = { person: 'who', thing: 'what', place: 'where' };
 const TRAY = { person: 'People', thing: 'Things', place: 'Places' };
@@ -27,7 +28,8 @@ const params = new URLSearchParams(location.search);
 let c; // the case in the cabinet
 let state; // its saved game
 let practice = false; // true when the cabinet is not today's edition
-const ui = { sel: null, open: null, fresh: [], message: '', won: false };
+const ui = { sel: null, open: null, fresh: [], message: '', won: false, dialog: null, hideUpdate: false };
+const RELEASE = typeof __RELEASE__ === 'string' ? __RELEASE__ : 'dev';
 
 const esc = (t) => String(t).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 const $ = (sel) => app.querySelector(sel);
@@ -35,8 +37,13 @@ const $ = (sel) => app.querySelector(sel);
 function read(key) {
   try { return JSON.parse(localStorage.getItem(STORE + key)); } catch { return null; }
 }
+// Returns whether the write stuck, so an update can refuse to reload over unsaved play.
 function write(key, value) {
-  try { localStorage.setItem(STORE + key, JSON.stringify(value)); } catch { /* private window: play on without saving */ }
+  try {
+    const text = JSON.stringify(value);
+    localStorage.setItem(STORE + key, text);
+    return localStorage.getItem(STORE + key) === text;
+  } catch { return false; /* private window: play on without saving */ }
 }
 const save = () => write('game:' + c.id, state);
 
@@ -58,7 +65,9 @@ function frame() {
   <div class="cabinet">
     <h1 class="sr-only">Penny Tableau, ${practice ? 'practice cabinet' : `No. ${daily.edition}, ${esc(date)}`}</h1>
     <section class="stage">
+      <div class="updatebar" id="updatebar" role="status" hidden></div>
       <header class="top">
+        <button class="knob install" id="install" aria-label="Install Penny Tableau" title="Install" hidden>${INSTALL_ICON}</button>
         <div class="marquee"><h2>${esc(c.title)}</h2><p>${esc(c.where)}</p></div>
         <button class="knob" id="menu" aria-label="Menu">?</button>
       </header>
@@ -78,8 +87,51 @@ function frame() {
     <section class="works" id="works"></section>
   </div>
   <dialog id="dialog"></dialog>`;
+  // Closing a dialog hands focus back to whatever opened it (the Install knob, say).
+  document.getElementById('dialog').addEventListener('close', () => {
+    ui.dialog = null;
+    if (ui.returnFocus?.isConnected) ui.returnFocus.focus();
+  });
   draw();
+  chrome();
   if (!read('seen')) { write('seen', 1); howTo(); }
+}
+
+const INSTALL_ICON = '<svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M10 2.5v9.2M6 8l4 4 4-4M3.5 13.5v3h13v-3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+// The install knob and the update bar sit outside draw() because the installer and the
+// service worker change them on their own schedule.
+function chrome() {
+  const install = $('#install');
+  if (install) install.hidden = P.isInstalled();
+  const bar = $('#updatebar');
+  if (bar) {
+    const html = updateControls('bar');
+    bar.hidden = !html || ui.hideUpdate;
+    bar.innerHTML = html;
+  }
+  // A dialog covers the bar, so every dialog carries its own copy of the controls.
+  const inDialog = document.getElementById('dialog-update');
+  if (inDialog) {
+    const html = updateControls('dialog');
+    inDialog.hidden = !html;
+    inDialog.innerHTML = html;
+  }
+  const help = document.getElementById('install-help');
+  if (help) help.hidden = P.isInstalled();
+}
+
+function updateControls(where) {
+  const { state, error } = P.update;
+  const recovery = '<a href="./update.html">recovery page</a>';
+  if (state === 'ready') return `<span>A new version is ready.</span><button class="lever small" data-update="now">Update now</button>`;
+  if (state === 'working') return `<span>Updating…</span><button class="lever small" disabled>Update now</button>`;
+  if (state === 'reload') return `<span>A new version was installed.</span><button class="lever small" data-update="reload">Reload</button>`;
+  if (state === 'failed' && error === 'savefail') {
+    return `<span>Your game could not be saved, so updating now would lose it.</span><button class="lever small" data-update="anyway">Update anyway</button>${where === 'bar' ? '<button class="plain small" data-update="later">Not now</button>' : ''}`;
+  }
+  if (state === 'failed') return `<span>The update stalled. Try again, or use the ${recovery}.</span><button class="lever small" data-update="now">Try again</button>`;
+  return '';
 }
 
 function draw() {
@@ -216,11 +268,17 @@ function ticket() {
 
 function dialog(html) {
   const d = document.getElementById('dialog');
-  d.innerHTML = html;
-  if (!d.open) d.showModal();
+  d.removeAttribute('aria-labelledby');
+  d.innerHTML = html + '<div class="updatebar in-dialog" id="dialog-update" role="status" hidden></div>';
+  chrome();
+  if (!d.open) {
+    ui.returnFocus = document.activeElement;
+    d.showModal();
+  }
 }
 
 function howTo() {
+  ui.dialog = 'how';
   dialog(`<p class="dialog-sign">Penny Tableau</p>
     <h3>How to play</h3>
     <ol class="steps">
@@ -233,6 +291,7 @@ function howTo() {
 
 function others() {
   const date = new Date(daily.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+  ui.dialog = 'menu';
   dialog(`<p class="dialog-sign">Penny Tableau</p>
     <p class="edition">No. ${daily.edition} · ${esc(date)}</p>
     <h3>The arcade</h3>
@@ -242,10 +301,46 @@ function others() {
       const mark = !g ? 'Not played' : g.status === 'won' ? `Solved, ${g.tries.length} of ${E.PENNIES}` : g.status === 'lost' ? 'Out of pennies' : 'In play';
       return `<li><button class="plain row" data-case="${k.id}"><span><b>${n + 1}. ${esc(k.title)}</b>${k.id === daily.case.id ? ' <em>today</em>' : ''}</span><span>${mark}</span></button></li>`;
     }).join('')}</ul>
-    <div class="actions"><button class="plain" data-close>Close</button><button class="plain" id="how">How to play</button></div>`);
+    <div class="actions"><button class="plain" data-close>Close</button><button class="plain" id="how">How to play</button><button class="plain" id="install-help"${P.isInstalled() ? ' hidden' : ''}>Install</button></div>
+    <p class="about">By <a href="https://ryanlmelvin.com" target="_blank" rel="noopener">Ryan L. Melvin</a> · Release ${esc(RELEASE)} · <a href="./update.html">Update help</a></p>`);
+}
+
+function installDialog() {
+  ui.dialog = 'install';
+  dialog(`<h3 id="install-title">Install Penny Tableau</h3>
+    <p class="small">Put the cabinet on your home screen. It opens full screen and plays offline.</p>
+    <div class="platforms">
+      <details open><summary>iPhone or iPad</summary><ol>
+        <li>Open Penny Tableau in Safari.</li>
+        <li>Tap Share (the square with an up arrow). You may need to open the … menu first.</li>
+        <li>Choose Add to Home Screen. If it is missing, look under Edit Actions.</li>
+        <li>Turn on Open as Web App if it is shown, then tap Add.</li></ol></details>
+      <details open><summary>Android</summary><ol>
+        <li>Open Penny Tableau in Chrome.</li>
+        <li>Tap the ⋮ menu, then Add to home screen or Install app.</li>
+        <li>Choose Install if offered and follow the prompts.</li></ol></details>
+      <details><summary>Computer</summary><ol>
+        <li>In Chrome or Edge, look for Install in the address bar or the browser menu.</li>
+        <li>On a Mac in Safari, choose File → Add to Dock.</li></ol></details>
+    </div>
+    <div class="actions"><button class="plain" data-close>Close</button></div>`);
+  document.getElementById('dialog').setAttribute('aria-labelledby', 'install-title');
+}
+
+async function install() {
+  if (P.canPrompt()) { await P.promptInstall(); return chrome(); }
+  installDialog();
+}
+
+function startUpdate(discard = false) {
+  ui.hideUpdate = false;
+  // Saves are written on every move; write once more and check it stuck before reloading.
+  P.applyUpdate(() => (c ? save() : true), { discard }).catch(() => chrome());
+  chrome();
 }
 
 function tipDialog() {
+  ui.dialog = 'tip';
   const next = state.tips;
   const offer = next === 0
     ? 'The first tip is free.'
@@ -344,6 +439,13 @@ app.addEventListener('click', (ev) => {
   const el = ev.target.closest('button');
   if (!el) return;
   if (el.dataset.close !== undefined) return document.getElementById('dialog').close();
+  if (el.dataset.update) {
+    const u = el.dataset.update;
+    if (u === 'now') return startUpdate();
+    if (u === 'anyway') return startUpdate(true);
+    if (u === 'reload') return P.reloadNow();
+    if (u === 'later') { ui.hideUpdate = true; return chrome(); }
+  }
   if (el.dataset.case) { document.getElementById('dialog').close(); return load(el.dataset.case); }
   if (el.dataset.ex) return ui.open === el.dataset.ex ? (ui.open = null, draw()) : openExhibit(el.dataset.ex);
   if (el.dataset.i !== undefined) return tapSlot(Number(el.dataset.i));
@@ -364,6 +466,8 @@ app.addEventListener('click', (ev) => {
     case 'share': return share();
     case 'again': state = E.newGame(c); save(); Object.assign(ui, { sel: null, open: null, fresh: [], message: '' }); return draw();
     case 'others': case 'menu': return others();
+    case 'install': return install();
+    case 'install-help': return installDialog();
     case 'how': return howTo();
     default: return undefined;
   }
@@ -371,6 +475,13 @@ app.addEventListener('click', (ev) => {
 
 document.addEventListener('keydown', (ev) => {
   if (ev.key === 'Escape' && ui.open) { ui.open = null; draw(); }
+});
+
+P.initUpdates(chrome);
+P.initInstall(chrome, () => {
+  const d = document.getElementById('dialog');
+  if (d.open && ui.dialog === 'install') d.close();
+  chrome();
 });
 
 const wanted = params.get('case');

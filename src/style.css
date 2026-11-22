@@ -31,7 +31,7 @@
 
 * { box-sizing: border-box; }
 
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; background: var(--teal); }
 
 body {
   margin: 0;
@@ -41,6 +41,9 @@ body {
   font-size: 16px;
   line-height: 1.4;
   min-height: 100dvh;
+  /* The body owns the side insets; the top bar owns the top inset and the dock (or the
+     works padding) owns the bottom one. */
+  padding: 0 env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px);
 }
 
 button {
@@ -101,10 +104,62 @@ h1, h2, h3, h4, p { margin: 0; }
 
 .knob::before { content: ''; position: absolute; inset: -6px; border-radius: 50%; }
 
+.knob.install { right: auto; left: 0; display: grid; place-items: center; background: var(--cream); }
+
+.knob[hidden] { display: none; }
+
+
+
+/* Shown only when there is an update to take, or a failure to act on. */
+.updatebar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 10px;
+  margin: max(8px, env(safe-area-inset-top)) 0 0;
+  padding: 6px 10px;
+  background: var(--cream);
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  box-shadow: 0 3px 0 var(--teal-deep);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.updatebar[hidden] { display: none; }
+
+.updatebar:not([hidden]) + .top { padding-top: 8px; }
+
+.updatebar:not([hidden]) + .top .knob { top: 8px; }
+
+.updatebar a, .about a { color: var(--red-dark); }
+
+.updatebar.in-dialog { margin: 14px 0 0; box-shadow: none; background: #fbefc9; }
+
+.lever.small { flex: 0 0 auto; height: 34px; padding: 0 14px 2px; font-size: 15px; box-shadow: 0 3px 0 var(--ink); }
+
+.lever:disabled { opacity: .6; cursor: default; }
+
+.plain.small { height: 34px; font-size: 14px; }
+
+/* Compact installed iPhone in portrait: the Home Screen status bar blurs content right
+   under it, so the top bar steps down a little further (the workaround used in Plainlet
+   and DrumCue; not an Apple value). */
+@media (max-width: 600px) and (display-mode: standalone) and (orientation: portrait) {
+  :root { --top-gap: calc(env(safe-area-inset-top, 0px) + 24px); }
+  .top { padding-top: var(--top-gap); }
+  .knob { top: var(--top-gap); }
+  .updatebar { margin-top: var(--top-gap); }
+}
+
 .knob:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
 
 .knob.small {
-  position: static;
+  position: relative;
+  top: auto;
+  right: auto;
   width: auto;
   height: 40px;
   padding: 0 14px;
@@ -270,7 +325,7 @@ h1, h2, h3, h4, p { margin: 0; }
 
 /* ---------- the works: plates, tray, coins ---------- */
 
-.works { position: relative; padding: 9px 10px 24px; }
+.works { position: relative; padding: 9px 10px calc(24px + env(safe-area-inset-bottom, 0px)); }
 
 .works:has(.dock) { padding-bottom: 0; }
 
@@ -470,6 +525,7 @@ h1, h2, h3, h4, p { margin: 0; }
   font-family: var(--show);
   font-size: 18px;
   letter-spacing: .01em;
+  white-space: nowrap;
   box-shadow: 0 4px 0 var(--ink), inset 0 2px 0 rgba(255, 255, 255, .25);
 }
 
@@ -689,6 +745,16 @@ dialog h3 { font-family: var(--show); font-weight: 400; font-size: 24px; margin-
 
 .row em { font-style: normal; font-family: var(--cut); font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--red); margin-left: 4px; }
 
+.about { margin-top: 14px; font-size: 13px; text-align: center; color: var(--wood-dark); }
+
+.platforms { display: grid; gap: 8px; margin-top: 10px; }
+
+.platforms details { border: 2px solid var(--ink); border-radius: 10px; background: var(--cream); padding: 0 12px; }
+
+.platforms summary { min-height: 42px; display: flex; align-items: center; font-weight: 700; cursor: pointer; }
+
+.platforms ol { margin: 0 0 10px; padding-left: 20px; font-size: 14.5px; line-height: 1.38; display: grid; gap: 4px; }
+
 .row span:last-child { flex: none; font-style: italic; color: var(--wood-dark); font-size: 13px; }
 
 /* ---------- wide screens: window on the left, works on the right ---------- */
@@ -700,6 +766,11 @@ dialog h3 { font-family: var(--show); font-weight: 400; font-size: 24px; margin-
 
 @media (max-width: 359px) {
   .slot { min-width: 72px; }
+  .coinbar { gap: 7px; }
+  .coins { gap: 3px; }
+  .coin { width: 18px; height: 18px; }
+  .lever { padding: 0 10px 2px; font-size: 16.5px; }
+  .knob.small { padding: 0 11px; }
   .plate p { font-size: 14.5px; }
 }
 
