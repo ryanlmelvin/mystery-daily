@@ -226,11 +226,9 @@ function card() {
   return `<div class="card" role="dialog" aria-label="${esc(ex.title)}">
       <div class="card-head"><span class="badge">${n}</span><h3>${esc(ex.title)}</h3><button class="close" id="close" aria-label="Put it back">×</button></div>
       <div class="card-body">${lines}</div>
-      ${ui.fresh.length ? `<p class="got"><span>Into your tray</span>${ui.fresh.map((w) => `<i class="k-${c.words[w]}">${esc(w)}</i>`).join('')}</p>` : ''}
+      ${ui.fresh.length ? `<p class="got"><span>Words added</span>${ui.fresh.map((w) => `<i class="k-${c.words[w]}">${esc(w)}</i>`).join('')}</p>` : ''}
       <div class="card-foot">
-        <button class="plain" id="prev" aria-label="Previous tag">‹</button>
-        <button class="plain wide" id="back">Back to the plates</button>
-        <button class="plain" id="next" aria-label="Next tag">›</button>
+        <button class="plain wide" id="back">Back</button>
       </div>
     </div>`;
 }
@@ -380,11 +378,6 @@ function openExhibit(id) {
   draw();
 }
 
-function step(delta) {
-  const i = c.exhibits.findIndex((e) => e.id === ui.open);
-  openExhibit(c.exhibits[(i + delta + c.exhibits.length) % c.exhibits.length].id);
-}
-
 function tapSlot(i) {
   if (ui.sel === i && state.fills[i]) {
     E.clearBlank(c, state, i, Date.now());
@@ -466,8 +459,6 @@ app.addEventListener('click', (ev) => {
   if (el.dataset.w) return tapTile(el.dataset.w);
   switch (el.id) {
     case 'close': case 'back': ui.open = null; ui.fresh = []; return draw();
-    case 'prev': return step(-1);
-    case 'next': return step(1);
     case 'drop': return drop();
     case 'tip': return tipDialog();
     case 'take-tip': {
