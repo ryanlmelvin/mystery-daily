@@ -248,7 +248,7 @@ function ticket() {
       <div class="stub"><span>Admit one</span><span>${practice ? 'Practice' : `No. ${daily.edition} · ${esc(date)}`}</span></div>
       <h3>${won ? `Solved for ${state.tries.length === 1 ? 'one penny' : state.tries.length + ' pennies'}` : 'The machine keeps your pennies'}</h3>
       <div class="grid" aria-label="Your pennies, one row each">${grid}</div>
-      <p class="meta">${E.clock(secs)} · ${state.opened.length} of ${c.exhibits.length} tags read · ${paid ? paid + (paid === 1 ? ' tip' : ' tips') : 'no tips'}</p>
+      <p class="meta">${E.clock(secs)} · ${paid ? paid + (paid === 1 ? ' tip' : ' tips') : 'no tips'}</p>
       <div class="actions">
         <button class="lever" id="share">Copy ticket</button>
         <button class="plain" id="again">Play again</button>
