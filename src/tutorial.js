@@ -52,7 +52,8 @@ export function restoreTutorial(saved) {
 
   const validAttempt = (t) => hasGaps(t?.fills) && hasGaps(t.marks) &&
     t.marks.every((mark, i) => mark === (t.fills[i] === blanks[i].answer)) && Number.isInteger(t.wrong?.story);
-  if (!saved.tries.every(validAttempt) || !saved.log.every((row) => typeof row?.[1] === 'string')) return fresh;
+  if (!saved.tries.every(validAttempt) ||
+      !saved.log.every((row) => Array.isArray(row) && typeof row[1] === 'string')) return fresh;
   if (saved.tries.every((t) => Object.hasOwn(t.wrong, 'cast'))) return saved;
 
   // Both gaps used to share one plate. Some old games changed a correct tile
