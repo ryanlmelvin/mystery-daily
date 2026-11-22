@@ -139,6 +139,9 @@ Publish finished work without asking. When a change is done and `npm test` and
 `npm run check:cases` pass, commit it to `main` and push, then confirm the deploy
 succeeded. Do not stop to ask whether to commit or publish.
 
+Other sessions push to `main` too. Fetch and rebase onto `origin/main` before pushing,
+and never force-push.
+
 Publishing is a push to `main`: `.github/workflows/deploy.yml` runs `npm test` and
 `npm run build`, then deploys `dist/` to GitHub Pages. `dist/` is never committed. The
 live site is https://ryanlmelvin.github.io/mystery-daily/.
