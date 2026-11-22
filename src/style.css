@@ -13,6 +13,7 @@
   --red: #d5362d;
   --red-dark: #a2251f;
   --mustard: #e9ad2f;
+  --bill: #f3c94f;
   --brass: #dcb659;
   --brass-light: #f1d88f;
   --brass-dark: #9c7628;
@@ -66,7 +67,7 @@ h1, h2, h3, h4, p { margin: 0; }
 /* ---------- case sign ---------- */
 
 /* No standing header on the play screen: the case marquee sits at the top of the
-   window frame with the menu knob beside it. The awning lives on the end ticket. */
+   window frame with the menu knob beside it. The awning lives on the end playbill. */
 
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
@@ -637,13 +638,14 @@ mark { background: none; color: inherit; font-weight: 750; box-shadow: inset 0 -
 
 .plain.wide { flex: 1; }
 
-/* ---------- the ticket ---------- */
+/* ---------- the playbill ---------- */
 
-.ticket {
+.playbill {
   margin-top: 12px;
   padding: 0 16px 16px;
   overflow: hidden;
-  background: var(--paper);
+  /* Mustard, so both the cherry and the cream stripes of the awning stand out. */
+  background: var(--bill);
   border: 2px solid var(--ink);
   border-radius: 12px;
   box-shadow: 0 4px 0 var(--teal-deep);
@@ -651,9 +653,9 @@ mark { background: none; color: inherit; font-weight: 750; box-shadow: inset 0 -
   animation: rise .3s ease-out both;
 }
 
-.ticket .canopy { margin: 0 -16px; }
+.playbill .canopy { margin: 0 -16px; }
 
-.ticket-sign, .dialog-sign {
+.playbill-sign, .dialog-sign {
   font-family: var(--show);
   font-size: 26px;
   line-height: 1.05;
@@ -663,7 +665,7 @@ mark { background: none; color: inherit; font-weight: 750; box-shadow: inset 0 -
   text-align: center;
 }
 
-.ticket-sign { margin-top: 2px; }
+.playbill-sign { margin-top: 2px; }
 
 .dialog-sign { font-size: 22px; }
 
@@ -684,7 +686,7 @@ dialog .edition { margin-top: 2px; }
   text-transform: uppercase;
 }
 
-.ticket h3 { font-family: var(--show); font-weight: 400; font-size: 24px; line-height: 1.1; }
+.playbill h3 { font-family: var(--show); font-weight: 400; font-size: 24px; line-height: 1.1; }
 
 .grid { margin: 10px 0 6px; display: grid; gap: 4px; justify-content: center; }
 
@@ -700,11 +702,11 @@ dialog .edition { margin-top: 2px; }
 
 .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 12px; }
 
-.ticket .lever, dialog .lever { flex: 0 1 auto; }
+.playbill .lever, dialog .lever { flex: 0 1 auto; }
 
-.ticket .status { color: var(--wood-dark); }
+.playbill .status { color: var(--wood-dark); }
 
-.ticket h4 {
+.playbill h4 {
   margin: 12px 0 4px;
   font-family: var(--cut);
   font-weight: 700;

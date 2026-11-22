@@ -131,7 +131,7 @@ export function dropPenny(c, s, now) {
   return { ok: true, attempt, status: s.status };
 }
 
-// Three tips, each blunter than the last. The first is free; the others show on the ticket.
+// Three tips, each blunter than the last. The first is free; the others show on the playbill.
 export function takeTip(c, s, now) {
   if (s.status !== 'play') return null;
   const tier = s.tips;
@@ -161,7 +161,7 @@ export function seconds(s, now) {
 
 export const clock = (secs) => `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
 
-// The spoiler-free ticket: one row per penny, one square per tile, cast then story.
+// The spoiler-free playbill: one row per penny, one square per tile, cast then story.
 export function shareText(c, s, edition, link = '') {
   const blanks = blanksOf(c);
   const rows = s.tries.map((t) => {

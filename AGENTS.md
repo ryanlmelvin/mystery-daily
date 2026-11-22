@@ -30,7 +30,7 @@ Dev pages and switches:
 ## Architecture
 
 - `src/engine.js`: the rules, pure and deterministic: collecting words, placing tiles,
-  dropping a penny, locking a plate, tips, the share ticket. No DOM, no clock of its own.
+  dropping a penny, locking a plate, tips, the shared playbill. No DOM, no clock of its own.
 - `src/cases/*.js`: one case per file, as data. `src/cases/index.js` lists them in order
   of difficulty and renders their text.
 - `src/tell.js`: the telling. Renders each exhibit's text from its facts, and checks
@@ -45,7 +45,7 @@ Dev pages and switches:
 - `src/art/kit.js`: palette and SVG primitives. `src/art/doll.js`: the dolls.
   `src/art/props.js`: sets and props. `src/art/scenes.js`: one composed scene per case,
   plus where each exhibit's tag sits. `src/art/cogs.js`: the cog strip under the window.
-- `src/main.js`: the cabinet front (window, tags, plates, tray, lever, ticket, dialogs)
+- `src/main.js`: the cabinet front (window, tags, plates, tray, lever, playbill, dialogs)
   and local saves. `src/style.css`: all styling.
 - `src/pwa.js`: install prompt and the update controller. `scripts/sw-template.js` is
   the service worker; `scripts/sw-build.mjs` (run by the Vite build) writes `dist/sw.js`
@@ -195,7 +195,7 @@ Fonts are Abril Fatface (signs), Fraunces (text), Cinzel (engraving) and Caveat
 - A plate with nothing wrong locks.
 - The solution and its reasoning are always shown at the end, win or lose.
 - Phone first. The play screen has no standing header: the case marquee sits on the
-  window frame, and the game name, edition and awning live on the end ticket and in
+  window frame, and the game name, edition and awning live on the end playbill and in
   the menu. The coins, lever and status sit in a dock pinned to the bottom of the
   screen, so the lever is always in reach. With every word collected, a three-doll
   case of up to 13 words fits one 375 by 812 screen without scrolling. Check 375 by

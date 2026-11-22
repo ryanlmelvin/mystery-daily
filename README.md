@@ -17,9 +17,9 @@ moment of a death. Nothing is explained. You work out who everyone is and what h
    never which. A plate with nothing wrong locks. You have four pennies.
 
 Looking costs nothing. The attendant has three tips: the first is free, and the other two
-are marked on your ticket. Win or lose, the cabinet then shows how it was done.
+are marked on your playbill. Win or lose, the cabinet then shows how it was done.
 
-The ticket you can copy is spoiler-free: one row per penny, one square per tile.
+The playbill you can copy is spoiler-free: one row per penny, one square per tile.
 
 ```
 Penny Tableau · No. 1 · 2/4 🪙

@@ -118,7 +118,7 @@ test('tips: two written ones, then the attendant sets a story tile', () => {
   assert.equal(E.paidTips(s), 2);
 });
 
-test('the ticket shows one row per penny and spoils nothing', () => {
+test('the playbill shows one row per penny and spoils nothing', () => {
   const s = E.newGame(toy);
   openAll(s);
   fill(s, ['Ann', 'Cy', 'Bob', 'key']);

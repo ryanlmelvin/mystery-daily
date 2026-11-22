@@ -145,7 +145,7 @@ function draw() {
   const banner = $('#banner');
   banner.hidden = !over;
   if (over) banner.textContent = state.status === 'won' ? 'The machine runs' : 'Out of pennies';
-  $('#works').innerHTML = ui.open ? card() : over ? plates() + ticket() : plates() + tray() + coinbar();
+  $('#works').innerHTML = ui.open ? card() : over ? plates() + playbill() : plates() + tray() + coinbar();
 }
 
 function plates() {
@@ -232,7 +232,7 @@ function card() {
     </div>`;
 }
 
-function ticket() {
+function playbill() {
   const blanks = E.blanksOf(c);
   const won = state.status === 'won';
   const secs = E.seconds(state, Date.now());
@@ -242,15 +242,15 @@ function ticket() {
   const how = c.path.map((s) => `<li><b>${esc(s.how)}.</b> ${esc(s.say)}</li>`).join('');
   const traps = (c.traps || []).map((t) => `<li>${esc(t.say)}</li>`).join('');
   const date = new Date(daily.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
-  return `<div class="ticket">
+  return `<div class="playbill">
       <div class="canopy" aria-hidden="true"></div>
-      <p class="ticket-sign">Penny Tableau</p>
-      <div class="stub"><span>Admit one</span><span>${practice ? 'Practice' : `No. ${daily.edition} · ${esc(date)}`}</span></div>
+      <p class="playbill-sign">Penny Tableau</p>
+      <div class="stub"><span>Tonight's bill</span><span>${practice ? 'Practice' : `No. ${daily.edition} · ${esc(date)}`}</span></div>
       <h3>${won ? `Solved for ${state.tries.length === 1 ? 'one penny' : state.tries.length + ' pennies'}` : 'The machine keeps your pennies'}</h3>
       <div class="grid" aria-label="Your pennies, one row each">${grid}</div>
       <p class="meta">${E.clock(secs)} · ${paid ? paid + (paid === 1 ? ' tip' : ' tips') : 'no tips'}</p>
       <div class="actions">
-        <button class="lever" id="share">Copy ticket</button>
+        <button class="lever" id="share">Copy playbill</button>
         <button class="plain" id="again">Play again</button>
         <button class="plain" id="others">Other cabinets</button>
       </div>
@@ -356,8 +356,8 @@ function tipDialog() {
   const offer = next === 0
     ? 'The first tip is free.'
     : next === 1
-      ? 'A second, blunter tip will be marked on your ticket.'
-      : 'The attendant can set one tile for you. It will be marked on your ticket.';
+      ? 'A second, blunter tip will be marked on your playbill.'
+      : 'The attendant can set one tile for you. It will be marked on your playbill.';
   const told = c.tips.slice(0, Math.min(next, 2)).map((t) => `<li>${esc(t)}</li>`).join('');
   dialog(`<h3>Ask the attendant</h3>
     ${told ? `<ul class="told">${told}</ul>` : ''}
@@ -434,7 +434,7 @@ async function share() {
   const text = E.shareText(c, state, practice ? 'practice' : daily.edition, link.startsWith('http://localhost') || link.startsWith('http://127.') ? '' : link);
   try {
     await navigator.clipboard.writeText(text);
-    ui.message = 'Ticket copied.';
+    ui.message = 'Playbill copied.';
   } catch {
     ui.message = text;
   }
