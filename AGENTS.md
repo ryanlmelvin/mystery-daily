@@ -93,9 +93,12 @@ Fonts are Abril Fatface (signs), Fraunces (text), Cinzel (engraving) and Caveat
 - The machine never says which tile is wrong, only how many on each plate.
 - A plate with nothing wrong locks.
 - The solution and its reasoning are always shown at the end, win or lose.
-- Phone first. The smallest case (three dolls, nine words) fits one 375 by 812 screen
-  with the lever in view; larger cases scroll a little to reach the lever. Check both
-  when changing the layout.
+- Phone first. The play screen has no standing header: the case marquee sits on the
+  window frame, and the game name, edition and awning live on the end ticket and in
+  the menu. The coins, lever and status sit in a dock pinned to the bottom of the
+  screen, so the lever is always in reach. With every word collected, a three-doll
+  case of up to 13 words fits one 375 by 812 screen without scrolling. Check 375 by
+  812 and 375 by 667 when changing the layout.
 
 ## Licence
 

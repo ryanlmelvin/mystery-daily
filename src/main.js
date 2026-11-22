@@ -56,16 +56,12 @@ function frame() {
   const date = new Date(daily.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
   app.innerHTML = `
   <div class="cabinet">
-    <header class="top">
-      <div class="canopy" aria-hidden="true"></div>
-      <div class="sign">
-        <h1>Penny Tableau</h1>
-        <p class="edition">${practice ? 'Practice cabinet' : `No. ${daily.edition} · ${esc(date)}`}</p>
-      </div>
-      <button class="knob" id="menu" aria-label="Menu">?</button>
-    </header>
+    <h1 class="sr-only">Penny Tableau, ${practice ? 'practice cabinet' : `No. ${daily.edition}, ${esc(date)}`}</h1>
     <section class="stage">
-      <div class="marquee"><h2>${esc(c.title)}</h2><p>${esc(c.where)}</p></div>
+      <header class="top">
+        <div class="marquee"><h2>${esc(c.title)}</h2><p>${esc(c.where)}</p></div>
+        <button class="knob" id="menu" aria-label="Menu">?</button>
+      </header>
       <div class="window" id="window">
         <div class="glass">
           ${sceneSvg(c.scene)}
@@ -156,13 +152,17 @@ function coinbar() {
   const log = state.tries.map((t, n) =>
     `<li><b>${ORDINAL[n]} penny</b> ${c.panels.map((p) => `${p.id}: ${t.wrong[p.id] ? t.wrong[p.id] + ' wrong' : 'all right'}`).join(' · ')}</li>`).join('');
   const seen = `${state.opened.length} of ${c.exhibits.length} tags read`;
-  return `<div class="coinbar">
-      <div class="coins" aria-label="${left} pennies left">${coins}</div>
-      <button class="lever" id="drop">Drop a penny</button>
-      <button class="knob small" id="tip" aria-label="Ask the attendant for a tip">Tip</button>
-    </div>
-    <p class="status" role="status">${esc(ui.message || seen)}</p>
-    ${log ? `<ol class="log">${log}</ol>` : ''}`;
+  // The log scrolls with the page; the dock (status, coins, lever) stays pinned to the
+  // bottom of the screen so the lever is always in reach, however big the case.
+  return `${log ? `<ol class="log">${log}</ol>` : ''}
+    <div class="dock">
+      <p class="status" role="status">${esc(ui.message || seen)}</p>
+      <div class="coinbar">
+        <div class="coins" aria-label="${left} pennies left">${coins}</div>
+        <button class="lever" id="drop">Drop a penny</button>
+        <button class="knob small" id="tip" aria-label="Ask the attendant for a tip">Tip</button>
+      </div>
+    </div>`;
 }
 
 function card() {
@@ -192,8 +192,11 @@ function ticket() {
     `<i class="${ok ? 'ok' : 'no'}${i > 0 && blanks[i].panel !== blanks[i - 1].panel ? ' gap' : ''}"></i>`).join('')}</div>`).join('');
   const how = c.path.map((s) => `<li><b>${esc(s.how)}.</b> ${esc(s.say)}</li>`).join('');
   const traps = (c.traps || []).map((t) => `<li>${esc(t.say)}</li>`).join('');
+  const date = new Date(daily.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
   return `<div class="ticket">
-      <div class="stub"><span>Admit one</span><span>${practice ? 'Practice' : 'No. ' + daily.edition}</span></div>
+      <div class="canopy" aria-hidden="true"></div>
+      <p class="ticket-sign">Penny Tableau</p>
+      <div class="stub"><span>Admit one</span><span>${practice ? 'Practice' : `No. ${daily.edition} · ${esc(date)}`}</span></div>
       <h3>${won ? `Solved for ${state.tries.length === 1 ? 'one penny' : state.tries.length + ' pennies'}` : 'The machine keeps your pennies'}</h3>
       <div class="grid" aria-label="Your pennies, one row each">${grid}</div>
       <p class="meta">${E.clock(secs)} · ${state.opened.length} of ${c.exhibits.length} tags read · ${paid ? paid + (paid === 1 ? ' tip' : ' tips') : 'no tips'}</p>
@@ -218,7 +221,8 @@ function dialog(html) {
 }
 
 function howTo() {
-  dialog(`<h3>How to play</h3>
+  dialog(`<p class="dialog-sign">Penny Tableau</p>
+    <h3>How to play</h3>
     <ol class="steps">
       <li><b>Inspect.</b> The machine has jammed at the fatal moment. Tap the numbered tags to look closer. Words you find drop into your tray.</li>
       <li><b>Set the plates.</b> Tap a gap on a brass plate, then a tile. Name the cast, then say what happened.</li>
@@ -228,7 +232,10 @@ function howTo() {
 }
 
 function others() {
-  dialog(`<h3>The arcade</h3>
+  const date = new Date(daily.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+  dialog(`<p class="dialog-sign">Penny Tableau</p>
+    <p class="edition">No. ${daily.edition} · ${esc(date)}</p>
+    <h3>The arcade</h3>
     <p class="small">Today's cabinet is marked. The others are for practice.</p>
     <ul class="arcade">${CASES.map((k, n) => {
       const g = read('game:' + k.id);
