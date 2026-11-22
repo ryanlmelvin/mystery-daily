@@ -20,11 +20,27 @@
 <script type="module">
 import { sceneIds, sceneSvg, scenePins } from './src/art/scenes.js';
 import { CASES } from './src/cases/index.js';
+import { composeDay, SETTING_IDS } from './src/compose.js';
 const only = new URLSearchParams(location.search).get('scene');
 const sheet = document.getElementById('sheet');
 if (new URLSearchParams(location.search).get('big')) document.body.style.setProperty('--fw', '860px');
 if (new URLSearchParams(location.search).get('nopins')) document.body.classList.add('nopins');
+// Composed cases: ?composed=1 shows the first date found in each setting, mirrored or not.
+if (new URLSearchParams(location.search).get('composed')) {
+  const found = {};
+  for (let i = 0; i < 60 && Object.keys(found).length < SETTING_IDS.length * 2; i++) {
+    const date = new Date(Date.UTC(2026, 10, 26 + i)).toISOString().slice(0, 10);
+    const c = composeDay(date);
+    const key = c.composed.setting + (c.scene.mirror ? ' mirrored' : '');
+    if (!found[key]) found[key] = c;
+  }
+  for (const [key, c] of Object.entries(found).sort()) {
+    const pins = c.exhibits.map((ex, n) => { const [x, y] = scenePins(c.scene)[ex.id]; return `<span class="pin" title="${ex.id}" style="left:${x / 4}%;top:${y / 2.8}%">${n + 1}</span>`; }).join('');
+    sheet.insertAdjacentHTML('beforeend', `<h2>${key}: ${c.title} (${c.composed.date})</h2><div class="frame">${sceneSvg(c.scene)}${pins}</div>`);
+  }
+}
 for (const id of sceneIds) {
+  if (new URLSearchParams(location.search).get('composed')) break;
   if (only && only !== id) continue;
   // Number the tags as the game does: in the order the case lists its exhibits.
   const order = (CASES.find((c) => c.scene === id)?.exhibits || []).map((e) => e.id);

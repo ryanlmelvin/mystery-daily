@@ -40,6 +40,15 @@ Penny Tableau · No. 1 · 2/4 🪙
 Today's cabinet is picked by the UTC date, and the five repeat. The **?** button opens the
 arcade, where the other four can be played as practice.
 
+## On trial: composed cabinets
+
+The arcade also lists three cabinets **on trial**. These were not written by hand: a
+composer built each one from a date (cast, clues, text, plates, explanation and scene)
+and put it through the same proof as the hand-written five. So far it knows one kind of
+crime, the interrupted theft, and stages it in a glasshouse, a library or a plate room.
+Any date has its own: add `?date=2026-11-26` to the address. They are not part of the
+daily run yet.
+
 ## Run it
 
 Requires Node.js 22 or newer.
@@ -55,7 +64,9 @@ budget; add `-- --why` to see how each answer is reached.
 
 ## What is not built yet
 
-- Only five cases, all hand-written. There is no case generator.
+- The daily run is still five hand-written cases. The composer knows one kind of crime,
+  so its cases share a shape: the same eight exhibits and the same sentence, with
+  different people, things and rooms. Nobody has judged yet whether they are fun.
 - Each case is proved to have exactly one answer, but only inside a model: every exhibit
   is a list of facts in a fixed vocabulary, and the proof reasons from those. The text
   is rendered from the same facts, so its names, things, places and times cannot differ

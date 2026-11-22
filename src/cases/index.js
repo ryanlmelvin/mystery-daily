@@ -6,10 +6,32 @@ import train from './train.js';
 import theatre from './theatre.js';
 import study from './study.js';
 import { told } from '../tell.js';
+import { composeDay, SETTING_IDS } from '../compose.js';
 
 // A case file holds facts, each with its telling. `told` renders every exhibit's text
 // from them, so the text the player reads is never written separately.
 // In order of difficulty: the prototype runs them as a five-day week.
 export const CASES = [vicarage, glasshouse, train, theatre, study].map(told);
 
-export const caseById = (id) => CASES.find((c) => c.id === id);
+// A composed case is known by its date: "day-2026-11-26". It is made when asked for.
+export function caseById(id) {
+  const made = CASES.find((c) => c.id === id);
+  if (made || !/^day-\d{4}-\d{2}-\d{2}$/.test(String(id))) return made;
+  try {
+    return composeDay(String(id).slice(4));
+  } catch {
+    return undefined;
+  }
+}
+
+// Composed cases to try: the first one in each setting among the days after `date`.
+// They are on trial in the arcade and are not yet part of the daily run.
+export function trialCases(date, limit = 60) {
+  const found = [];
+  const start = Date.parse(date + 'T00:00:00Z');
+  for (let i = 1; i <= limit && found.length < SETTING_IDS.length; i++) {
+    const c = caseById('day-' + new Date(start + i * 86400000).toISOString().slice(0, 10));
+    if (c && !found.some((f) => f.composed.setting === c.composed.setting)) found.push(c);
+  }
+  return found;
+}

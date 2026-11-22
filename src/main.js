@@ -9,7 +9,7 @@ import '@fontsource-variable/fraunces/wght-italic.css';
 import '@fontsource/cinzel/latin-700.css';
 import '@fontsource/caveat/latin-600.css';
 import './style.css';
-import { CASES, caseById } from './cases/index.js';
+import { CASES, caseById, trialCases } from './cases/index.js';
 import { today } from './daily.js';
 import * as E from './engine.js';
 import { sceneSvg, scenePins } from './art/scenes.js';
@@ -301,8 +301,22 @@ function others() {
       const mark = !g ? 'Not played' : g.status === 'won' ? `Solved, ${g.tries.length} of ${E.PENNIES}` : g.status === 'lost' ? 'Out of pennies' : 'In play';
       return `<li><button class="plain row" data-case="${k.id}"><span><b>${n + 1}. ${esc(k.title)}</b>${k.id === daily.case.id ? ' <em>today</em>' : ''}</span><span>${mark}</span></button></li>`;
     }).join('')}</ul>
+    <button class="plain row trial" id="trials"><span><b>On trial</b></span><span>Built from a date</span></button>
     <div class="actions"><button class="plain" data-close>Close</button><button class="plain" id="how">How to play</button><button class="plain" id="install-help"${P.isInstalled() ? ' hidden' : ''}>Install</button></div>
     <p class="about">By <a href="https://ryanlmelvin.com" target="_blank" rel="noopener">Ryan L. Melvin</a> · Release ${esc(RELEASE)} · <a href="./update.html">Update help</a></p>`);
+}
+
+// Cabinets the composer built from a date. They are on trial: not yet in the daily run.
+function trials() {
+  ui.dialog = 'menu';
+  dialog(`<h3>On trial</h3>
+    <p class="small">These cabinets were built by the composer from a date, and proved before you see them. They are not part of the daily run yet.</p>
+    <ul class="arcade">${trialCases(daily.date).map((k) => {
+      const g = read('game:' + k.id);
+      const mark = !g ? 'Not played' : g.status === 'won' ? `Solved, ${g.tries.length} of ${E.PENNIES}` : g.status === 'lost' ? 'Out of pennies' : 'In play';
+      return `<li><button class="plain row" data-case="${k.id}"><span><b>${esc(k.title)}</b></span><span>${mark}</span></button></li>`;
+    }).join('')}</ul>
+    <div class="actions"><button class="plain" id="others">Back</button><button class="plain" data-close>Close</button></div>`);
 }
 
 function installDialog() {
@@ -466,6 +480,7 @@ app.addEventListener('click', (ev) => {
     case 'share': return share();
     case 'again': state = E.newGame(c); save(); Object.assign(ui, { sel: null, open: null, fresh: [], message: '' }); return draw();
     case 'others': case 'menu': return others();
+    case 'trials': return trials();
     case 'install': return install();
     case 'install-help': return installDialog();
     case 'how': return howTo();
@@ -484,5 +499,6 @@ P.initInstall(chrome, () => {
   chrome();
 });
 
-const wanted = params.get('case');
+// ?case=study opens a hand-made cabinet; ?date=2026-11-26 opens the one composed for that date.
+const wanted = params.get('date') ? 'day-' + params.get('date') : params.get('case');
 load(wanted && (caseById(wanted) || CASES[Number(wanted) - 1]) ? (caseById(wanted) || CASES[Number(wanted) - 1]).id : daily.case.id);

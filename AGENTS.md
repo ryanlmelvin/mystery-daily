@@ -35,6 +35,8 @@ Dev pages and switches:
   of difficulty and renders their text.
 - `src/tell.js`: the telling. Renders each exhibit's text from its facts, and checks
   that every fact is told.
+- `src/compose.js`: the composer. Builds a whole case from a date and puts it through
+  the same gate as a hand-written one. `src/art/stage.js` stages its scene.
 - `src/logic.js`: the proof. From the facts a case states, it finds every way to name
   the cast and every story that fits, and reasons step by step as a person would.
 - `src/lint.js`: the case checker: structure, size, tags, then the proof.
@@ -117,6 +119,33 @@ Rules to keep by hand:
 To add a kind of clue, add a fact type and its rule to `src/logic.js`, with a test in
 `tests/logic.test.js` showing both that it settles an answer and that leaving it out is
 caught.
+
+## Composed cases
+
+`composeDay(date)` in `src/compose.js` builds a case from a date: cast, facts and
+tellings, both plates, the end-screen explanation and tips, and a scene described as
+data. A generator seeded with the date makes every choice, so a date always gives the
+same case. The case then goes through `lintCase` (the telling, the proof, size, tags);
+if the gate refuses it, the composer tries the next salt, up to 40 times.
+
+It knows one kind of crime so far, the interrupted theft, in three settings (glasshouse,
+library, plate room). Its lists (names, houses, loot, tools, servants) are at the top of
+the file. `src/art/stage.js` draws the scene from the case's `scene` object: one
+blocking for all three settings, mirrored half the time, with costumes fixed by trade.
+
+- Composed cases are on trial. They are listed under **On trial** in the arcade and open
+  with `/?date=2026-11-26`; they are not part of the daily run (`src/daily.js` still
+  cycles the five hand-written cases). Putting them into the daily run is the owner's
+  decision.
+- `/art.html?composed=1` shows a composed scene for each setting, plain and mirrored.
+- `tests/compose.test.js` composes 120 days and requires every one to pass the gate, and
+  pins two dates. If you change a list or the order of the draws, every composed case
+  changes: bump `COMPOSER` and update the pinned cases, on purpose.
+- A new tool needs a drawing in `TOOLS` in `src/art/stage.js`; a new thing the witness
+  carries needs one in `CARRIED`. A new setting needs an entry in `SETTINGS` and a set in
+  `SETS`. A new kind of crime needs its own `build`, and probably its own blocking.
+- Keep the composer downstream of the facts: it chooses facts and tellings, and the gate
+  decides. Never patch a refused case; let it reroll.
 
 ## Art direction
 

@@ -6,6 +6,7 @@
 import { C, SKIN } from './kit.js';
 import { doll, head } from './doll.js';
 import * as P from './props.js';
+import { stagePins, stageSvg } from './stage.js';
 
 const S = 1.18;
 
@@ -98,11 +99,14 @@ const SCENES = {
 
 export const sceneIds = Object.keys(SCENES);
 
+// A hand-made case names its scene; a composed case describes it (see stage.js).
 export function scenePins(id) {
+  if (id && typeof id === 'object') return stagePins(id);
   return SCENES[id]?.pins || {};
 }
 
 export function sceneSvg(id) {
+  if (id && typeof id === 'object') return stageSvg(id);
   const scene = SCENES[id];
   if (!scene) throw new Error(`No scene called ${id}`);
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${P.W} ${P.H}" class="scene" role="img" aria-label="The scene inside the cabinet">${scene.draw()}${P.valance()}</svg>`;
