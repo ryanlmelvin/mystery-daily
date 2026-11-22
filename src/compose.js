@@ -252,6 +252,11 @@ const SWITCHES = {
 
 export const SETTING_IDS = [...Object.keys(SETTINGS), ...Object.keys(SWITCHES)];
 
+// A composed case's id carries the composer's version. A save is kept under the id, so
+// when the composer changes and a date gives a different case, the old save is simply
+// left behind and never loaded against the new case.
+export const composedId = (date) => `day-${date}-c${COMPOSER}`;
+
 const initials = (name) => name.split(' ').map((p) => p[0] + '.').join('');
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -429,7 +434,7 @@ function buildTheft(date, attempt, { pick, chance, shuffled, face }) {
   };
 
   return {
-    id: `day-${date}`,
+    id: composedId(date),
     title: pick(TITLES).replace('{room}', room),
     where: `${pick(HALLS)}, ${pick(HOURS)}`,
     scene,
@@ -560,7 +565,7 @@ function buildSwitch(date, attempt, { pick, chance, shuffled, face }) {
   };
 
   return {
-    id: `day-${date}`,
+    id: composedId(date),
     title: pick(set.titles).replace('{room}', room),
     where: pick(set.where),
     scene,

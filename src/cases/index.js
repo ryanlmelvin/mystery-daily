@@ -13,12 +13,14 @@ import { composeDay, SETTING_IDS } from '../compose.js';
 // In order of difficulty: the prototype runs them as a five-day week.
 export const CASES = [vicarage, glasshouse, train, theatre, study].map(told);
 
-// A composed case is known by its date: "day-2026-11-26". It is made when asked for.
+// A composed case is asked for by its date: "day-2026-11-26". Its own id also carries
+// the composer's version ("day-2026-11-26-c2"), and either form finds it.
 export function caseById(id) {
   const made = CASES.find((c) => c.id === id);
-  if (made || !/^day-\d{4}-\d{2}-\d{2}$/.test(String(id))) return made;
+  const day = /^day-(\d{4}-\d{2}-\d{2})(-c\d+)?$/.exec(String(id));
+  if (made || !day) return made;
   try {
-    return composeDay(String(id).slice(4));
+    return composeDay(day[1]);
   } catch {
     return undefined;
   }

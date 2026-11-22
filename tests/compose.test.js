@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { composeDay, gate, crimeOf, SETTING_IDS } from '../src/compose.js';
+import { composeDay, composedId, gate, crimeOf, SETTING_IDS, COMPOSER } from '../src/compose.js';
 import { caseById, trialCases, CASES } from '../src/cases/index.js';
 import { tellExhibit } from '../src/tell.js';
 import { proveCase } from '../src/logic.js';
@@ -44,7 +44,7 @@ test(`${RUN} days of composed cases all pass the gate`, () => {
   for (let i = 0; i < RUN; i++) {
     const c = composeDay(dateAt(i));
     assert.deepEqual(gate(c), [], `${dateAt(i)} was let through but does not pass`);
-    assert.equal(c.id, 'day-' + dateAt(i));
+    assert.equal(c.id, composedId(dateAt(i)));
     assert.ok(Array.isArray(c.composed.refused));
     rerolled += c.composed.refused.length;
     settings.add(c.composed.setting);
@@ -121,9 +121,17 @@ test('its scene has a tag for every exhibit, mirrored or not', () => {
 
 test('a composed case is found by its date, and one in each setting is on trial', () => {
   assert.equal(caseById('day-2026-11-26'), composeDay('2026-11-26'));
+  assert.equal(caseById(composeDay('2026-11-26').id), composeDay('2026-11-26'));
   assert.equal(caseById('day-nonsense'), undefined);
   assert.equal(caseById('study'), CASES[4]);
   const trial = trialCases('2026-11-22');
   assert.deepEqual(trial.map((c) => c.composed.setting).sort(), [...SETTING_IDS].sort());
   assert.ok(trial.every((c) => c.composed.date > '2026-11-22'));
+});
+
+// A save is kept under the case's id. When the composer changes, a date gives a different
+// case, so the id must change with it or an old save would be loaded against a new case.
+test('a composed case carries the composer version in its id', () => {
+  assert.equal(composeDay('2026-11-26').id, `day-2026-11-26-c${COMPOSER}`);
+  assert.notEqual(composeDay('2026-11-26').id, 'day-2026-11-26');
 });
