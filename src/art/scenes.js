@@ -6,7 +6,7 @@
 import { C, SKIN, PAPER_DEFS } from './kit.js';
 import { doll, head } from './doll.js';
 import * as P from './props.js';
-import { stagePins, stageSvg } from './stage.js';
+import { stageFocus, stagePins, stageSvg } from './stage.js';
 
 const S = 1.18;
 
@@ -113,7 +113,7 @@ export function scenePins(id) {
 // Where an exhibit's close look is centred when that is not its tag: a notice whose tag
 // hangs below it, say. People are framed on their heads without help (see main.js).
 export function sceneFocus(id) {
-  if (id && typeof id === 'object') return {};
+  if (id && typeof id === 'object') return stageFocus(id);
   return SCENES[id]?.focus || {};
 }
 

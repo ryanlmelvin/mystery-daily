@@ -6,7 +6,7 @@ import { composeDay, composedId, gate, crimeOf, SETTING_IDS, COMPOSER } from '..
 import { caseById, trialCases, CASES } from '../src/cases/index.js';
 import { tellExhibit } from '../src/tell.js';
 import { proveCase } from '../src/logic.js';
-import { scenePins, sceneSvg } from '../src/art/scenes.js';
+import { sceneFocus, scenePins, sceneSvg } from '../src/art/scenes.js';
 import * as E from '../src/engine.js';
 
 const RUN = 120;
@@ -150,6 +150,28 @@ test('a composed case is found by its date, and one in each setting is on trial'
   const trial = trialCases('2026-11-22');
   assert.deepEqual(trial.map((c) => c.composed.setting).sort(), [...SETTING_IDS].sort());
   assert.ok(trial.every((c) => c.composed.date > '2026-11-22'));
+});
+
+test('composed close looks frame the printed props on either side of the window', () => {
+  for (let i = 0; i < SETTING_IDS.length; i++) {
+    const { scene } = composeDay(dateAt(i));
+    const focus = sceneFocus({ ...scene, mirror: false });
+    const mirrored = sceneFocus({ ...scene, mirror: true });
+    const items = scene.kind === 'switch' ? ['roster', 'book', 'shelf', 'vessel'] : ['roster', 'stand', 'bag', 'tools'];
+    for (const id of items) {
+      const [x, y] = focus[id];
+      assert.deepEqual(mirrored[id], [400 - x, y], `${scene.setting} ${id}`);
+    }
+    if (scene.kind === 'switch') {
+      // A 75-unit-high close look must include the top of the playbill (44)
+      // and the bottom of the cabin notice's frame (99).
+      const [, y] = focus.roster;
+      assert.ok(y - 37.5 <= 44 && y + 37.5 >= 99, 'wall notice cropped');
+    } else {
+      const [, y] = focus.stand;
+      assert.ok(y - 37.5 <= 167 && y + 37.5 >= 233, 'empty stand cropped');
+    }
+  }
 });
 
 // A save is kept under the case's id. When the composer changes, a date gives a different

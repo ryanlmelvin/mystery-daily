@@ -221,10 +221,27 @@ function switchScene(spec) {
 
 export const settingIds = [...Object.keys(SETS), ...Object.keys(SWITCH_SETS)];
 
-export function stagePins(spec) {
+function stagePoints(spec, points) {
   const out = {};
-  for (const [id, [x, y]] of Object.entries(spec.kind === 'switch' ? SWITCH_PINS : PINS)) out[id] = [spec.mirror ? P.W - x : x, y];
+  for (const [id, [x, y]] of Object.entries(points)) out[id] = [spec.mirror ? P.W - x : x, y];
   return out;
+}
+
+export function stagePins(spec) {
+  return stagePoints(spec, spec.kind === 'switch' ? SWITCH_PINS : PINS);
+}
+
+// Close looks follow the printed props. The tags sit clear of them in the window.
+export function stageFocus(spec) {
+  if (spec.kind === 'switch') {
+    return stagePoints(spec, {
+      roster: [34, 72], vessel: [240, 196], book: [286, 197], shelf: [216, 138]
+    });
+  }
+  const leaning = spec.tools.some((word) => toolKinds[word] === 'lean');
+  return stagePoints(spec, {
+    roster: [51, 173], stand: [226, 199], bag: [360, 241], tools: [380, leaning ? 162 : 120]
+  });
 }
 
 export function stageSvg(spec) {
