@@ -17,6 +17,32 @@ const S = 1.18;
 
 const SCENES = {
   foxes, seance, encore, fanciers,
+  tutorial: {
+    focus: { luggage: [242, 102], note: [58, 75], seats: [202, 201] },
+    pins: { luggage: [233, 135], note: [37, 50], seats: [201, 229] },
+    draw() {
+      let s = P.compartment();
+      s += P.windowPane(62, 226, { w: 94, h: 105, curtain: '#7a3340' });
+      s += P.g('translate(110,129) scale(1.55)', P.luggageRack(0, 0, 170));
+      s += P.g('translate(172,126) scale(2.95)', P.carpetBag(0, 0, C.tealDark));
+      s += P.g('translate(296,126) scale(3.05)', P.hatbox(0, 0, C.pink));
+      const label = (x, y, angle, name) => P.g(`translate(${x},${y}) rotate(${angle})`,
+        P.path('M-29 0 L-21 -8 H29 V8 H-21Z', C.cream) +
+        P.dot(-21, 0, 1.6, C.woodDark) + P.label(3, 3, name, 8.5));
+      s += P.line('M171 65 Q164 84 168 103 M296 64 Q277 72 254 94', 1.3);
+      s += label(188, 103, -7, 'Ada Finch') + label(276, 94, 5, 'Nell Moss');
+      // The porter has pinned his note to the wall above the window.
+      s += P.g('translate(57,73) rotate(-6)',
+        P.path('M-35 -24 H32 L35 15 L29 24 H-33Z', C.cream) +
+        P.line('M-25 -10 q4 -5 6 -1 t7 -1 m4 0 q4 -4 7 -1 t9 -1 M-25 -2 q4 -5 7 -1 t10 -1 m4 0 q5 -3 9 -1 t10 -1 M-25 6 q3 -3 7 -1 t10 0 m4 0 q5 -4 9 -2 M5 14 q4 -9 6 -3 t11 -1', 1.2, C.navy) +
+        P.line('M35 15 l-7 1 l1 8', .8) + P.circ(1, -20, 2.8, C.brass));
+      s += P.bench(282) + P.line('M201 180 V242', 1.2, C.tealDark);
+      const seat = (x, where, name) => P.frame(x, 186, 70, 26, C.cream, false) +
+        P.label(x, 196, where, 7.2, C.woodDark) + P.label(x, 207, name, 9.6);
+      s += seat(155, 'WINDOW', 'Nell Moss') + seat(249, 'AISLE', 'Ada Finch');
+      return s;
+    }
+  },
   vicarage: {
     focus: { notice: [84, 106], herbal: [180, 88], cup: [258, 250] },
     pins: { vicar: [206, 206], cup: [276, 256], notice: [84, 84], tray: [126, 206], visitor: [322, 204], letter: [272, 172], herbal: [180, 64] },
@@ -108,7 +134,8 @@ const SCENES = {
   }
 };
 
-export const sceneIds = Object.keys(SCENES);
+// The gallery lists the full mysteries.
+export const sceneIds = Object.keys(SCENES).filter((id) => id !== 'tutorial');
 
 // A hand-made case names its scene; a composed case describes it (see stage.js).
 export function scenePins(id) {

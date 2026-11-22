@@ -10,6 +10,7 @@ import '@fontsource/cinzel/latin-700.css';
 import '@fontsource/caveat/latin-600.css';
 import './style.css';
 import { CASES, caseById, trialCases, reviewCases } from './cases/index.js';
+import { tutorialCase } from './tutorial.js';
 import { today } from './daily.js';
 import * as E from './engine.js';
 import { sceneSvg, scenePins, sceneFocus } from './art/scenes.js';
@@ -33,6 +34,7 @@ const params = new URLSearchParams(location.search);
 let c; // the case in the cabinet
 let state; // its saved game
 let practice = false; // true when the cabinet is not today's edition
+let returnTo = null; // the cabinet set aside while the practice penny is in play
 const ui = { sel: null, open: null, fresh: [], message: '', won: false, dialog: null, hideUpdate: false };
 const RELEASE = typeof __RELEASE__ === 'string' ? __RELEASE__ : 'dev';
 
@@ -50,15 +52,43 @@ function write(key, value) {
     return localStorage.getItem(STORE + key) === text;
   } catch { return false; /* private window: play on without saving */ }
 }
-const save = () => write('game:' + c.id, state);
+function save() {
+  if (returnTo) {
+    // A second open tab may already have finished the tutorial.
+    return !returnTo.firstRun || read('seen') === 1 || write('seen', { tutorial: state });
+  }
+  return write('game:' + c.id, state);
+}
 
-function load(id) {
+function load(id, firstVisit = false) {
   c = caseById(id) || daily.case;
   practice = c.id !== daily.case.id;
   const saved = read('game:' + c.id);
   state = saved && saved.v === 1 && saved.id === c.id && saved.fills.length === E.blanksOf(c).length ? saved : E.newGame(c);
   Object.assign(ui, { sel: null, open: null, fresh: [], message: '', won: false });
+  if (firstVisit) startTutorial(true);
+  else frame();
+}
+
+function startTutorial(firstRun = false) {
+  returnTo = { c, state, sel: ui.sel, open: ui.open, fresh: ui.fresh, message: ui.message, firstRun };
+  c = tutorialCase;
+  const saved = firstRun && read('seen')?.tutorial;
+  state = saved?.id === c.id && saved.v === 1 && saved.fills?.length === E.blanksOf(c).length ? saved : E.newGame(c);
+  Object.assign(ui, { sel: null, open: null, fresh: [], message: '', dialog: null });
   frame();
+}
+
+function leaveTutorial() {
+  const previous = returnTo;
+  returnTo = null;
+  write('seen', 1);
+  c = previous.c;
+  state = previous.state;
+  Object.assign(ui, { sel: previous.sel, open: previous.open, fresh: previous.fresh, message: previous.message });
+  frame();
+  (previous.firstRun ? $('.pin') : $('#menu')).focus({ preventScroll: true });
+  window.scrollTo(0, 0);
 }
 
 // ---------- drawing ----------
@@ -67,14 +97,14 @@ function frame() {
   const pins = scenePins(c.scene);
   const date = new Date(daily.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
   app.innerHTML = `
-  <div class="cabinet">
-    <h1 class="sr-only">The Penny Murders, ${practice ? 'practice cabinet' : `No. ${daily.edition}, ${esc(date)}`}</h1>
+  <div class="cabinet${returnTo ? ' tutorial' : ''}">
+    <h1 class="sr-only">The Penny Murders, ${returnTo ? 'tutorial' : practice ? 'practice cabinet' : `No. ${daily.edition}, ${esc(date)}`}</h1>
     <section class="stage">
       <div class="updatebar" id="updatebar" role="status" hidden></div>
       <header class="top">
         <button class="knob install" id="install" aria-label="Install The Penny Murders" title="Install" hidden>${INSTALL_ICON}</button>
         <div class="marquee paper"><h2>${esc(c.title)}</h2><p class="sr-only">${esc(c.where)}</p></div>
-        <button class="knob" id="menu" aria-label="Menu">?</button>
+        ${returnTo ? '<button class="skip-tutorial">Skip tutorial</button>' : '<button class="knob" id="menu" aria-label="Menu">?</button>'}
       </header>
       <div class="window paper" id="window">
         <div class="glass">
@@ -84,6 +114,7 @@ function frame() {
             return `<button class="pin" data-ex="${ex.id}" style="left:${x / 4}%;top:${(y / 280) * 100}%" aria-label="Tag ${i + 1}: ${esc(ex.title)}">${i + 1}</button>`;
           }).join('')}</div>
           <div class="glare" aria-hidden="true"></div>
+          ${returnTo ? '<p class="tag-prompt" id="tag-prompt">Read all three tags</p>' : ''}
           <div class="banner" id="banner" hidden></div>
         </div>
         <div class="cogs" aria-hidden="true">${cogStrip()}</div>
@@ -99,7 +130,6 @@ function frame() {
   });
   draw();
   chrome();
-  if (!read('seen')) { write('seen', 1); howTo(); }
 }
 
 const INSTALL_ICON = '<svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M10 2.5v9.2M6 8l4 4 4-4M3.5 13.5v3h13v-3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -139,21 +169,47 @@ function updateControls(where) {
   return '';
 }
 
+// Cues follow the player's moves. The tutor never checks which word belongs in a gap.
+function tutorialMove() {
+  if (state.status !== 'play') return 'done';
+  if (ui.open) return 'clue';
+  if (state.opened.length < c.exhibits.length) return 'inspect';
+  if (ui.sel !== null) return 'word';
+  const last = state.tries.at(-1);
+  if (!E.ready(state) || last?.fills.every((w, i) => state.fills[i] === w)) return 'gap';
+  return 'penny';
+}
+
 function draw() {
+  const move = returnTo ? tutorialMove() : '';
   const over = state.status !== 'play';
   $('#window').classList.toggle('running', state.status === 'won');
   $('#window').classList.toggle('stopped', state.status === 'lost');
   for (const pin of app.querySelectorAll('.pin')) {
     pin.classList.toggle('read', state.opened.includes(pin.dataset.ex));
     pin.classList.toggle('on', ui.open === pin.dataset.ex);
+    if (move === 'inspect') pin.setAttribute('aria-describedby', 'tag-prompt');
+    else pin.removeAttribute('aria-describedby');
   }
   const banner = $('#banner');
   banner.hidden = !over;
   if (over) banner.textContent = state.status === 'won' ? 'The machine runs' : 'Out of pennies';
-  $('#works').innerHTML = ui.open ? card() : over ? plates() + playbill() : plates() + tray() + coinbar();
+  if (returnTo) {
+    $('#tag-prompt').hidden = move !== 'inspect';
+    $('.tutorial').dataset.move = move;
+    $('.skip-tutorial').hidden = over && !ui.open;
+  }
+  if (ui.open) $('#works').innerHTML = card();
+  else if (over && !returnTo) $('#works').innerHTML = plates() + playbill();
+  else $('#works').innerHTML = plates(move) + (over ? '' : tray(move)) + coinbar(move);
+  if (returnTo) {
+    const targets = { inspect: '.pin:not(.read)', gap: '.slot', word: '.tray-row:not(.dim) .tile', penny: '#drop', done: '#leave-tutorial' };
+    const target = ui.open ? $('.card') : $(targets[move]);
+    target?.focus({ preventScroll: true });
+  }
 }
 
-function plates() {
+function plates(move) {
   const blanks = E.blanksOf(c);
   const last = state.tries[state.tries.length - 1];
   let i = 0;
@@ -162,7 +218,8 @@ function plates() {
     const shown = state.status === 'lost' ? blanks[k].answer : state.fills[k];
     const fixed = state.status !== 'play' || E.isFixed(c, state, k);
     const cls = ['slot', 'k-' + part[0], shown ? 'filled' : 'empty', ui.sel === k ? 'sel' : '', fixed ? 'fixed' : ''].join(' ');
-    return `<button class="${cls}" data-i="${k}" ${fixed ? 'disabled' : ''} aria-label="${shown ? esc(shown) : 'Empty gap: ' + KIND[part[0]]}">${shown ? esc(shown) : KIND[part[0]]}</button>`;
+    const described = move === 'gap' ? ` aria-describedby="gap-prompt${last ? ' guess-result' : ''}"` : '';
+    return `<button class="${cls}" data-i="${k}" ${fixed ? 'disabled' : ''}${described} aria-label="${shown ? esc(shown) : 'Empty gap: ' + KIND[part[0]]}">${shown ? esc(shown) : KIND[part[0]]}</button>`;
   };
   return `<div class="plates">${c.panels.map((panel) => {
     const first = i;
@@ -180,44 +237,51 @@ function plates() {
       body = `<p>${panel.parts.map((part) => (typeof part === 'string' ? esc(part) : slot(part))).join('')}</p>`;
     }
     let flag = '';
-    if (last && state.status === 'play') {
+    if (returnTo && state.status === 'lost') {
+      flag = '<span class="flag ok">Solution</span>';
+    } else if (last && (state.status === 'play' || returnTo)) {
       const wrong = last.wrong[panel.id];
       const stale = last.fills.slice(first, i).some((w, n) => w !== state.fills[first + n]);
       flag = wrong === 0
         ? '<span class="flag ok">All right</span>'
         : `<span class="flag bad${stale ? ' stale' : ''}">${stale ? 'was ' : ''}${wrong} wrong</span>`;
     }
-    return `<div class="plate" data-panel="${panel.id}">${PAPER_BACK}<div class="plate-head"><h3>${esc(panel.title)}</h3>${flag}</div>${body}</div>`;
+    const cue = move === 'gap' ? `<span class="move-prompt" id="gap-prompt">${last ? 'Change a tile' : 'Choose a gap'}</span>` : '';
+    const result = returnTo && flag ? `<span id="guess-result">${flag}</span>` : flag;
+    const reason = move === 'done' ? `<p class="ticket-answer" id="ticket-answer">${esc(c.path[0].say)}</p>` : '';
+    return `<div class="plate" data-panel="${panel.id}">${PAPER_BACK}<div class="plate-head"><h3>${esc(panel.title)}</h3>${cue}${result}</div>${body}${reason}</div>`;
   }).join('')}</div>`;
 }
 
-function tray() {
-  if (!state.bank.length) return '<div class="tray empty"><p>Tap the numbered tags in the window. The words you find drop in here.</p></div>';
+function tray(move) {
+  if (!state.bank.length) return returnTo ? '' : '<div class="tray empty"><p>Open tags to collect words.</p></div>';
   const want = ui.sel === null ? null : E.blanksOf(c)[ui.sel].kind;
   const rows = Object.keys(TRAY).map((kind) => {
     const words = state.bank.filter((w) => c.words[w] === kind);
     if (!words.length) return '';
-    return `<div class="tray-row${want && want !== kind ? ' dim' : ''}"><span class="tray-label">${TRAY[kind]}</span>${words.map((w) =>
+    const label = move === 'word' && want === kind ? '<span class="move-prompt">Choose a word</span>' : `<span class="tray-label">${TRAY[kind]}</span>`;
+    return `<div class="tray-row${want && want !== kind ? ' dim' : ''}">${label}${words.map((w) =>
       `<button class="tile k-${kind}${ui.fresh.includes(w) ? ' fresh' : ''}" data-w="${esc(w)}">${esc(w)}</button>`).join('')}</div>`;
   }).join('');
   return `<div class="tray">${rows}</div>`;
 }
 
-function coinbar() {
+function coinbar(move) {
   const left = E.PENNIES - state.tries.length;
   const coins = Array.from({ length: E.PENNIES }, (_, n) => `<span class="coin${n < left ? '' : ' spent'}"></span>`).join('');
   const log = state.tries.map((t, n) =>
     `<li><b>${ORDINAL[n]} penny</b> ${c.panels.map((p) => `${p.id}: ${t.wrong[p.id] ? t.wrong[p.id] + ' wrong' : 'all right'}`).join(' · ')}</li>`).join('');
   // The log scrolls with the page; the dock (status, coins, lever) stays pinned to the
   // bottom of the screen so the lever is always in reach, however big the case.
-  return `${log ? `<ol class="log">${log}</ol>` : ''}
+  return `${log && !returnTo ? `<ol class="log">${log}</ol>` : ''}
     <div class="dock">
       ${PAPER_BACK}
       <p class="status" role="status">${esc(ui.message)}</p>
       <div class="coinbar">
-        <div class="coins" aria-label="${left} pennies left">${coins}</div>
-        <button class="lever" id="drop">Insert penny</button>
-        <button class="knob small" id="tip" aria-label="Ask the attendant for a tip">Tip</button>
+        <div class="coins" role="img" aria-label="${left} pennies left">${coins}</div>
+        ${move === 'done' ? `<button class="lever" id="leave-tutorial" aria-describedby="guess-result ticket-answer">${returnTo.firstRun ? 'Play the mystery' : 'Back to mystery'}</button>` :
+          `<button class="lever" id="drop"${returnTo && !E.ready(state) ? ' disabled' : ''}>Insert penny</button>`}
+        ${returnTo ? '' : '<button class="knob small" id="tip" aria-label="Ask the attendant for a tip">Tip</button>'}
       </div>
     </div>`;
 }
@@ -261,7 +325,7 @@ function card() {
   const n = c.exhibits.indexOf(ex) + 1;
   const lines = ex.lines.map(([style, text]) => `<p class="line ${style}">${E.segments(text).map((part) =>
     part.word ? `<mark class="k-${c.words[part.word]}">${esc(part.text)}</mark>` : esc(part.text)).join('')}</p>`).join('');
-  return `<div class="card" role="dialog" aria-label="${esc(ex.title)}">
+  return `<div class="card" role="dialog" tabindex="-1" aria-label="${esc(ex.title)}">
       ${PAPER_BACK}
       <div class="card-details">
         <div class="card-head"><span class="badge">${n}</span><h3>${esc(ex.title)}</h3><button class="close" id="close" aria-label="Put it back">×</button></div>
@@ -318,18 +382,6 @@ function dialog(html) {
     ui.returnFocus = document.activeElement;
     d.showModal();
   }
-}
-
-function howTo() {
-  ui.dialog = 'how';
-  dialog(`${BILL_HEADING}
-    <h3>How to play</h3>
-    <ol class="steps">
-      <li><b>Inspect.</b> The machine has jammed at the fatal moment. Tap the numbered tags to look closer. Words you find drop into your tray.</li>
-      <li><b>Set the plates.</b> Tap a gap on a brass plate, then a tile. Name the cast, then say what happened.</li>
-      <li><b>Insert penny.</b> The machine tells you only how many tiles are wrong on each plate. You have four pennies.</li>
-    </ol>
-    <div class="actions"><button class="lever" data-close>Play</button><button class="plain" id="others">Other cabinets</button></div>`);
 }
 
 function others() {
@@ -396,7 +448,10 @@ async function install() {
 function startUpdate(discard = false) {
   ui.hideUpdate = false;
   // Saves are written on every move; write once more and check it stuck before reloading.
-  P.applyUpdate(() => (c ? save() : true), { discard }).catch(() => chrome());
+  P.applyUpdate(() => {
+    if (returnTo?.state.t0 != null && !write('game:' + returnTo.c.id, returnTo.state)) return false;
+    return c ? save() : true;
+  }, { discard }).catch(() => chrome());
   chrome();
 }
 
@@ -506,6 +561,7 @@ async function share() {
 app.addEventListener('click', (ev) => {
   const el = ev.target.closest('button');
   if (!el) return;
+  if (el.matches('.skip-tutorial, #leave-tutorial')) return leaveTutorial();
   if (el.dataset.close !== undefined) return document.getElementById('dialog').close();
   if (el.dataset.update) {
     const u = el.dataset.update;
@@ -540,7 +596,7 @@ app.addEventListener('click', (ev) => {
     case 'trials': return trials();
     case 'install': return install();
     case 'install-help': return installDialog();
-    case 'how': return howTo();
+    case 'how': return startTutorial();
     default: return undefined;
   }
 });
@@ -558,4 +614,5 @@ P.initInstall(chrome, () => {
 
 // ?case=study opens a hand-made cabinet; ?date=2026-11-26 opens the one composed for that date.
 const wanted = params.get('date') ? 'day-' + params.get('date') : params.get('case');
-load(wanted && (caseById(wanted) || CASES[Number(wanted) - 1]) ? (caseById(wanted) || CASES[Number(wanted) - 1]).id : daily.case.id);
+const initial = caseById(wanted) || CASES[Number(wanted) - 1] || daily.case;
+load(initial.id, read('seen') !== 1);
