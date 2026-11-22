@@ -12,7 +12,7 @@ import './style.css';
 import { CASES, caseById, trialCases } from './cases/index.js';
 import { today } from './daily.js';
 import * as E from './engine.js';
-import { sceneSvg, scenePins } from './art/scenes.js';
+import { sceneSvg, scenePins, sceneFocus } from './art/scenes.js';
 import { cogStrip } from './art/cogs.js';
 import * as P from './pwa.js';
 
@@ -216,6 +216,39 @@ function coinbar() {
     </div>`;
 }
 
+// A close look into the window at the exhibit: the same live scene, reframed, so the
+// dolls keep swaying in the card (and the dead keep still). A person is framed on their
+// head, found from the doll under their tag in the window; a fallen doll whole; anything
+// else centred on its tag, or on the scene's own focus point for it.
+const CLOSE_W = 150;
+const CLOSE_H = 75;
+function closeFocus(ex) {
+  const [x, y] = scenePins(c.scene)[ex.id] || [200, 140];
+  const person = c.panels[0].parts.some((p) => Array.isArray(p) && p[2] === ex.id);
+  const dolls = person ? [...document.querySelectorAll('#window .scene g[filter="url(#lift)"]')] : [];
+  let best = null;
+  for (const el of dolls) {
+    const b = el.getBBox();
+    const inside = x >= b.x && x <= b.x + b.width && y >= b.y && y <= b.y + b.height;
+    const d = Math.hypot(x - (b.x + b.width / 2), y - (b.y + b.height / 2)) - (inside ? 1000 : 0);
+    if (!best || d < best.d) best = { b, d };
+  }
+  if (!best) return sceneFocus(c.scene)[ex.id] || [x, y];
+  const { b } = best;
+  if (b.width > b.height) return [b.x + b.width / 2, b.y + b.height / 2];
+  return [b.x + b.width / 2, b.y + CLOSE_H / 2 - 4];
+}
+
+function closeup(ex) {
+  const [fx, fy] = closeFocus(ex);
+  const vx = Math.round(Math.min(Math.max(fx - CLOSE_W / 2, 0), 400 - CLOSE_W));
+  const vy = Math.round(Math.min(Math.max(fy - CLOSE_H / 2, 0), 280 - CLOSE_H));
+  const svg = sceneSvg(c.scene)
+    .replace('viewBox="0 0 400 280"', `viewBox="${vx} ${vy} ${CLOSE_W} ${CLOSE_H}" preserveAspectRatio="xMidYMid slice"`)
+    .replace(' role="img" aria-label="The scene inside the cabinet"', '');
+  return `<div class="closeup" aria-hidden="true">${svg}</div>`;
+}
+
 function card() {
   const ex = c.exhibits.find((e) => e.id === ui.open);
   if (!ex) return '';
@@ -224,6 +257,7 @@ function card() {
     part.word ? `<mark class="k-${c.words[part.word]}">${esc(part.text)}</mark>` : esc(part.text)).join('')}</p>`).join('');
   return `<div class="card paper" role="dialog" aria-label="${esc(ex.title)}">
       <div class="card-head"><span class="badge">${n}</span><h3>${esc(ex.title)}</h3><button class="close" id="close" aria-label="Put it back">×</button></div>
+      ${closeup(ex)}
       <div class="card-body">${lines}</div>
       ${ui.fresh.length ? `<p class="got"><span>Words added</span>${ui.fresh.map((w) => `<i class="k-${c.words[w]}">${esc(w)}</i>`).join('')}</p>` : ''}
       <div class="card-foot">

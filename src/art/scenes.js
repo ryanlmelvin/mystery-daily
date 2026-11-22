@@ -12,6 +12,7 @@ const S = 1.18;
 
 const SCENES = {
   vicarage: {
+    focus: { notice: [84, 106], herbal: [180, 88], cup: [258, 250] },
     pins: { vicar: [206, 206], cup: [276, 256], notice: [84, 84], tray: [126, 206], visitor: [322, 204], letter: [272, 172], herbal: [180, 64] },
     draw() {
       let s = P.room({ wall: '#f6e2c0', stripe: '#f0c9a2', dado: '#86b3a2', floor: C.wood, rug: { x: 206, y: 250, rx: 104, ry: 24, color: '#b8433a', trim: C.cream } });
@@ -29,6 +30,7 @@ const SCENES = {
     }
   },
   train: {
+    focus: { timetable: [262, 100], samples: [172, 62] },
     pins: { timetable: [282, 104], victim: [88, 204], letter: [150, 178], lady: [322, 204], hatbox: [350, 58], traveller: [214, 210], samples: [150, 52] },
     draw() {
       let s = P.compartment();
@@ -44,6 +46,7 @@ const SCENES = {
     }
   },
   theatre: {
+    focus: { playbill: [50, 72], table: [216, 150], script: [290, 198] },
     pins: { playbill: [34, 102], fallen: [232, 264], bottle: [258, 208], king: [146, 204], exit: [352, 204], script: [296, 178], wardrobe: [60, 208], table: [216, 120] },
     draw() {
       let s = P.room({ wall: '#efc2ae', stripe: null, dado: '#7a3b63', floor: C.woodLight });
@@ -61,6 +64,7 @@ const SCENES = {
     }
   },
   study: {
+    focus: { bellpull: [126, 64], portrait: [82, 72] },
     pins: { uncle: [252, 188], note: [222, 207], will: [284, 207], bellpull: [126, 92], nephew: [156, 204], portrait: [102, 60], secretary: [314, 200], bag: [368, 190] },
     draw() {
       const hale = { hair: 'bald', hairColor: '#c2542a', whiskers: 'mutton', skin: SKIN[0], head: 'long' };
@@ -78,6 +82,7 @@ const SCENES = {
     }
   },
   glasshouse: {
+    focus: { wagebook: [62, 180], stand: [226, 190], tools: [340, 150] },
     pins: { body: [236, 262], wagebook: [51, 160], maid: [146, 188], youth: [340, 112], letter: [316, 192], bag: [360, 236], stand: [226, 152], tools: [385, 158] },
     draw() {
       let s = P.glasshouse();
@@ -103,6 +108,13 @@ export const sceneIds = Object.keys(SCENES);
 export function scenePins(id) {
   if (id && typeof id === 'object') return stagePins(id);
   return SCENES[id]?.pins || {};
+}
+
+// Where an exhibit's close look is centred when that is not its tag: a notice whose tag
+// hangs below it, say. People are framed on their heads without help (see main.js).
+export function sceneFocus(id) {
+  if (id && typeof id === 'object') return {};
+  return SCENES[id]?.focus || {};
 }
 
 export function sceneSvg(id) {
