@@ -198,7 +198,7 @@ const SETTINGS = {
 // chemist's receipt, standing on the shelf (sealed, or opened), as an emptied container
 // in a pocket, or as a trace on someone.
 const POISONS = {
-  'prussic acid': { receipt: '$Thing, one phial.', kept: 'phial', empty: 'an empty phial', idle: ['A phial of $thing,', 'sealed with wax.'], used: 'A phial of $thing, its wax broken and half gone.', trace: 'a smell of bitter almonds on {his} gloves' },
+  'prussic acid': { receipt: '$Thing, one phial.', kept: 'phial', empty: 'an empty phial', idle: ['A phial of $thing,', 'sealed with wax.'], used: 'A phial of $thing, its wax broken, smelling of bitter almonds.', trace: 'a smell of bitter almonds on {his} gloves' },
   arsenic: { receipt: '$Thing, two ounces.', kept: 'packet', empty: 'an empty paper packet', idle: ['A packet of $thing,', "still tied with the chemist's string."], used: 'A packet of $thing, torn open, white powder spilt beside it.', trace: 'white powder on {his} cuff' },
   strychnine: { receipt: '$Thing, ten grains.', kept: 'phial', empty: 'an empty phial', idle: ['A phial of $thing,', 'its cork still wired down.'], used: 'A phial of $thing, its wire cut and the cork out.', trace: 'a cut loop of cork-wire in {his} pocket' },
   laudanum: { receipt: '$Thing, one phial.', kept: 'phial', empty: 'an empty phial', idle: ['A phial of $thing,', 'full to the cork.'], used: 'A phial of $thing, uncorked and two thirds gone.', trace: 'a brown-stained cork in {his} pocket' },
