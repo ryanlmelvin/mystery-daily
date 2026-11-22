@@ -40,19 +40,23 @@ Penny Tableau · No. 1 · 2/4 🪙
 Today's cabinet is picked by the UTC date, and the five repeat. The **?** button opens the
 arcade, where the other four can be played as practice.
 
-## On trial: composed cabinets
+## Composed cabinets on trial
 
-The arcade also lists cabinets **on trial**. These were not written by hand: a composer
-built each one from a date (cast, clues, text, plates, explanation and scene) and put it
-through the same proof as the hand-written five. It knows two kinds of crime and takes
-them turn about, so two days running never share a shape:
+The arcade's **On trial** list offers six more cabinets. The composer builds the cast,
+clues and scene from a date, then uses the same proof as the hand-written cases to
+check that the clues lead to one solution. Two kinds of crime alternate.
 
-- **The interrupted theft**, in a glasshouse, a library or a plate room.
-- **The wrong glass**, a poison meant for one man and drunk by another, in a dressing
-  room, a kitchen or a ship's cabin.
+- **The interrupted theft** takes place in a glasshouse, library or plate room.
+  The same eight tags let you investigate both the visitor and the servant.
+  Even the familiar spade can tell a different story when its blade is caked in dry earth.
+- **The wrong glass** takes place in a dressing room, kitchen or ship's cabin.
+  A man drinks from a bottle intended for someone else. A chemist's receipt tells
+  you who bought a poison. The seal on the shelf may tell you whether anyone used it.
 
-Any date has its own: add `?date=2026-11-26` to the address. They are not part of the
-daily run yet.
+Each date gives everyone the same cabinet. Try [The wrong glass](https://ryanlmelvin.github.io/mystery-daily/?date=2026-11-26)
+or [The interrupted theft](https://ryanlmelvin.github.io/mystery-daily/?date=2026-11-27).
+The end playbill follows that cabinet's proof and names the exhibits that clear its
+red herrings. One player timed two earlier composed cabinets at 3:35 and 3:10.
 
 ## Run it
 
@@ -69,16 +73,11 @@ budget; add `-- --why` to see how each answer is reached.
 
 ## What is not built yet
 
-- The daily run is still five hand-written cases. The composer knows two kinds of crime,
-  so composed cases come in two shapes; within a shape the exhibits and the sentence are
-  the same, with different people, things and rooms. Nobody has judged yet whether they
-  are fun.
 - Each case is proved to have exactly one answer, but only inside a model: every exhibit
   is a list of facts in a fixed vocabulary, and the proof reasons from those. The text
   is rendered from the same facts, so its names, things, places and times cannot differ
   from them. The connecting words are still the author's, and nothing checks those.
 - No streaks, statistics, archive or sound.
-- The five-minute target is an estimate. Nobody has been timed on these cases.
 
 ## Publish
 

@@ -34,7 +34,7 @@ const HOLES = {
   sign: { mark: 0 }, makes: { thing: 0, mark: 1 },
   untouched: { thing: 0 }, taken: { thing: 0 },
   has: { who: 0, thing: 1 }, wants: { who: 0, thing: 1 }, excused: { who: 0, thing: 1 },
-  lead: { who: 0 }, wrote: { who: 0 },
+  lead: { who: 0 }, explained: { who: 0 }, wrote: { who: 0 },
   habit: { value: 1 }, found: { value: 1 },
   died: { time: 0 }, stops: { stops: 0 }, boarded: { who: 0, place: 1 },
   fits: {}, link: {}, dead: {}
@@ -45,7 +45,7 @@ const MUST = {
   tag: ['name'], owner: ['name'], accused: ['name'], meantFor: ['name'], listed: ['name', 'key'],
   sign: ['mark'], makes: ['thing'], untouched: ['thing'], taken: ['thing'], has: ['thing'], wants: ['thing'],
   habit: ['value'], found: ['value'], died: ['time'], stops: ['stops'], boarded: ['place'],
-  excused: [], lead: [], wrote: [], fits: [], link: [], dead: []
+  excused: [], lead: [], explained: [], wrote: [], fits: [], link: [], dead: []
 };
 
 const SILENT = ['dead'];

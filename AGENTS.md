@@ -39,6 +39,8 @@ Dev pages and switches:
   the same gate as a hand-written one. `src/art/stage.js` stages its scene.
 - `src/logic.js`: the proof. From the facts a case states, it finds every way to name
   the cast and every story that fits, and reasons step by step as a person would.
+- `src/explain.js` turns the proof's steps and refuted alternatives into the composed
+  case's end playbill and tips.
 - `src/lint.js`: the case checker: structure, size, tags, then the proof.
   `scripts/check-cases.mjs` runs it.
 - `src/daily.js`: which case is today's. One edition per UTC day; the five cases repeat.
@@ -116,47 +118,60 @@ Rules to keep by hand:
 - The pictures support the text; a clue is never readable only from the picture.
 - Fewer real traps than spare pennies.
 
+Use `['explained', who, why, telling]` for evidence that answers a `lead` with the
+same person and reason. For example, an invitation to arrive on tonight's train accounts for
+a visitor's travelling clothes. The proof cites the exhibit with the invitation.
+Use `excused` when the answer concerns a specific thing, such as a receipt showing
+that the servant has paid a debt.
+
 To add a kind of clue, add a fact type and its rule to `src/logic.js`, with a test in
 `tests/logic.test.js` showing both that it settles an answer and that leaving it out is
 caught.
 
 ## Composed cases
 
-`composeDay(date)` in `src/compose.js` builds a case from a date: cast, facts and
-tellings, both plates, the end-screen explanation and tips, and a scene described as
-data. A generator seeded with the date makes every choice, so a date always gives the
-same case. The case then goes through `lintCase` (the telling, the proof, size, tags);
-if the gate refuses it, the composer tries the next salt, up to 40 times.
+`composeDay(date)` in `src/compose.js` builds the cast, facts, tellings, plates
+and scene. `explain` calls `proveCase` to produce the solution path, the answers to
+the red herrings, and the two tips. The complete case goes through `lintCase`, which
+checks the telling, proof, size and tags. If a case fails, the composer tries a new
+salt, up to 40 attempts. Each date and composer version gives the same case and has
+its own save ID.
 
-It knows two kinds of crime, and takes them turn about by date (`crimeOf`), so two days
-running never share a shape:
+Version 4 alternates two crimes by date (`crimeOf`).
 
-- **The interrupted theft** (`buildTheft`; glasshouse, library, plate room). Three dolls.
-  A thief dressed to leave is caught by the keeper of the thing, strikes him down, and
-  still has the thing in a bag. The trap is the keeper's own grievance.
-- **The wrong glass** (`buildSwitch`; dressing room, kitchen, ship's cabin). Four dolls.
-  A poison goes into a bottle meant for one man, and another, who kept helping himself,
-  drinks it. The trap is the man the bottle was for, who had threatened the drinker.
+- **The interrupted theft** (`buildTheft`) has three dolls in a glasshouse, library
+  or plate room. Either the visitor or the servant holds the missing item. Either
+  wall tool or the guilty doll's own carried object can match the wound. The same
+  eight tags appear whoever did it. An invitation accounts for an innocent visitor's
+  journey, and a receipt clears an innocent servant's debt.
+- **The wrong glass** (`buildSwitch`) has four dolls in a dressing room, kitchen or
+  ship's cabin. The poisoner may be the doll at the door or the one across from it.
+  A receipt, an empty container, or a trace matching an opened poison on the shelf
+  ties them to the means. An innocent suspect can have a receipt for a sealed
+  poison or a dismissal that was taken back.
 
-What a player would notice coming round again is rotated, not drawn. With two crimes and
-three settings each, a setting returns every sixth day; each time it returns, the thing
-stolen, the weapon or poison, the room's name and the title's wording have moved on. A
-proofread of a year of drawn cases found 49 that repeated a setting with the same things
-as one from the week before; with rotation there are none, and a test keeps it so.
-Names, faces, the witness and the decoys are still drawn by the seeded generator.
+Each setting returns every sixth day. The room and title rotate, along with the
+stolen item and pair of wall tools for thefts or the poison used in a wrong glass.
+The date seeds the remaining choices, including which suspect did it. A year's
+run from 2026-11-26 passed on the first attempt for all 365 dates. It covered 16
+combinations of crime, culprit position, evidence source and presence of an extra
+wrong-glass red herring, with 23 distinct weapons and poisons and 124–175 words
+of reading per case. The owner timed two
+earlier composed cabinets at 3:35 and 3:10.
 
-The lists each crime uses are at the top of the file. `src/art/stage.js` draws the scene
-from the case's `scene` object: one blocking for each crime, mirrored half the time,
-with costumes fixed by trade.
+The lists for each crime live in `src/compose.js`. `src/art/stage.js` draws the
+scene from the case's `scene` object. Each crime has one arrangement that can be
+mirrored. A doll's trade determines its costume. Expressions and free-hand poses
+are drawn independently of guilt. A doll carrying the tray or cloak keeps its carry pose.
 
 - Composed cases are on trial. They are listed under **On trial** in the arcade and open
   with `/?date=2026-11-26`; they are not part of the daily run (`src/daily.js` still
   cycles the five hand-written cases). Putting them into the daily run is the owner's
   decision.
 - `/art.html?composed=1` shows a composed scene for each setting, plain and mirrored.
-- `tests/compose.test.js` composes 120 days and requires every one to pass the gate, and
-  pins two dates. If you change a list or the order of the draws, every composed case
-  changes: bump `COMPOSER` and update the pinned cases, on purpose.
+- `tests/compose.test.js` checks the gate and the mix of culprits and clues across
+  dates. Two dates pin the expected output. When a deliberate change alters a date's
+  puzzle, bump `COMPOSER` and update the pins so older saves keep their own version.
 - A new tool needs a drawing in `TOOLS` in `src/art/stage.js`; a new thing a doll carries
   needs one in `CARRIED` or `HELD`; a new way of keeping a poison needs one in `KEPT`. A
   new setting needs an entry in `SETTINGS` or `SWITCHES` and a set in `SETS` or

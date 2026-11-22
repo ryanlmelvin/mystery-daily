@@ -1,11 +1,15 @@
 // Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
 // Scenes for composed cases. A composed case describes its scene as data (which
-// setting, how each doll is dressed, which tools hang by the door) and this file stages
-// it. Every interrupted theft uses one blocking: the record book on a table at one side,
-// a witness in the inner doorway, the empty stand in the middle, the body in front, and
-// the thief by the way out with a bag and the tools beside the door. Half of them are
-// mirrored. The picture never carries a clue the text does not state.
+// setting, how each doll is dressed, what each carries, which tools hang by the door)
+// and this file stages it. Dolls are known by where they stand, never by what they did:
+// the same doll in the same place is the culprit one day and a bystander the next, and
+// nothing here (pose, face, position) may give that away. The picture never carries a
+// clue the text does not state. Half the scenes are mirrored.
+//
+// The interrupted theft uses one blocking: the record book on a table at one side, a
+// servant in the inner doorway, the empty stand in the middle, the body in front, and a
+// visitor by the way out with a bag at their feet and the tools beside the door.
 
 import { C, PAPER_DEFS } from './kit.js';
 import { doll } from './doll.js';
@@ -13,10 +17,10 @@ import * as P from './props.js';
 
 const S = 1.18;
 
-// Where each exhibit's tag sits, before mirroring.
-const PINS = {
-  body: [236, 262], roster: [51, 160], witness: [146, 188], thief: [316, 94],
-  letter: [316, 192], bag: [360, 236], stand: [226, 152], tools: [384, 142]
+// Where a tag can sit, before mirroring. A case says which of these each exhibit uses.
+const SPOTS = {
+  body: [236, 262], roster: [51, 160], stand: [226, 152], tools: [384, 142], bag: [360, 236],
+  doorway_head: [146, 98], doorway_chest: [146, 188], exit_chest: [316, 192]
 };
 
 const thin = `stroke="${C.ink}" stroke-width=".8"`;
@@ -91,11 +95,13 @@ function drawTools(words) {
   return s;
 }
 
-// What a witness carries in the raised hand (drawn around the grip).
+// What a doll carries in one hand (drawn around the grip).
 const CARRIED = {
   lamp: () => P.lantern(),
   lantern: () => P.lantern(),
-  'rolling pin': () => P.g('rotate(72)', P.rect(-13, -2.6, 26, 5.2, C.woodLight, 2.6) + P.rect(-18, -1.4, 5, 2.8, C.woodDark, 1.4) + P.rect(13, -1.4, 5, 2.8, C.woodDark, 1.4))
+  'rolling pin': () => P.g('rotate(72)', P.rect(-13, -2.6, 26, 5.2, C.woodLight, 2.6) + P.rect(-18, -1.4, 5, 2.8, C.woodDark, 1.4) + P.rect(13, -1.4, 5, 2.8, C.woodDark, 1.4)),
+  cane: () => P.line('M-7 2 q3.5 -9 7 -2 V23', 3.4, C.ink) + P.line('M-7 2 q3.5 -9 7 -2 V23', 1.7, C.woodLight) + P.dot(0, -1, 2.2, C.grey, thin),
+  parasol: () => P.path('M-2.8 0 H2.8 L1.3 21 H-1.3Z', C.red) + P.line('M0 21 v4', 1.5) + P.path('M0 0 q-4.5 -8 -8.5 -1', 'none', 'stroke-width="2"')
 };
 
 const table = (x, y, w) => P.rect(x + 6, y - 42, 6, 42, C.woodDark, 1) + P.rect(x + w - 12, y - 42, 6, 42, C.woodDark, 1) +
@@ -137,26 +143,28 @@ const SETS = {
 function theftScene(spec) {
   const set = SETS[spec.setting];
   if (!set) throw new Error(`No setting called ${spec.setting}`);
-  const carried = CARRIED[spec.witness.carry];
+  const inDoorway = CARRIED[spec.doorway.carry];
+  const atExit = CARRIED[spec.exit.carry];
   let s = set();
   s += drawTools(spec.tools);
-  s += doll({ x: 146, y: 236, s: S, dir: 1, mood: 'shock', pose: 'hold', hold: carried ? carried() : null, rock: [-1.5, 1.5, 1.7], wave: [-3, 3, 1.1], ...spec.witness.look });
-  s += doll({ x: 316, y: 240, s: S, dir: -1, mood: 'shifty', pose: 'hip', nod: [-5, 4, 2.2], ...spec.thief.look });
+  s += doll({ x: 146, y: 236, s: S, dir: 1, hold: inDoorway ? inDoorway() : null, rock: [-1.5, 1.5, 1.7], wave: [-3, 3, 1.1], ...spec.doorway.look });
+  s += doll({ x: 316, y: 240, s: S, dir: -1, hold: atExit ? atExit() : null, nod: [-5, 4, 2.2], ...spec.exit.look });
   s += P.carpetBag(360, 254, spec.bag);
   s += P.shadow(240, 274, 70, 6);
-  s += doll({ x: 176, y: 272, s: S, dir: 1, pose: 'dead', spring: true, ...spec.keeper.look });
+  s += doll({ x: 176, y: 272, s: S, dir: 1, pose: 'dead', spring: true, ...spec.floor.look });
   return s;
 }
 
 // ---------- the wrong glass ----------
-// A second blocking, for four dolls: the list on the wall and a witness at one side, the
-// one the bottle was meant for beside them with his arms up, a table of medicines at the
-// back, a chair with a book on it, the poisoner at the door, and the drinker on the
-// floor in front with the bottle still in his fist.
+// A second blocking, for four dolls: the list on the wall and one doll at the left, the
+// one the bottle was meant for beside them, a table of medicines at the
+// back, a chair with a book on it, another doll at the door, and the drinker on the
+// floor in front with the bottle still in his fist. Either the doll at the left or the
+// one at the door may be the poisoner.
 
-const SWITCH_PINS = {
-  roster: [34, 102], body: [232, 264], vessel: [258, 208], intended: [146, 204],
-  culprit: [352, 204], book: [296, 178], witness: [60, 208], shelf: [216, 120]
+const SWITCH_SPOTS = {
+  roster: [34, 102], body: [232, 264], vessel: [258, 208], lead: [146, 204],
+  door: [352, 204], book: [296, 178], left: [60, 208], shelf: [216, 120]
 };
 
 // What stands on the table: one drawing for each way a poison is kept.
@@ -206,15 +214,15 @@ function switchScene(spec) {
   const build = SWITCH_SETS[spec.setting];
   if (!build) throw new Error(`No setting called ${spec.setting}`);
   const { set, top } = build();
-  const held = HELD[spec.witness.carry];
+  const held = HELD[spec.left.carry];
   let s = set;
   spec.kept.forEach((kind, i) => { s += (KEPT[kind] || KEPT.phial)(196 + i * 40, top); });
   s += P.chair(286, 230) + P.scriptBook(286, 200);
-  s += doll({ x: 60, y: 246, s: S, dir: 1, mood: 'shock', pose: held ? 'carry' : 'alarm', carry: held ? held() : null, rock: [-1.3, 1.3, 1.6], ...spec.witness.look });
-  s += doll({ x: 146, y: 244, s: S, dir: -1, mood: 'shock', pose: 'alarm', rock: [-2, 2, 1.2], wave: [-5, 5, 0.9], ...spec.intended.look });
-  s += doll({ x: 352, y: 244, s: S, dir: -1, mood: 'shifty', pose: 'hip', nod: [-4, 3, 2.6], ...spec.culprit.look });
+  s += doll({ x: 60, y: 246, s: S, dir: 1, carry: held ? held() : null, rock: [-1.3, 1.3, 1.6], ...spec.left.look });
+  s += doll({ x: 146, y: 244, s: S, dir: -1, rock: [-2, 2, 1.2], wave: [-5, 5, 0.9], ...spec.lead.look });
+  s += doll({ x: 352, y: 244, s: S, dir: -1, nod: [-4, 3, 2.6], ...spec.door.look });
   s += P.shadow(246, 274, 70, 6);
-  s += doll({ x: 184, y: 272, s: S, dir: 1, pose: 'dead', spring: true, ...spec.victim.look });
+  s += doll({ x: 184, y: 272, s: S, dir: 1, pose: 'dead', spring: true, ...spec.floor.look });
   s += P.spiltBottle(240, 198, spec.bottle, 24);
   return s;
 }
@@ -227,8 +235,14 @@ function stagePoints(spec, points) {
   return out;
 }
 
+// Each exhibit names its spot. Leave unknown spots for the gate to flag as missing tags.
 export function stagePins(spec) {
-  return stagePoints(spec, spec.kind === 'switch' ? SWITCH_PINS : PINS);
+  const spots = spec.kind === 'switch' ? SWITCH_SPOTS : SPOTS;
+  const points = {};
+  for (const [id, spot] of Object.entries(spec.pins || {})) {
+    if (spots[spot]) points[id] = spots[spot];
+  }
+  return stagePoints(spec, points);
 }
 
 // Close looks follow the printed props. The tags sit clear of them in the window.

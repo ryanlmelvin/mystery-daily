@@ -84,6 +84,41 @@ test('someone who looks guilty must be cleared by something', () => {
   assert.equal(p.story.traps.find((t) => t.value === 'Cy Cole').self, false);
 });
 
+test('an explanation answers the lead about the person it names', () => {
+  const c = toy();
+  exhibit(c, 'stove').facts.push(['lead', 'stove', 'was dressed for a journey']);
+  const unanswered = 'Nothing answers a temptation: culprit = Cy Cole';
+  assert.ok(has(proveCase(c), unanswered));
+
+  const invitation = ['explained', 'Bob Birch', 'was dressed for a journey'];
+  exhibit(c, 'note').facts.push(invitation);
+  assert.ok(has(proveCase(c), unanswered));
+
+  invitation[1] = 'Cy Cole';
+  const p = proveCase(c);
+  assert.deepEqual(p.errors, []);
+  const trap = p.story.traps.find((t) => t.role === 'culprit' && t.value === 'Cy Cole');
+  assert.equal(trap.answered, true);
+  assert.deepEqual(trap.why, ['was dressed for a journey']);
+  assert.deepEqual(trap.how, ['an innocent reason']);
+  assert.deepEqual(trap.answeredBy, ['note']);
+
+  exhibit(c, 'stove').facts.push(['lead', 'stove', 'had been dismissed']);
+  assert.ok(has(proveCase(c), unanswered));
+  exhibit(c, 'list').facts.push(['explained', 'Cy Cole', 'had been dismissed']);
+  assert.deepEqual(proveCase(c).errors, []);
+});
+
+test('explaining a lead leaves evidence of holding the weapon in play', () => {
+  const c = toy();
+  exhibit(c, 'stove').facts.push(['lead', 'stove', 'had been dismissed'], ['has', 'stove', 'vase']);
+  exhibit(c, 'note').facts.push(['explained', 'stove', 'had been dismissed'], ['wants', 'stove', 'purse']);
+  const p = proveCase(c);
+  assert.ok(has(p, '2 stories fit the facts'));
+  assert.ok(p.story.solutions.some((s) => s.culprit === 'Cy Cole' && s.means === 'vase' && s.motive === 'purse'));
+  assert.ok(has(p, 'Nothing answers a temptation: culprit = Cy Cole'));
+});
+
 test('a name written at the scene accuses, unless the scene is staged', () => {
   const c = toy();
   c.exhibits.push({ id: 'wall', facts: [['accused', { surname: 'Cole' }]] });

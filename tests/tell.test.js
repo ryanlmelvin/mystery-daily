@@ -20,6 +20,7 @@ test('the words that carry a clue are written in from the fact', () => {
   assert.deepEqual(text([['tag', 'floor', { full: 'Ann Ash' }, 'hand: Dear $name,']]), ['hand: Dear {Ann Ash},']);
   assert.deepEqual(text([['tag', 'floor', { abbr: 'B. Birch' }, 'print: Signed for: $name.']]), ['print: Signed for: B. Birch.']);
   assert.deepEqual(text([['listed', 'Bob Birch', 'butler', 'print: $Key: Mr $name.']]), ['print: Butler: Mr {Bob Birch}.']);
+  assert.deepEqual(text([['explained', 'Bob Birch', 'was dressed for a journey', 'hand: Dear $who, your room is ready.']]), ['hand: Dear {Bob Birch}, your room is ready.']);
   assert.deepEqual(text([['untouched', 'rope', 'The $thing is dusty.']]), ['see: The {rope} is dusty.']);
   assert.deepEqual(text([['makes', 'vase', 'a bruise', '$Thing, heavy. Two $thing[vases].']]), ['see: {vase|Vase}, heavy. Two {vase|vases}.']);
   assert.deepEqual(text([['habit', 'hand', 'left', 'His $value cuff is inked.'], ['died', '9.02', 'Stopped at $time.']]), ['see: His left cuff is inked. Stopped at 9.02.']);
@@ -52,6 +53,7 @@ test('one fact may rely on another in the same exhibit to show its thing', () =>
 test('a fact cannot go untold, except the one the scene itself shows', () => {
   assert.match(tell([['untouched', 'rope']]).errors[0], /the untouched fact has no telling/);
   assert.match(tell([['untouched', 'rope', null]]).errors[0], /the untouched fact cannot go untold/);
+  assert.match(tell([['explained', 'door', 'had been dismissed', null]]).errors[0], /the explained fact cannot go untold/);
   assert.deepEqual(tell([['dead', 'floor', null], ['sign', 'a bruise', 'A dark $mark.']]).errors, []);
 });
 

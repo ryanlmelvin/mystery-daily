@@ -13,17 +13,28 @@ const RUN = 120;
 const dateAt = (i) => new Date(Date.UTC(2026, 10, 26 + i)).toISOString().slice(0, 10);
 const answers = (c) => E.blanksOf(c).map((b) => b.answer);
 
+function culpritAndMeans(c) {
+  const blanks = E.blanksOf(c);
+  const culprit = blanks.find((b) => b.key === 'culprit').answer;
+  return {
+    doll: blanks.find((b) => b.panel === 'cast' && b.answer === culprit).key,
+    means: blanks.find((b) => b.key === 'means').answer
+  };
+}
+
 // If this fails after a deliberate change to the composer's lists or draws, bump COMPOSER
 // in src/compose.js and write the new cases here. It is here so a change is never silent.
 test('a date always gives the same case', () => {
   const a = composeDay('2026-11-26');
   assert.equal(a.title, 'Becalmed aboard the Marigold');
-  assert.equal(a.where, "The captain's cabin, two days from port");
-  assert.deepEqual(answers(a), ['Leo Voss', 'Ambrose Ruck', 'Edwin Thrale', 'Osric Gill', 'Edwin Thrale', 'arsenic', 'Ambrose Ruck', 'Leo Voss']);
+  assert.equal(a.id, 'day-2026-11-26-c4');
+  assert.equal(a.where, "The captain's cabin, the first night out");
+  assert.deepEqual(answers(a), ['Amos Thrale', 'Dorian Voss', 'Godfrey Tull', 'Elias Hobb', 'Elias Hobb', 'arsenic', 'Dorian Voss', 'Amos Thrale']);
   const b = composeDay('2026-11-27');
   assert.equal(b.title, 'Found in the Palm House');
-  assert.equal(b.where, 'Slade Priory, twenty past nine at night');
-  assert.deepEqual(answers(b), ['Silas Lark', 'Cordelia Ruck', 'Agnes Pell', 'Agnes Pell', 'Silas Lark', 'spade', 'Blue Lotus', 'rent']);
+  assert.equal(b.id, 'day-2026-11-27-c4');
+  assert.equal(b.where, 'Yarrow House, half past eight in the evening');
+  assert.deepEqual(answers(b), ['Gideon Crane', 'Hester Moss', 'Odile Tull', 'Odile Tull', 'Gideon Crane', 'spade', 'Blue Lotus', 'rent']);
   assert.equal(composeDay('2026-11-26'), a);
 });
 
@@ -40,11 +51,15 @@ test('a setting returns only every sixth day, and its contents have moved on', (
     }
     const things = Object.fromEntries(E.blanksOf(c).filter((b) => b.kind !== 'person').map((b) => [b.key, b.answer]));
     if (last[setting]) {
-      assert.notEqual(things.means, last[setting].means, `${setting} used ${things.means} twice running`);
-      if (things.loot) assert.notEqual(things.loot, last[setting].loot, `${setting} lost ${things.loot} twice running`);
+      if (things.loot) {
+        assert.notDeepEqual(c.scene.tools, last[setting].tools, `${setting} repeated its wall tools`);
+        assert.notEqual(things.loot, last[setting].loot, `${setting} lost ${things.loot} twice running`);
+      } else {
+        assert.notEqual(things.means, last[setting].means, `${setting} used ${things.means} twice running`);
+      }
       assert.notEqual(c.title, last[setting].title, `${setting} repeated its title`);
     }
-    last[setting] = { ...things, title: c.title };
+    last[setting] = { ...things, tools: c.scene.tools, title: c.title };
     (titles[setting] ||= new Set()).add(c.title);
   }
   for (const setting of SETTING_IDS) assert.ok(titles[setting].size >= 9, `${setting} has only ${titles[setting].size} titles`);
@@ -78,20 +93,116 @@ test(`${RUN} days of composed cases all pass the gate`, () => {
   }
   assert.deepEqual([...settings].sort(), [...SETTING_IDS].sort());
   assert.ok(loot.size >= 8, `only ${loot.size} different things stolen`);
-  assert.ok(means.size >= 10, `only ${means.size} different means`);
+  assert.ok(means.size >= 23, `only ${means.size} different means`);
   // A reroll is allowed, but a list that keeps tripping the gate should be mended instead.
   assert.ok(rerolled <= RUN / 10, `${rerolled} attempts were refused; mend the lists`);
 });
 
-test('a composed case is proved like any other, with a real trap', () => {
+test('either thief can use either wall tool or the thing they carry, with the same eight tags', () => {
+  const sources = { exit: new Set(), doorway: new Set() };
+  const plateText = new Map();
+  const used = new Set();
+  const untouched = new Set();
+  const carried = new Set();
+  for (let i = 0; i < RUN; i++) {
+    const c = composeDay(dateAt(i));
+    if (c.composed.crime !== 'theft') continue;
+    const exhibits = Object.fromEntries(c.exhibits.map((e) => [e.id, e.facts]));
+    assert.deepEqual(Object.keys(exhibits), ['body', 'roster', 'doorway', 'pocket', 'exit', 'bag', 'stand', 'tools']);
+    // The empty plate must read the same whichever suspect did it.
+    const wording = c.panels[1].parts.filter((p) => typeof p === 'string');
+    const setting = c.composed.setting;
+    if (plateText.has(setting)) assert.deepEqual(wording, plateText.get(setting), c.id);
+    else plateText.set(setting, wording);
+    const { doll, means: weapon } = culpritAndMeans(c);
+    const index = c.scene.tools.indexOf(weapon);
+    if (index === -1) {
+      assert.equal(weapon, c.scene[doll].carry, c.id);
+      carried.add(weapon);
+      sources[doll].add('carried');
+    } else {
+      sources[doll].add(index);
+    }
+    for (const tool of c.scene.tools) {
+      const kind = tool === weapon ? 'makes' : 'untouched';
+      assert.ok(exhibits.tools.some(([type, word]) => type === kind && word === tool), c.id);
+      (tool === weapon ? used : untouched).add(tool);
+    }
+    if (doll === 'doorway') assert.ok(exhibits.bag.some(([type, who]) => type === 'explained' && who === 'exit'), c.id);
+    else assert.ok(exhibits.pocket.some(([type, who]) => type === 'excused' && who === 'doorway'), c.id);
+  }
+  for (const positions of Object.values(sources)) assert.deepEqual(positions, new Set([0, 1, 'carried']));
+  assert.deepEqual(used, untouched);
+  assert.deepEqual(carried, new Set(['lamp', 'lantern', 'rolling pin', 'cane', 'parasol']));
+});
+
+test('either poisoner can leave a receipt, an empty container, or a trace from the open shelf poison', () => {
+  const clues = { second: new Set(), fourth: new Set() };
+  const herrings = new Set();
+  for (let i = 0; i < RUN; i++) {
+    const c = composeDay(dateAt(i));
+    if (c.composed.crime !== 'switch') continue;
+    const { doll, means: poison } = culpritAndMeans(c);
+    const guilty = c.exhibits.find((e) => e.id === doll);
+    const shelf = c.exhibits.find((e) => e.id === 'shelf');
+    const innocent = c.exhibits.find((e) => e.id === (doll === 'second' ? 'fourth' : 'second'));
+    const tie = guilty.facts.find(([type, holder, word]) => type === 'has' && holder === doll && word === poison);
+    assert.ok(tie, c.id);
+    if (E.wordsIn(shelf).includes(poison)) {
+      assert.ok(!shelf.facts.some(([type, word]) => type === 'untouched' && word === poison), c.id);
+      clues[doll].add('shelf');
+    } else if (tie[3].includes('receipt')) {
+      clues[doll].add('receipt');
+    } else {
+      assert.match(tie[3], /empty|drained/, c.id);
+      clues[doll].add('pocket');
+    }
+    const decoyReceipt = innocent.facts.find(([type]) => type === 'has');
+    if (decoyReceipt) {
+      assert.match(decoyReceipt[3], /receipt/, c.id);
+      assert.ok(shelf.facts.some(([type, word]) => type === 'untouched' && word === decoyReceipt[2]), c.id);
+      herrings.add('receipt');
+    } else if (innocent.facts.some(([type]) => type === 'explained')) {
+      assert.ok(innocent.facts.some(([type, , why]) => type === 'lead' && why === 'had been dismissed'), c.id);
+      herrings.add('dismissal');
+    }
+  }
+  for (const forms of Object.values(clues)) assert.deepEqual(forms, new Set(['receipt', 'pocket', 'shelf']));
+  assert.deepEqual(herrings, new Set(['receipt', 'dismissal']));
+});
+
+test('a composed case has one solution and answers each temptation', () => {
   for (const i of [0, 1, 2, 3, 9, 40, 41]) {
     const c = composeDay(dateAt(i));
     const p = proveCase(c);
     assert.deepEqual(p.errors, []);
     assert.equal(p.cast.solutions.length, 1);
     assert.equal(p.story.solutions.length, 1);
-    assert.ok(p.story.traps.some((t) => t.answered && !t.self), 'no real trap');
+    assert.ok(p.story.traps.length > 0 && p.story.traps.every((t) => t.answered), c.id);
+    // A servant's pawn receipt can raise and settle their money troubles on the same tag.
+    if (c.composed.crime === 'switch' || c.composed.culprit === 'doorway') {
+      assert.ok(p.story.traps.some((t) => !t.self), c.id);
+    }
     assert.ok(Object.values(p.exhibits).every((role) => role !== 'idle'));
+  }
+});
+
+test('the same poses and expressions turn up on guilty and innocent dolls', () => {
+  for (const part of ['doorway', 'exit', 'door', 'left']) {
+    const guilty = { pose: new Set(), mood: new Set() };
+    const innocent = { pose: new Set(), mood: new Set() };
+    for (let i = 0; i < RUN; i++) {
+      const c = composeDay(dateAt(i));
+      const doll = c.scene[part];
+      if (!doll) continue;
+      const looks = c.composed.culprit === part ? guilty : innocent;
+      looks.pose.add(doll.look.pose);
+      looks.mood.add(doll.look.mood);
+    }
+    for (const feature of ['pose', 'mood']) {
+      const common = [...guilty[feature]].filter((v) => v && innocent[feature].has(v));
+      assert.ok(common.length > 1, `${part} has fewer than two shared ${feature}s`);
+    }
   }
 });
 

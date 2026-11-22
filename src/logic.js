@@ -31,6 +31,7 @@
 //   ['wants', who, thing]        who has a reason to want the thing
 //   ['excused', who, thing]      an innocent reason for that holding or wanting
 //   ['lead', who, why]           something else that makes who look guilty
+//   ['explained', who, why]      an innocent reason for that specific lead
 //   ['accused', pattern]         a message at the scene blames this name
 //   ['habit', key, value]        how the victim always did something
 //   ['found', key, value]        how the scene shows it done (a mismatch means staging)
@@ -67,7 +68,7 @@ export function matches(name, pat) {
 // telling: the sentence the player reads (see tell.js). The proof never reads it.
 export const ARITY = {
   tag: 2, link: 2, owner: 2, fits: 2, listed: 2, dead: 1, sign: 1, makes: 2, untouched: 1, taken: 1,
-  has: 2, wants: 2, excused: 2, lead: 2, accused: 1, habit: 2, found: 2, wrote: 1, meantFor: 1,
+  has: 2, wants: 2, excused: 2, lead: 2, explained: 2, accused: 1, habit: 2, found: 2, wrote: 1, meantFor: 1,
   died: 1, stops: 1, boarded: 2
 };
 
@@ -76,7 +77,7 @@ function gather(c, without = []) {
   for (const ex of c.exhibits) {
     if (without.includes(ex.id)) continue;
     for (const f of ex.facts || []) {
-      if (f[0] in ARITY) atoms.push({ type: f[0], a: f.slice(1, 1 + ARITY[f[0]]), ex: ex.id });
+      if (f[0] in ARITY) atoms.push({ type: f[0], a: f.slice(1, 1 + ARITY[f[0]]), ex: ex.id, fact: f });
     }
   }
   return atoms;
@@ -187,10 +188,10 @@ function solveStory(c, atoms, cast) {
       if (h.a[0] === f.a[0] && h.a[1] !== f.a[1]) staged = { from: uniq([...(staged ? staged.from : []), h.ex, f.ex]) };
     }
   }
-  const excuse = (ref, thing) => {
+  const excuse = (type, ref, clue) => {
     const p = person(ref);
-    const e = of('excused').find((x) => person(x.a[0]) === p && x.a[1] === thing);
-    return e ? { rule: 'an innocent reason', from: [e.ex] } : null;
+    const e = of(type).find((x) => person(x.a[0]) === p && x.a[1] === clue);
+    return e ? { rule: 'an innocent reason', from: [e.ex], fact: e.fact } : null;
   };
 
   const dead = of('dead')[0];
@@ -210,18 +211,22 @@ function solveStory(c, atoms, cast) {
   for (const h of of('has')) {
     const p = person(h.a[0]);
     const from = [h.ex, ...about(h.a[0])];
-    const defeated = excuse(h.a[0], h.a[1]);
+    const defeated = excuse('excused', h.a[0], h.a[1]);
     if (has('means')) sup('culprit', p, { when: { means: h.a[1] }, weight: 'act', rule: 'holds the means', from, defeated });
     if (has('loot')) sup('culprit', p, { when: { loot: h.a[1] }, weight: 'act', rule: 'holds what was taken', from, defeated });
   }
   for (const w of of('wants')) {
     const p = person(w.a[0]);
     const from = [w.ex, ...about(w.a[0])];
-    const defeated = excuse(w.a[0], w.a[1]);
+    const defeated = excuse('excused', w.a[0], w.a[1]);
     sup('culprit', p, { weight: 'lead', rule: 'a motive', from, defeated });
     sup('motive', w.a[1], { when: { culprit: p }, rule: 'a motive', from, defeated });
   }
-  for (const l of of('lead')) sup('culprit', person(l.a[0]), { weight: 'lead', rule: l.a[1], from: [l.ex, ...about(l.a[0])] });
+  for (const l of of('lead')) {
+    const p = person(l.a[0]);
+    const defeated = excuse('explained', l.a[0], l.a[1]);
+    sup('culprit', p, { weight: 'lead', rule: l.a[1], from: [l.ex, ...about(l.a[0])], defeated });
+  }
   for (const a of of('accused')) {
     const p = person(a.a[0]);
     if (staged) {
@@ -337,6 +342,13 @@ function solveStory(c, atoms, cast) {
         answered: ruled.length > 0 || open.length === 0,
         how: uniq([...ruled.map((x) => x.rule), ...beaten.map((x) => x.defeated.rule), ...(elsewhere.length ? ['it only fits another story'] : [])]),
         answeredBy,
+        // Each thing that points this way, and what became of it: beaten by an excuse,
+        // or resting on a part of the story (`when`) that is not the true one.
+        ruled: uniq(ruled.map((x) => x.rule)),
+        parts: mine.map((x) => ({
+          rule: x.rule, when: x.when, holds: holds(x.when, fill),
+          beaten: x.defeated?.rule, reason: x.defeated?.fact
+        })),
         // A trap answered by the very exhibit that sets it costs the player nothing.
         self: answeredBy.length > 0 && answeredBy.every((e) => mine.some((x) => x.at === e))
       });
