@@ -203,12 +203,11 @@ function coinbar() {
   const coins = Array.from({ length: E.PENNIES }, (_, n) => `<span class="coin${n < left ? '' : ' spent'}"></span>`).join('');
   const log = state.tries.map((t, n) =>
     `<li><b>${ORDINAL[n]} penny</b> ${c.panels.map((p) => `${p.id}: ${t.wrong[p.id] ? t.wrong[p.id] + ' wrong' : 'all right'}`).join(' · ')}</li>`).join('');
-  const seen = `${state.opened.length} of ${c.exhibits.length} tags read`;
   // The log scrolls with the page; the dock (status, coins, lever) stays pinned to the
   // bottom of the screen so the lever is always in reach, however big the case.
   return `${log ? `<ol class="log">${log}</ol>` : ''}
     <div class="dock">
-      <p class="status" role="status">${esc(ui.message || seen)}</p>
+      <p class="status" role="status">${esc(ui.message)}</p>
       <div class="coinbar">
         <div class="coins" aria-label="${left} pennies left">${coins}</div>
         <button class="lever" id="drop">Drop a penny</button>
