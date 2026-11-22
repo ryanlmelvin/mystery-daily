@@ -403,6 +403,8 @@ h1, h2, h3, h4, p { margin: 0; }
 
 .castgrid.n4, .castgrid.n2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
+.castgrid.n1 { grid-template-columns: minmax(0, 8rem); justify-content: center; }
+
 .who { display: grid; gap: 2px; align-content: end; }
 
 .where { font-size: 12px; font-weight: 600; font-style: italic; line-height: 1.12; text-align: center; }
@@ -840,7 +842,7 @@ dialog h3 { font-family: var(--show); font-weight: 400; font-size: 24px; margin-
 .tutorial .move-prompt { margin-left: auto; }
 .tutorial .tray-row .move-prompt { margin: 0 3px 0 0; }
 .tutorial[data-move="inspect"] .pin:not(.read),
-.tutorial[data-move="gap"] .slot,
+.tutorial[data-move="gap"] .slot:enabled,
 .tutorial[data-move="penny"] #drop {
   outline: 2px dashed var(--teal-deep);
   outline-offset: 2px;

@@ -11,7 +11,7 @@ import '@fontsource/caveat/latin-600.css';
 import './style.css';
 import './archive.css';
 import { CASES, caseById, trialCases, reviewCases } from './cases/index.js';
-import { tutorialCase } from './tutorial.js';
+import { restoreTutorial, tutorialCase } from './tutorial.js';
 import { caseIdForDate, dailyForDate, utcDate } from './daily.js';
 import { archiveCalendar } from './archive.js';
 import * as E from './engine.js';
@@ -97,7 +97,7 @@ function startTutorial(firstRun = false) {
   returnTo = { c, state, sel: ui.sel, open: ui.open, fresh: ui.fresh, message: ui.message, firstRun };
   c = tutorialCase;
   const saved = firstRun && read('seen')?.tutorial;
-  state = saved?.id === c.id && saved.v === 1 && saved.fills?.length === E.blanksOf(c).length ? saved : E.newGame(c);
+  state = restoreTutorial(saved);
   Object.assign(ui, { sel: null, open: null, fresh: [], message: '', dialog: null });
   frame();
 }
@@ -233,7 +233,7 @@ function draw() {
   else if (over && !returnTo) $('#works').innerHTML = plates() + playbill();
   else $('#works').innerHTML = plates(move) + (over ? '' : tray(move)) + coinbar(move);
   if (returnTo) {
-    const targets = { inspect: '.pin:not(.read)', gap: '.slot', word: '.tray-row:not(.dim) .tile', penny: '#drop', done: '#leave-tutorial' };
+    const targets = { inspect: '.pin:not(.read)', gap: '.slot:enabled', word: '.tray-row:not(.dim) .tile', penny: '#drop', done: '#leave-tutorial' };
     const target = ui.open ? $('.card') : $(targets[move]);
     target?.focus({ preventScroll: true });
   }
@@ -242,14 +242,16 @@ function draw() {
 function plates(move) {
   const blanks = E.blanksOf(c);
   const last = state.tries[state.tries.length - 1];
+  const promptedPlate = move === 'gap' && blanks.find((_, k) => !E.isFixed(c, state, k))?.panel;
   let i = 0;
-  const slot = (part) => {
+  const slot = (part, where = '') => {
     const k = i++;
     const shown = state.status === 'lost' ? blanks[k].answer : state.fills[k];
     const fixed = state.status !== 'play' || E.isFixed(c, state, k);
     const cls = ['slot', 'k-' + part[0], shown ? 'filled' : 'empty', ui.sel === k ? 'sel' : '', fixed ? 'fixed' : ''].join(' ');
-    const described = move === 'gap' ? ` aria-describedby="gap-prompt${last ? ' guess-result' : ''}"` : '';
-    return `<button class="${cls}" data-i="${k}" ${fixed ? 'disabled' : ''}${described} aria-label="${shown ? esc(shown) : 'Empty gap: ' + KIND[part[0]]}">${shown ? esc(shown) : KIND[part[0]]}</button>`;
+    const described = move === 'gap' && !fixed ? ` aria-describedby="gap-prompt${last ? ' guess-' + blanks[k].panel : ''}"` : '';
+    const label = (where ? where + ', ' : '') + (shown || 'Empty gap: ' + KIND[part[0]]);
+    return `<button class="${cls}" data-i="${k}" ${fixed ? 'disabled' : ''}${described} aria-label="${esc(label)}">${shown ? esc(shown) : KIND[part[0]]}</button>`;
   };
   return `<div class="plates">${c.panels.map((panel) => {
     const first = i;
@@ -260,7 +262,7 @@ function plates(move) {
       panel.parts.forEach((part, n) => {
         if (typeof part === 'string') return;
         const where = String(panel.parts[n - 1] || '').replace(/^[\s.,]+|[\s.,]+$/g, '');
-        cells.push(`<div class="who"><span class="where">${esc(where)}</span>${slot(part)}</div>`);
+        cells.push(`<div class="who"><span class="where">${esc(where)}</span>${slot(part, where)}</div>`);
       });
       body = `<div class="castgrid n${cells.length}">${cells.join('')}</div>`;
     } else {
@@ -276,10 +278,10 @@ function plates(move) {
         ? '<span class="flag ok">All right</span>'
         : `<span class="flag bad${stale ? ' stale' : ''}">${stale ? 'was ' : ''}${wrong} wrong</span>`;
     }
-    const cue = move === 'gap' ? `<span class="move-prompt" id="gap-prompt">${last ? 'Change a tile' : 'Choose a gap'}</span>` : '';
-    const result = returnTo && flag ? `<span id="guess-result">${flag}</span>` : flag;
-    const reason = move === 'done' ? `<p class="ticket-answer" id="ticket-answer">${esc(c.path[0].say)}</p>` : '';
-    return `<div class="plate" data-panel="${panel.id}">${PAPER_BACK}<div class="plate-head"><h3>${esc(panel.title)}</h3>${cue}${result}</div>${body}${reason}</div>`;
+    const cue = panel.id === promptedPlate ? `<span class="move-prompt" id="gap-prompt">${last ? 'Change a tile' : 'Choose a gap'}</span>` : '';
+    const result = returnTo && flag ? `<span id="guess-${panel.id}">${flag}</span>` : flag;
+    const reason = move === 'done' && panel.id === 'story' ? `<p class="ticket-answer" id="ticket-answer">${esc(c.path[0].say)}</p>` : '';
+    return `<div class="plate" data-panel="${panel.id}" role="group" aria-labelledby="plate-${panel.id}">${PAPER_BACK}<div class="plate-head"><h3 id="plate-${panel.id}">${esc(panel.title)}</h3>${cue}${result}</div>${body}${reason}</div>`;
   }).join('')}</div>`;
 }
 
@@ -309,7 +311,7 @@ function coinbar(move) {
       <p class="status" role="status">${esc(ui.message)}</p>
       <div class="coinbar">
         <div class="coins" role="img" aria-label="${left} pennies left">${coins}</div>
-        ${move === 'done' ? `<button class="lever" id="leave-tutorial" aria-describedby="guess-result ticket-answer">${returnTo.firstRun ? 'Play the mystery' : 'Back to mystery'}</button>` :
+        ${move === 'done' ? `<button class="lever" id="leave-tutorial" aria-describedby="banner ticket-answer">${returnTo.firstRun ? 'Play the mystery' : 'Back to mystery'}</button>` :
           `<button class="lever" id="drop"${returnTo && !E.ready(state) ? ' disabled' : ''}>Insert penny</button>`}
         ${returnTo ? '' : '<button class="knob small" id="tip" aria-label="Ask the attendant for a tip">Tip</button>'}
       </div>
