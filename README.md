@@ -24,10 +24,10 @@ cast tiles on the left and the story tiles on the right. A 💡 marks each tip
 taken since the previous penny. The answers stay secret.
 
 ```
-The Penny Murders · Saturday 11/21/2026
-🟩🟩🟩 ⬛⬛🟩⬛ 💡
-🟩🟩🟩 🟩🟩🟩🟩
-https://ryanlmelvin.github.io/mystery-daily/
+I solved the Sunday 11/22/26 Penny Murder in 3:26.
+🟩🟩🟩 ⬛⬛🟩🟩🟩 💡
+🟩🟩🟩 🟩🟩🟩🟩🟩
+https://ryanlmelvin.github.io/mystery-daily/?edition=2026-11-22
 ```
 
 ## Daily editions and the archive

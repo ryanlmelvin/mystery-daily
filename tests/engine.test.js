@@ -101,6 +101,7 @@ test('four wrong pennies lose', () => {
   for (const w of wrongs) { fill(s, w); status = E.dropPenny(toy, s, 4000).status; }
   assert.equal(status, 'lost');
   assert.equal(s.tries.length, E.PENNIES);
+  assert.equal(E.shareText(toy, s, '2026-11-22').split('\n')[0], 'I ran out of pennies on the Sunday 11/22/26 Penny Murder after 0:03.');
 });
 
 test('tips: two written ones, then the attendant sets a story tile', () => {
@@ -143,10 +144,10 @@ test('the shared playbill dates the case and puts each tip on the penny that use
   E.takeTip(toy, s, 3000);
   E.dropPenny(toy, s, 4000);
   fill(s, [null, 'Bob']);
-  E.dropPenny(toy, s, 5000);
-  const text = E.shareText(toy, s, '2026-11-21', 'https://example.test/');
+  E.dropPenny(toy, s, 207000);
+  const text = E.shareText(toy, s, '2026-11-22', 'https://example.test/');
   assert.equal(text, [
-    'The Penny Murders · Saturday 11/21/2026',
+    'I solved the Sunday 11/22/26 Penny Murder in 3:26.',
     '🟩⬛ 🟩⬛ 💡',
     '🟩⬛ 🟩🟩 💡💡',
     '🟩🟩 🟩🟩',
@@ -157,7 +158,7 @@ test('the shared playbill dates the case and puts each tip on the penny that use
   // A practice save from before the first tip was charged.
   delete s.firstTipPaid;
   assert.equal(E.shareText(toy, s, null), [
-    'The Penny Murders · Practice',
+    'I solved a practice Penny Murder in 3:26.',
     '🟩⬛ 🟩⬛',
     '🟩⬛ 🟩🟩 💡💡',
     '🟩🟩 🟩🟩'
