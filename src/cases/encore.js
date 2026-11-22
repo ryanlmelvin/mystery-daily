@@ -1,4 +1,4 @@
-// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// The Penny Murders — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
 export default {
   id: 'encore', ruleSet: 'encore', scene: 'encore', title: 'An Encore for Nobody',

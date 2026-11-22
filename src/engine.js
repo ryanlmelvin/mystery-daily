@@ -1,4 +1,4 @@
-// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// The Penny Murders — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
 // The rules of one cabinet, with no DOM and no clock of its own: every function takes
 // the case, the saved state and (where time matters) the current time in milliseconds.
@@ -174,6 +174,6 @@ export function shareText(c, s, edition, link = '') {
   });
   const score = s.status === 'won' ? `${s.tries.length}/${PENNIES}` : `X/${PENNIES}`;
   const tips = '💡'.repeat(paidTips(s));
-  const head = `Penny Tableau · No. ${edition} · ${score} 🪙${tips ? ' ' + tips : ''}`;
+  const head = `The Penny Murders · No. ${edition} · ${score} 🪙${tips ? ' ' + tips : ''}`;
   return [head, ...rows, link].filter(Boolean).join('\n');
 }

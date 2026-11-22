@@ -1,4 +1,4 @@
-// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// The Penny Murders — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
 // Draws the app icons (a copper penny under the striped awning) straight to PNG, so no
 // image tools are needed. Run `node scripts/make-icons.mjs` after changing the design;

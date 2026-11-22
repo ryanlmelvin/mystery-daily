@@ -1,4 +1,4 @@
-// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// The Penny Murders — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
 // The composer. It builds a whole case from a date: the cast, the facts and their
 // tellings, the two plates and the scene. The explanation shown at the end is read off

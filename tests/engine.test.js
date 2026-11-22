@@ -1,4 +1,4 @@
-// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// The Penny Murders — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -131,6 +131,6 @@ test('the playbill shows one row per penny and spoils nothing', () => {
   fill(s, [null, 'Bob']);
   E.dropPenny(toy, s, 5000);
   const text = E.shareText(toy, s, 7, 'https://example.test/');
-  assert.equal(text, ['Penny Tableau · No. 7 · 3/4 🪙 💡', '🟩⬛ 🟩⬛', '🟩⬛ 🟩🟩', '🟩🟩 🟩🟩', 'https://example.test/'].join('\n'));
+  assert.equal(text, ['The Penny Murders · No. 7 · 3/4 🪙 💡', '🟩⬛ 🟩⬛', '🟩⬛ 🟩🟩', '🟩🟩 🟩🟩', 'https://example.test/'].join('\n'));
   for (const w of Object.keys(toy.words)) assert.equal(text.includes(w), false);
 });

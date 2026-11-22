@@ -1,4 +1,4 @@
-// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// The Penny Murders — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
 // The same three mourners can take any of the three parts: assailant, latecomer,
 // bystander. Their positions, colours and admission tickets are visible in every case.

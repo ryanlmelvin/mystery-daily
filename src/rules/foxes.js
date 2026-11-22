@@ -1,4 +1,4 @@
-// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// The Penny Murders — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
 export const factArity = { maskAtDoor: 2, exchanged: 3, maskFeature: 2, strikingMask: 1, stoppedAt: 1 };
 export const factBindings = {

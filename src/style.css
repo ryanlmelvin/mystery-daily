@@ -1,5 +1,5 @@
-/* Penny Tableau — Copyright (C) 2026 Ryan L. Melvin. SPDX-License-Identifier: GPL-3.0-only */
-/* Penny Tableau: a cut-paper working model. A torn red card frames the window, the
+/* The Penny Murders — Copyright (C) 2026 Ryan L. Melvin. SPDX-License-Identifier: GPL-3.0-only */
+/* The Penny Murders: a cut-paper working model. A torn red card frames the window, the
    title is a yellow slip pasted across it, the plates are torn cards, the words are
    scraps of bright tinted paper. Every piece sits a little crooked and casts a short
    shadow on the sheet beneath. Never a dark screen, never a document. */
@@ -717,7 +717,7 @@ mark { background: none; color: inherit; font-weight: 750; box-shadow: inset 0 -
 
 .playbill .canopy { margin: 0 -16px; }
 
-.playbill-sign, .dialog-sign {
+.bill-title {
   font-family: var(--show);
   font-size: 26px;
   line-height: 1.05;
@@ -726,9 +726,9 @@ mark { background: none; color: inherit; font-weight: 750; box-shadow: inset 0 -
   text-align: center;
 }
 
-.playbill-sign { margin-top: 2px; color: var(--red-dark); text-shadow: 0 1px 0 var(--cut-edge); }
+.playbill .bill-title { margin-top: 2px; color: var(--red-dark); text-shadow: 0 1px 0 var(--cut-edge); }
 
-.dialog-sign { font-size: 22px; }
+dialog .bill-title { font-size: 22px; }
 
 dialog .edition { margin-top: 2px; }
 

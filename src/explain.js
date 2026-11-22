@@ -1,4 +1,4 @@
-// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// The Penny Murders — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
 // The explanation shown at the end, written from the proof. A composed case can take
 // many shapes (who did it, where the weapon was, which clue is the trap), so its

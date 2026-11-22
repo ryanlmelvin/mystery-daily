@@ -1,7 +1,7 @@
 {
-  "name": "Penny Tableau",
-  "short_name": "Penny Tableau",
-  "description": "A daily five-minute mystery in a penny arcade cabinet.",
+  "name": "The Penny Murders",
+  "short_name": "The Penny Murders",
+  "description": "A daily clockwork mystery.",
   "id": "./",
   "start_url": "./",
   "scope": "./",

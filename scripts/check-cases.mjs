@@ -1,4 +1,4 @@
-// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// The Penny Murders — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
 // Check every case (src/lint.js) and prove it (src/logic.js), then print its size.
 // Add --why to print how the proof reaches each answer and what it makes of each exhibit,

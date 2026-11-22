@@ -1,4 +1,4 @@
-// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// The Penny Murders — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
 // Writes dist/sw.js from scripts/sw-template.js. The version is a hash of every shipped
 // file plus the template, so any change to what ships changes the worker and installed

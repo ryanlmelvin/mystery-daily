@@ -1,4 +1,4 @@
-// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// The Penny Murders — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
 // The case checker. It checks that a case is well formed and fits the five-minute size
 // budget, then hands it to the proof (logic.js), which decides from the case's stated

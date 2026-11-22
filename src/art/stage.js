@@ -1,4 +1,4 @@
-// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// The Penny Murders — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
 // Scenes for composed cases. A composed case describes its scene as data (which
 // setting, how each doll is dressed, what each carries, which tools hang by the door)

@@ -2,7 +2,7 @@
 
 Guidance for coding agents working in this repository.
 
-Penny Tableau (working title) is a daily five-minute mystery. Each case is a
+The Penny Murders is a daily clockwork mystery. Each five-minute case is a
 coin-operated arcade cabinet of cut-paper dolls, jammed at the moment of a death.
 The player reads numbered tags in the cabinet window, collects the words they find,
 sets them as tiles into two brass plates (who the dolls are, and what happened), and
@@ -229,7 +229,7 @@ ink. Fonts are Abril Fatface (signs), Fraunces (text), Cinzel (engraving) and Ca
 - A plate with nothing wrong locks.
 - The solution and its reasoning are always shown at the end, win or lose.
 - Phone first. The play screen has no standing header: the case marquee sits on the
-  window frame, and the game name, edition and awning live on the end playbill and in
+  window frame, and the game name, subtitle, edition and awning live on the end playbill and in
   the menu. The coins, lever and status sit in a dock pinned to the bottom of the
   screen, so the lever is always in reach. With every word collected, a three-doll
   case of up to 13 words fits one 375 by 812 screen without scrolling. Check 375 by

@@ -1,4 +1,4 @@
-// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// The Penny Murders — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
 // The proof. A case states what each exhibit plainly shows, as facts in a small fixed
 // vocabulary; the rules below decide what follows from them. The author never writes a

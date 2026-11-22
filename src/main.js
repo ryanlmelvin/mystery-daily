@@ -1,4 +1,4 @@
-// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// The Penny Murders — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
 // The cabinet front: window, numbered tags, brass plates, tile tray and coin lever.
 // All rules live in engine.js; this file draws the state and turns taps into moves.
@@ -22,6 +22,9 @@ const ORDINAL = ['First', 'Second', 'Third', 'Fourth'];
 const STORE = 'penny:v1:';
 // Keep the shadow on the paper alone, including when the exhibit above it is moving.
 const PAPER_BACK = '<span class="paper" aria-hidden="true"></span>';
+
+const BILL_HEADING = `<p class="bill-title">The Penny Murders</p>
+  <p class="small">A daily clockwork mystery.</p>`;
 
 const app = document.getElementById('app');
 const daily = today();
@@ -65,11 +68,11 @@ function frame() {
   const date = new Date(daily.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
   app.innerHTML = `
   <div class="cabinet">
-    <h1 class="sr-only">Penny Tableau, ${practice ? 'practice cabinet' : `No. ${daily.edition}, ${esc(date)}`}</h1>
+    <h1 class="sr-only">The Penny Murders, ${practice ? 'practice cabinet' : `No. ${daily.edition}, ${esc(date)}`}</h1>
     <section class="stage">
       <div class="updatebar" id="updatebar" role="status" hidden></div>
       <header class="top">
-        <button class="knob install" id="install" aria-label="Install Penny Tableau" title="Install" hidden>${INSTALL_ICON}</button>
+        <button class="knob install" id="install" aria-label="Install The Penny Murders" title="Install" hidden>${INSTALL_ICON}</button>
         <div class="marquee paper"><h2>${esc(c.title)}</h2><p class="sr-only">${esc(c.where)}</p></div>
         <button class="knob" id="menu" aria-label="Menu">?</button>
       </header>
@@ -285,7 +288,7 @@ function playbill() {
   return `<div class="playbill">
       ${PAPER_BACK}
       <div class="canopy" aria-hidden="true"></div>
-      <p class="playbill-sign">Penny Tableau</p>
+      ${BILL_HEADING}
       <div class="stub"><span>Tonight's bill</span><span>${practice ? 'Practice' : `No. ${daily.edition} · ${esc(date)}`}</span></div>
       <h3>${won ? `Solved for ${state.tries.length === 1 ? 'one penny' : state.tries.length + ' pennies'}` : 'The machine keeps your pennies'}</h3>
       <div class="grid" aria-label="Your pennies, one row each">${grid}</div>
@@ -317,7 +320,7 @@ function dialog(html) {
 
 function howTo() {
   ui.dialog = 'how';
-  dialog(`<p class="dialog-sign">Penny Tableau</p>
+  dialog(`${BILL_HEADING}
     <h3>How to play</h3>
     <ol class="steps">
       <li><b>Inspect.</b> The machine has jammed at the fatal moment. Tap the numbered tags to look closer. Words you find drop into your tray.</li>
@@ -330,7 +333,7 @@ function howTo() {
 function others() {
   const date = new Date(daily.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
   ui.dialog = 'menu';
-  dialog(`<p class="dialog-sign">Penny Tableau</p>
+  dialog(`${BILL_HEADING}
     <p class="edition">No. ${daily.edition} · ${esc(date)}</p>
     <h3>The arcade</h3>
     <p class="small">Today's cabinet is marked. The others are for practice.</p>
@@ -363,16 +366,16 @@ function trials() {
 
 function installDialog() {
   ui.dialog = 'install';
-  dialog(`<h3 id="install-title">Install Penny Tableau</h3>
+  dialog(`<h3 id="install-title">Install The Penny Murders</h3>
     <p class="small">Put the cabinet on your home screen. It opens full screen and plays offline.</p>
     <div class="platforms">
       <details open><summary>iPhone or iPad</summary><ol>
-        <li>Open Penny Tableau in Safari.</li>
+        <li>Open The Penny Murders in Safari.</li>
         <li>Tap Share (the square with an up arrow). You may need to open the … menu first.</li>
         <li>Choose Add to Home Screen. If it is missing, look under Edit Actions.</li>
         <li>Turn on Open as Web App if it is shown, then tap Add.</li></ol></details>
       <details open><summary>Android</summary><ol>
-        <li>Open Penny Tableau in Chrome.</li>
+        <li>Open The Penny Murders in Chrome.</li>
         <li>Tap the ⋮ menu, then Add to home screen or Install app.</li>
         <li>Choose Install if offered and follow the prompts.</li></ol></details>
       <details><summary>Computer</summary><ol>

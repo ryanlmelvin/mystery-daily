@@ -1,4 +1,4 @@
-// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// The Penny Murders — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
 // The private greeting reveals the sitter who supplied the message. Its signature and
 // description of the accused tell us whom it impersonates and whom it blames.

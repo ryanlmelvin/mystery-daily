@@ -1,4 +1,4 @@
-// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// The Penny Murders — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
 // The cast: cut-paper automaton dolls, printed faces, arms pinned at shoulder and elbow.
 // A doll is drawn in its own space, base at the origin, head up the negative y axis,

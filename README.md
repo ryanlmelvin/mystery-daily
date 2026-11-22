@@ -1,10 +1,10 @@
-# Penny Tableau
+# The Penny Murders
 
-[Play Penny Tableau](https://ryanlmelvin.github.io/mystery-daily/) · [Source](https://github.com/ryanlmelvin/mystery-daily)
+A daily clockwork mystery.
 
-A daily five-minute mystery in a penny-arcade cabinet. Working title; playable prototype.
+[Play The Penny Murders](https://ryanlmelvin.github.io/mystery-daily/) · [Source](https://github.com/ryanlmelvin/mystery-daily)
 
-Each case is a coin-operated machine of cut-paper dolls that has jammed at the
+Each five-minute case is a Victorian penny-arcade machine of cut-paper dolls that has jammed at the
 moment of a death. Nothing is explained. You work out who everyone is and what happened.
 
 ## Play
@@ -22,7 +22,7 @@ are marked on your playbill. Win or lose, the cabinet then shows how it was done
 The playbill you can copy is spoiler-free: one row per penny, one square per tile.
 
 ```
-Penny Tableau · No. 1 · 2/4 🪙
+The Penny Murders · No. 1 · 2/4 🪙
 🟩🟩🟩 ⬛⬛🟩⬛
 🟩🟩🟩 🟩🟩🟩🟩
 ```

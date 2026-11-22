@@ -1,4 +1,4 @@
-// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// The Penny Murders — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
 // Stage sets and props, cut from printed card like the dolls. Positions are in scene units
 // (400 by 280); for anything standing on the floor, y is where it touches the boards.
