@@ -392,8 +392,8 @@ function playbill() {
       <div class="canopy" aria-hidden="true"></div>
       ${BILL_HEADING}
       <div class="stub"><span>Tonight's bill</span><span>${editionLabel()}</span></div>
-      <h3>${won ? `Solved for ${state.tries.length === 1 ? 'one penny' : state.tries.length + ' pennies'}` : 'The machine keeps your pennies'}</h3>
-      <div class="grid" aria-label="Your pennies, one row each">${grid}</div>
+      <h3>${won ? 'Solved!' : 'The machine keeps your pennies'}</h3>
+      <div class="grid" role="img" aria-label="${state.tries.length === 1 ? '1 penny' : state.tries.length + ' pennies'} used">${grid}</div>
       <p class="meta">${E.clock(secs)} · ${paid ? paid + (paid === 1 ? ' tip' : ' tips') : 'no tips'}</p>
       <div class="actions">
         <button class="lever" id="share">Share playbill</button>
