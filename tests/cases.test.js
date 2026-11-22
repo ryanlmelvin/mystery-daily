@@ -1,0 +1,69 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { CASES } from '../src/cases/index.js';
+import { lintCase, BUDGET } from '../src/lint.js';
+import { scenePins, sceneSvg } from '../src/art/scenes.js';
+import * as E from '../src/engine.js';
+import { LAUNCH, editionFor, caseForEdition, today } from '../src/daily.js';
+
+for (const c of CASES) {
+  test(`${c.id}: passes the case checker`, () => {
+    const { errors, stats } = lintCase(c, scenePins(c.scene));
+    assert.deepEqual(errors, []);
+    assert.ok(stats.reading <= BUDGET.reading);
+  });
+
+  test(`${c.id}: its scene draws`, () => {
+    const svg = sceneSvg(c.scene);
+    assert.ok(svg.startsWith('<svg') && svg.endsWith('</svg>'));
+    assert.equal(svg.includes('NaN'), false);
+    assert.equal(svg.includes('undefined'), false);
+  });
+
+  test(`${c.id}: reading every tag and setting the answers wins on the first penny`, () => {
+    const s = E.newGame(c);
+    for (const ex of c.exhibits) E.openExhibit(c, s, ex.id, 1000);
+    E.blanksOf(c).forEach((b, i) => assert.equal(E.place(c, s, i, b.answer, 2000).ok, true, `placing ${b.answer}`));
+    assert.equal(E.dropPenny(c, s, 3000).status, 'won');
+    assert.equal(E.shareText(c, s, 1).split('\n').length, 2);
+  });
+
+  test(`${c.id}: a plausible wrong story does not win`, () => {
+    const s = E.newGame(c);
+    for (const ex of c.exhibits) E.openExhibit(c, s, ex.id, 1000);
+    const blanks = E.blanksOf(c);
+    blanks.forEach((b, i) => {
+      const rival = Object.keys(c.words).find((w) => c.words[w] === b.kind && w !== b.answer);
+      E.place(c, s, i, b.panel === 'story' ? rival : b.answer, 2000);
+    });
+    const res = E.dropPenny(c, s, 3000);
+    assert.equal(res.status, 'play');
+    assert.equal(res.attempt.wrong.cast, 0);
+    assert.equal(res.attempt.wrong.story, blanks.filter((b) => b.panel === 'story').length);
+  });
+}
+
+test('case ids and scenes are distinct', () => {
+  assert.equal(new Set(CASES.map((c) => c.id)).size, CASES.length);
+  assert.equal(new Set(CASES.map((c) => c.scene)).size, CASES.length);
+});
+
+test('the checker catches a broken case', () => {
+  const broken = structuredClone(CASES[0]);
+  broken.exhibits.pop();
+  broken.path[0].gives = [];
+  const { errors } = lintCase(broken, scenePins(broken.scene));
+  assert.ok(errors.some((e) => e.includes('no exhibit offers it')));
+  assert.ok(errors.some((e) => e.includes('No step in the chain reaches blank 0')));
+  assert.ok(errors.some((e) => e.includes('not an exhibit')));
+});
+
+test('editions count UTC days from launch and the five cases repeat', () => {
+  assert.equal(editionFor(LAUNCH), 1);
+  assert.equal(caseForEdition(1).id, CASES[0].id);
+  assert.equal(caseForEdition(CASES.length + 1).id, CASES[0].id);
+  assert.equal(caseForEdition(CASES.length).id, CASES[CASES.length - 1].id);
+  const t = today(Date.parse(LAUNCH + 'T23:59:59Z'));
+  assert.deepEqual([t.date, t.edition, t.case.id], [LAUNCH, 1, CASES[0].id]);
+  assert.equal(today(Date.parse(LAUNCH + 'T00:00:00Z') + 86400000).edition, 2);
+});

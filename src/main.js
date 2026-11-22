@@ -1,0 +1,368 @@
+// The cabinet front: window, numbered tags, brass plates, tile tray and coin lever.
+// All rules live in engine.js; this file draws the state and turns taps into moves.
+
+import '@fontsource/abril-fatface/latin-400.css';
+import '@fontsource-variable/fraunces/wght.css';
+import '@fontsource-variable/fraunces/wght-italic.css';
+import '@fontsource/cinzel/latin-700.css';
+import '@fontsource/caveat/latin-600.css';
+import './style.css';
+import { CASES, caseById } from './cases/index.js';
+import { today } from './daily.js';
+import * as E from './engine.js';
+import { sceneSvg, scenePins } from './art/scenes.js';
+import { cogStrip } from './art/cogs.js';
+
+const KIND = { person: 'who', thing: 'what', place: 'where' };
+const TRAY = { person: 'People', thing: 'Things', place: 'Places' };
+const ORDINAL = ['First', 'Second', 'Third', 'Fourth'];
+const STORE = 'penny:v1:';
+
+const app = document.getElementById('app');
+const daily = today();
+const params = new URLSearchParams(location.search);
+
+let c; // the case in the cabinet
+let state; // its saved game
+let practice = false; // true when the cabinet is not today's edition
+const ui = { sel: null, open: null, fresh: [], message: '', won: false };
+
+const esc = (t) => String(t).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+const $ = (sel) => app.querySelector(sel);
+
+function read(key) {
+  try { return JSON.parse(localStorage.getItem(STORE + key)); } catch { return null; }
+}
+function write(key, value) {
+  try { localStorage.setItem(STORE + key, JSON.stringify(value)); } catch { /* private window: play on without saving */ }
+}
+const save = () => write('game:' + c.id, state);
+
+function load(id) {
+  c = caseById(id) || daily.case;
+  practice = c.id !== daily.case.id;
+  const saved = read('game:' + c.id);
+  state = saved && saved.v === 1 && saved.id === c.id && saved.fills.length === E.blanksOf(c).length ? saved : E.newGame(c);
+  Object.assign(ui, { sel: null, open: null, fresh: [], message: '', won: false });
+  frame();
+}
+
+// ---------- drawing ----------
+
+function frame() {
+  const pins = scenePins(c.scene);
+  const date = new Date(daily.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+  app.innerHTML = `
+  <div class="cabinet">
+    <header class="top">
+      <div class="canopy" aria-hidden="true"></div>
+      <div class="sign">
+        <h1>Penny Tableau</h1>
+        <p class="edition">${practice ? 'Practice cabinet' : `No. ${daily.edition} · ${esc(date)}`}</p>
+      </div>
+      <button class="knob" id="menu" aria-label="Menu">?</button>
+    </header>
+    <section class="stage">
+      <div class="marquee"><h2>${esc(c.title)}</h2><p>${esc(c.where)}</p></div>
+      <div class="window" id="window">
+        <div class="glass">
+          ${sceneSvg(c.scene)}
+          <div class="pins">${c.exhibits.map((ex, i) => {
+            const [x, y] = pins[ex.id] || [20 + i * 30, 40];
+            return `<button class="pin" data-ex="${ex.id}" style="left:${x / 4}%;top:${(y / 280) * 100}%" aria-label="Tag ${i + 1}: ${esc(ex.title)}">${i + 1}</button>`;
+          }).join('')}</div>
+          <div class="glare" aria-hidden="true"></div>
+          <div class="banner" id="banner" hidden></div>
+        </div>
+        <div class="cogs" aria-hidden="true">${cogStrip()}</div>
+      </div>
+    </section>
+    <section class="works" id="works"></section>
+  </div>
+  <dialog id="dialog"></dialog>`;
+  draw();
+  if (!read('seen')) { write('seen', 1); howTo(); }
+}
+
+function draw() {
+  const over = state.status !== 'play';
+  $('#window').classList.toggle('running', state.status === 'won');
+  $('#window').classList.toggle('stopped', state.status === 'lost');
+  for (const pin of app.querySelectorAll('.pin')) {
+    pin.classList.toggle('read', state.opened.includes(pin.dataset.ex));
+    pin.classList.toggle('on', ui.open === pin.dataset.ex);
+  }
+  const banner = $('#banner');
+  banner.hidden = !over;
+  if (over) banner.textContent = state.status === 'won' ? 'The machine runs' : 'Out of pennies';
+  $('#works').innerHTML = ui.open ? card() : over ? plates() + ticket() : plates() + tray() + coinbar();
+}
+
+function plates() {
+  const blanks = E.blanksOf(c);
+  const last = state.tries[state.tries.length - 1];
+  let i = 0;
+  const slot = (part) => {
+    const k = i++;
+    const shown = state.status === 'lost' ? blanks[k].answer : state.fills[k];
+    const fixed = state.status !== 'play' || E.isFixed(c, state, k);
+    const cls = ['slot', 'k-' + part[0], shown ? 'filled' : 'empty', ui.sel === k ? 'sel' : '', fixed ? 'fixed' : ''].join(' ');
+    return `<button class="${cls}" data-i="${k}" ${fixed ? 'disabled' : ''} aria-label="${shown ? esc(shown) : 'Empty gap: ' + KIND[part[0]]}">${shown ? esc(shown) : KIND[part[0]]}</button>`;
+  };
+  return `<div class="plates">${c.panels.map((panel) => {
+    const first = i;
+    let body;
+    if (panel.id === 'cast') {
+      // The cast plate is a row of name slots, each under where that doll stands.
+      const cells = [];
+      panel.parts.forEach((part, n) => {
+        if (typeof part === 'string') return;
+        const where = String(panel.parts[n - 1] || '').replace(/^[\s.,]+|[\s.,]+$/g, '');
+        cells.push(`<div class="who"><span class="where">${esc(where)}</span>${slot(part)}</div>`);
+      });
+      body = `<div class="castgrid n${cells.length}">${cells.join('')}</div>`;
+    } else {
+      body = `<p>${panel.parts.map((part) => (typeof part === 'string' ? esc(part) : slot(part))).join('')}</p>`;
+    }
+    let flag = '';
+    if (last && state.status === 'play') {
+      const wrong = last.wrong[panel.id];
+      const stale = last.fills.slice(first, i).some((w, n) => w !== state.fills[first + n]);
+      flag = wrong === 0
+        ? '<span class="flag ok">All right</span>'
+        : `<span class="flag bad${stale ? ' stale' : ''}">${stale ? 'was ' : ''}${wrong} wrong</span>`;
+    }
+    return `<div class="plate" data-panel="${panel.id}"><div class="plate-head"><h3>${esc(panel.title)}</h3>${flag}</div>${body}</div>`;
+  }).join('')}</div>`;
+}
+
+function tray() {
+  if (!state.bank.length) return '<div class="tray empty"><p>Tap the numbered tags in the window. The words you find drop in here.</p></div>';
+  const want = ui.sel === null ? null : E.blanksOf(c)[ui.sel].kind;
+  const rows = Object.keys(TRAY).map((kind) => {
+    const words = state.bank.filter((w) => c.words[w] === kind);
+    if (!words.length) return '';
+    return `<div class="tray-row${want && want !== kind ? ' dim' : ''}"><span class="tray-label">${TRAY[kind]}</span>${words.map((w) =>
+      `<button class="tile k-${kind}${ui.fresh.includes(w) ? ' fresh' : ''}" data-w="${esc(w)}">${esc(w)}</button>`).join('')}</div>`;
+  }).join('');
+  return `<div class="tray">${rows}</div>`;
+}
+
+function coinbar() {
+  const left = E.PENNIES - state.tries.length;
+  const coins = Array.from({ length: E.PENNIES }, (_, n) => `<span class="coin${n < left ? '' : ' spent'}"></span>`).join('');
+  const log = state.tries.map((t, n) =>
+    `<li><b>${ORDINAL[n]} penny</b> ${c.panels.map((p) => `${p.id}: ${t.wrong[p.id] ? t.wrong[p.id] + ' wrong' : 'all right'}`).join(' · ')}</li>`).join('');
+  const seen = `${state.opened.length} of ${c.exhibits.length} tags read`;
+  return `<div class="coinbar">
+      <div class="coins" aria-label="${left} pennies left">${coins}</div>
+      <button class="lever" id="drop">Drop a penny</button>
+      <button class="knob small" id="tip" aria-label="Ask the attendant for a tip">Tip</button>
+    </div>
+    <p class="status" role="status">${esc(ui.message || seen)}</p>
+    ${log ? `<ol class="log">${log}</ol>` : ''}`;
+}
+
+function card() {
+  const ex = c.exhibits.find((e) => e.id === ui.open);
+  if (!ex) return '';
+  const n = c.exhibits.indexOf(ex) + 1;
+  const lines = ex.lines.map(([style, text]) => `<p class="line ${style}">${E.segments(text).map((part) =>
+    part.word ? `<mark class="k-${c.words[part.word]}">${esc(part.text)}</mark>` : esc(part.text)).join('')}</p>`).join('');
+  return `<div class="card" role="dialog" aria-label="${esc(ex.title)}">
+      <div class="card-head"><span class="badge">${n}</span><h3>${esc(ex.title)}</h3><button class="close" id="close" aria-label="Put it back">×</button></div>
+      <div class="card-body">${lines}</div>
+      ${ui.fresh.length ? `<p class="got"><span>Into your tray</span>${ui.fresh.map((w) => `<i class="k-${c.words[w]}">${esc(w)}</i>`).join('')}</p>` : ''}
+      <div class="card-foot">
+        <button class="plain" id="prev" aria-label="Previous tag">‹</button>
+        <button class="plain wide" id="back">Back to the plates</button>
+        <button class="plain" id="next" aria-label="Next tag">›</button>
+      </div>
+    </div>`;
+}
+
+function ticket() {
+  const blanks = E.blanksOf(c);
+  const won = state.status === 'won';
+  const secs = E.seconds(state, Date.now());
+  const paid = E.paidTips(state);
+  const grid = state.tries.map((t) => `<div class="grid-row">${t.marks.map((ok, i) =>
+    `<i class="${ok ? 'ok' : 'no'}${i > 0 && blanks[i].panel !== blanks[i - 1].panel ? ' gap' : ''}"></i>`).join('')}</div>`).join('');
+  const how = c.path.map((s) => `<li><b>${esc(s.how)}.</b> ${esc(s.say)}</li>`).join('');
+  const traps = (c.traps || []).map((t) => `<li>${esc(t.say)}</li>`).join('');
+  return `<div class="ticket">
+      <div class="stub"><span>Admit one</span><span>${practice ? 'Practice' : 'No. ' + daily.edition}</span></div>
+      <h3>${won ? `Solved for ${state.tries.length === 1 ? 'one penny' : state.tries.length + ' pennies'}` : 'The machine keeps your pennies'}</h3>
+      <div class="grid" aria-label="Your pennies, one row each">${grid}</div>
+      <p class="meta">${E.clock(secs)} · ${state.opened.length} of ${c.exhibits.length} tags read · ${paid ? paid + (paid === 1 ? ' tip' : ' tips') : 'no tips'}</p>
+      <div class="actions">
+        <button class="lever" id="share">Copy ticket</button>
+        <button class="plain" id="again">Play again</button>
+        <button class="plain" id="others">Other cabinets</button>
+      </div>
+      <p class="status" role="status">${esc(ui.message)}</p>
+      <h4>How it was done</h4>
+      <ol class="how">${how}</ol>
+      ${traps ? `<h4>What it was not</h4><ul class="how">${traps}</ul>` : ''}
+    </div>`;
+}
+
+// ---------- dialogs ----------
+
+function dialog(html) {
+  const d = document.getElementById('dialog');
+  d.innerHTML = html;
+  if (!d.open) d.showModal();
+}
+
+function howTo() {
+  dialog(`<h3>How to play</h3>
+    <ol class="steps">
+      <li><b>Inspect.</b> The machine has jammed at the fatal moment. Tap the numbered tags to look closer. Words you find drop into your tray.</li>
+      <li><b>Set the plates.</b> Tap a gap on a brass plate, then a tile. Name the cast, then say what happened.</li>
+      <li><b>Drop a penny.</b> The machine tells you only how many tiles are wrong on each plate. You have four pennies.</li>
+    </ol>
+    <div class="actions"><button class="lever" data-close>Play</button><button class="plain" id="others">Other cabinets</button></div>`);
+}
+
+function others() {
+  dialog(`<h3>The arcade</h3>
+    <p class="small">Today's cabinet is marked. The others are for practice.</p>
+    <ul class="arcade">${CASES.map((k, n) => {
+      const g = read('game:' + k.id);
+      const mark = !g ? 'Not played' : g.status === 'won' ? `Solved, ${g.tries.length} of ${E.PENNIES}` : g.status === 'lost' ? 'Out of pennies' : 'In play';
+      return `<li><button class="plain row" data-case="${k.id}"><span><b>${n + 1}. ${esc(k.title)}</b>${k.id === daily.case.id ? ' <em>today</em>' : ''}</span><span>${mark}</span></button></li>`;
+    }).join('')}</ul>
+    <div class="actions"><button class="plain" data-close>Close</button><button class="plain" id="how">How to play</button></div>`);
+}
+
+function tipDialog() {
+  const next = state.tips;
+  const offer = next === 0
+    ? 'The first tip is free.'
+    : next === 1
+      ? 'A second, blunter tip will be marked on your ticket.'
+      : 'The attendant can set one tile for you. It will be marked on your ticket.';
+  const told = c.tips.slice(0, Math.min(next, 2)).map((t) => `<li>${esc(t)}</li>`).join('');
+  dialog(`<h3>Ask the attendant</h3>
+    ${told ? `<ul class="told">${told}</ul>` : ''}
+    <p class="small">${offer}</p>
+    <div class="actions"><button class="lever" id="take-tip">${next === 0 ? 'Free tip' : next === 1 ? 'Second tip' : 'Set a tile'}</button><button class="plain" data-close>Not now</button></div>`);
+}
+
+// ---------- moves ----------
+
+function openExhibit(id) {
+  const before = state.bank.length;
+  E.openExhibit(c, state, id, Date.now());
+  ui.fresh = state.bank.slice(before);
+  ui.open = id;
+  ui.message = '';
+  save();
+  draw();
+}
+
+function step(delta) {
+  const i = c.exhibits.findIndex((e) => e.id === ui.open);
+  openExhibit(c.exhibits[(i + delta + c.exhibits.length) % c.exhibits.length].id);
+}
+
+function tapSlot(i) {
+  if (ui.sel === i && state.fills[i]) {
+    E.clearBlank(c, state, i, Date.now());
+    save();
+  } else {
+    ui.sel = i;
+  }
+  ui.message = '';
+  draw();
+}
+
+function tapTile(word) {
+  ui.fresh = [];
+  if (ui.sel === null) {
+    const kind = c.words[word];
+    const blanks = E.blanksOf(c);
+    const free = blanks.findIndex((b, i) => b.kind === kind && !state.fills[i] && !E.isFixed(c, state, i));
+    if (free < 0) { ui.message = 'Tap a gap on a plate first.'; return draw(); }
+    ui.sel = free;
+  }
+  const res = E.place(c, state, ui.sel, word, Date.now());
+  if (!res.ok) {
+    ui.message = res.why === 'kind' ? `That gap wants a ${KIND[res.kind]} tile.` : 'That tile will not go there.';
+    return draw();
+  }
+  const blanks = E.blanksOf(c);
+  let next = null;
+  for (let n = 1; n <= blanks.length; n++) {
+    const k = (ui.sel + n) % blanks.length;
+    if (!state.fills[k] && !E.isFixed(c, state, k)) { next = k; break; }
+  }
+  ui.sel = next;
+  ui.message = '';
+  save();
+  draw();
+}
+
+function drop() {
+  const res = E.dropPenny(c, state, Date.now());
+  if (!res.ok) {
+    ui.message = res.why === 'unfilled' ? 'Fill every gap on both plates first.' : res.why === 'same' ? 'Nothing has changed since your last penny.' : '';
+    return draw();
+  }
+  ui.sel = null;
+  ui.fresh = [];
+  const left = E.PENNIES - state.tries.length;
+  ui.message = res.status === 'play' ? `Clunk. ${left === 1 ? 'One penny' : left + ' pennies'} left.` : '';
+  save();
+  draw();
+  if (res.status !== 'play') $('#works').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+async function share() {
+  const link = location.origin + location.pathname;
+  const text = E.shareText(c, state, practice ? 'practice' : daily.edition, link.startsWith('http://localhost') || link.startsWith('http://127.') ? '' : link);
+  try {
+    await navigator.clipboard.writeText(text);
+    ui.message = 'Ticket copied.';
+  } catch {
+    ui.message = text;
+  }
+  draw();
+}
+
+app.addEventListener('click', (ev) => {
+  const el = ev.target.closest('button');
+  if (!el) return;
+  if (el.dataset.close !== undefined) return document.getElementById('dialog').close();
+  if (el.dataset.case) { document.getElementById('dialog').close(); return load(el.dataset.case); }
+  if (el.dataset.ex) return ui.open === el.dataset.ex ? (ui.open = null, draw()) : openExhibit(el.dataset.ex);
+  if (el.dataset.i !== undefined) return tapSlot(Number(el.dataset.i));
+  if (el.dataset.w) return tapTile(el.dataset.w);
+  switch (el.id) {
+    case 'close': case 'back': ui.open = null; ui.fresh = []; return draw();
+    case 'prev': return step(-1);
+    case 'next': return step(1);
+    case 'drop': return drop();
+    case 'tip': return tipDialog();
+    case 'take-tip': {
+      const tip = E.takeTip(c, state, Date.now());
+      save();
+      document.getElementById('dialog').close();
+      if (tip) { ui.message = tip.text; ui.sel = null; }
+      return draw();
+    }
+    case 'share': return share();
+    case 'again': state = E.newGame(c); save(); Object.assign(ui, { sel: null, open: null, fresh: [], message: '' }); return draw();
+    case 'others': case 'menu': return others();
+    case 'how': return howTo();
+    default: return undefined;
+  }
+});
+
+document.addEventListener('keydown', (ev) => {
+  if (ev.key === 'Escape' && ui.open) { ui.open = null; draw(); }
+});
+
+const wanted = params.get('case');
+load(wanted && (caseById(wanted) || CASES[Number(wanted) - 1]) ? (caseById(wanted) || CASES[Number(wanted) - 1]).id : daily.case.id);

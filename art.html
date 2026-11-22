@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Penny Tableau · art sheet</title>
+<style>
+  body { margin: 0; padding: 16px; background: #1f7f7c; font-family: system-ui, sans-serif; color: #f7edd6; }
+  h2 { font-size: 14px; margin: 18px 0 6px; }
+  .frame { max-width: var(--fw, 420px); border: 8px solid #8a5630; border-radius: 10px; overflow: hidden; background: #f7edd6; position: relative; }
+  .frame svg { display: block; width: 100%; height: auto; }
+  .pin { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; background: #fffaf0; border: 2px solid #d5362d; color: #2b1b17; font: 700 12px/18px system-ui; text-align: center; box-sizing: border-box; }
+  .sway { animation: sway var(--dur, 2.4s) ease-in-out var(--delay, 0s) infinite alternate; }
+  .nopins .pin { display: none; }
+  @keyframes sway { from { transform: rotate(var(--a)); } to { transform: rotate(var(--b)); } }
+</style>
+</head>
+<body>
+<div id="sheet"></div>
+<script type="module">
+import { sceneIds, sceneSvg, scenePins } from './src/art/scenes.js';
+import { CASES } from './src/cases/index.js';
+const only = new URLSearchParams(location.search).get('scene');
+const sheet = document.getElementById('sheet');
+if (new URLSearchParams(location.search).get('big')) document.body.style.setProperty('--fw', '860px');
+if (new URLSearchParams(location.search).get('nopins')) document.body.classList.add('nopins');
+for (const id of sceneIds) {
+  if (only && only !== id) continue;
+  // Number the tags as the game does: in the order the case lists its exhibits.
+  const order = (CASES.find((c) => c.scene === id)?.exhibits || []).map((e) => e.id);
+  const pins = Object.entries(scenePins(id)).map(([name, [x, y]]) => `<span class="pin" title="${name}" style="left:${x / 4}%;top:${y / 2.8}%">${order.indexOf(name) + 1}</span>`).join('');
+  sheet.insertAdjacentHTML('beforeend', `<h2>${id}</h2><div class="frame">${sceneSvg(id)}${pins}</div>`);
+}
+</script>
+</body>
+</html>
