@@ -14,10 +14,10 @@ import { composeDay, SETTING_IDS } from '../compose.js';
 
 // A case file holds facts, each with its telling. `told` renders every exhibit's text
 // from them, so the text the player reads is never written separately.
-// In order of difficulty: the prototype runs them as a five-day week.
+// The first five daily editions run in this order of difficulty.
 export const CASES = [vicarage, glasshouse, train, theatre, study].map(told);
 
-// Fixed review copies live alongside practice cabinets and outside the daily rotation.
+// The arcade offers these fixed samples for review.
 export const SAMPLES = [foxes, seance, encore, fanciers].map(told);
 export const BROOCH_SAMPLE_DATE = '2027-01-01';
 export const reviewCases = () => [composeDay(BROOCH_SAMPLE_DATE), ...SAMPLES];
@@ -36,8 +36,7 @@ export function caseById(id) {
   }
 }
 
-// Composed cases to try: the first one in each setting among the days after `date`.
-// They are on trial in the arcade and are not yet part of the daily run.
+// The On trial menu previews the first composed case in each setting after `date`.
 export function trialCases(date, limit = 60) {
   const found = [];
   const start = Date.parse(date + 'T00:00:00Z');

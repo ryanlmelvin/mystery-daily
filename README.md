@@ -30,7 +30,10 @@ The Penny Murders · Saturday 11/21/2026
 https://ryanlmelvin.github.io/mystery-daily/
 ```
 
-## The five cabinets
+## Daily editions and the archive
+
+A cabinet opens each day at 00:00 UTC. The first five editions are hand-written and
+run from November 21 through 25, 2026.
 
 | No. | Case | Turns on |
 | --- | --- | --- |
@@ -40,10 +43,11 @@ https://ryanlmelvin.github.io/mystery-daily/
 | 4 | Curtain at the Alhambra | A bottle meant for somebody else |
 | 5 | The Bell-Pull | A left-handed man with a pen in his right hand |
 
-Today's cabinet is picked by the UTC date, and the five repeat. The **?** button opens the
-arcade, where the other four can be played as practice.
+Starting November 26, each edition is composed for its date. Open the calendar with
+the **?** button or **Archive** on a finished playbill. Choose a released date to
+resume its case. The calendar shows your progress on this device.
 
-## Composed cabinets on trial
+## Composed cabinets and practice
 
 The arcade’s **On trial** menu offers a composed cabinet in each of nine settings. The composer builds the cast,
 clues and scene from a date, then uses the same proof as the hand-written cases to
@@ -88,7 +92,7 @@ budget; add `-- --why` to see how each answer is reached.
   is a list of facts in a fixed vocabulary, and the proof reasons from those. The text
   is rendered from the same facts, so its names, things, places and times cannot differ
   from them. The connecting words are still the author's, and nothing checks those.
-- No streaks, statistics, archive or sound.
+- No streaks, statistics or sound.
 
 ## Publish
 

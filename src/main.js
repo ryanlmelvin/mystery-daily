@@ -9,9 +9,11 @@ import '@fontsource-variable/fraunces/wght-italic.css';
 import '@fontsource/cinzel/latin-700.css';
 import '@fontsource/caveat/latin-600.css';
 import './style.css';
+import './archive.css';
 import { CASES, caseById, trialCases, reviewCases } from './cases/index.js';
 import { tutorialCase } from './tutorial.js';
-import { today } from './daily.js';
+import { caseIdForDate, dailyForDate, utcDate } from './daily.js';
+import { archiveCalendar } from './archive.js';
 import * as E from './engine.js';
 import { sceneSvg, scenePins, sceneFocus } from './art/scenes.js';
 import { cogStrip } from './art/cogs.js';
@@ -28,12 +30,11 @@ const BILL_HEADING = `<p class="bill-title">The Penny Murders</p>
   <p class="small">A daily clockwork mystery.</p>`;
 
 const app = document.getElementById('app');
-const daily = today();
-const params = new URLSearchParams(location.search);
+const shortDate = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
 
 let c; // the case in the cabinet
 let state; // its saved game
-let practice = false; // true when the cabinet is not today's edition
+let edition; // the selected dated edition, or null for practice
 let returnTo = null; // the cabinet set aside while the practice penny is in play
 const ui = { sel: null, open: null, fresh: [], message: '', won: false, dialog: null, hideUpdate: false };
 const RELEASE = typeof __RELEASE__ === 'string' ? __RELEASE__ : 'dev';
@@ -52,20 +53,42 @@ function write(key, value) {
     return localStorage.getItem(STORE + key) === text;
   } catch { return false; /* private window: play on without saving */ }
 }
+const saveKey = (id, official) => (official ? 'edition:' : 'practice:') + id;
+
 function save() {
   if (returnTo) {
     // A second open tab may already have finished the tutorial.
     return !returnTo.firstRun || read('seen') === 1 || write('seen', { tutorial: state });
   }
-  return write('game:' + c.id, state);
+  return write(saveKey(c.id, edition), state);
 }
 
-function load(id, firstVisit = false) {
-  c = caseById(id) || daily.case;
-  practice = c.id !== daily.case.id;
-  const saved = read('game:' + c.id);
-  state = saved && saved.v === 1 && saved.id === c.id && saved.fills.length === E.blanksOf(c).length ? saved : E.newGame(c);
-  Object.assign(ui, { sel: null, open: null, fresh: [], message: '', won: false });
+function savedGame(id, official) {
+  // Before the archive there was one save per cabinet. Only the hand-made
+  // cabinets were daily editions. Leave those saves intact for returning players.
+  const legacy = !official || CASES.some((k) => k.id === id);
+  const g = read(saveKey(id, official)) ?? (legacy ? read('game:' + id) : null);
+  return g?.v === 1 && g.id === id ? g : null;
+}
+
+function editionLabel() {
+  if (!edition) return 'Practice';
+  return `No. ${edition.edition} · ${shortDate.format(new Date(edition.date + 'T00:00:00Z'))}`;
+}
+
+function loadLocation(firstVisit = false) {
+  returnTo = null;
+  const params = new URLSearchParams(location.search);
+  const latest = utcDate();
+  const date = params.get('edition');
+  const wanted = params.has('date') ? 'day-' + params.get('date') : params.get('case');
+  const sample = !date && wanted && (caseById(wanted) || CASES[Number(wanted) - 1]);
+  const requested = date && date <= latest ? dailyForDate(date) : null;
+  edition = sample ? null : requested ?? dailyForDate(latest);
+  c = sample || edition?.case || CASES[0];
+  const saved = savedGame(c.id, edition);
+  state = saved?.fills?.length === E.blanksOf(c).length ? saved : E.newGame(c);
+  Object.assign(ui, { sel: null, open: null, fresh: [], message: '', won: false, dialog: null });
   if (firstVisit) startTutorial(true);
   else frame();
 }
@@ -91,14 +114,21 @@ function leaveTutorial() {
   window.scrollTo(0, 0);
 }
 
+function navigate(search) {
+  const url = location.pathname + search;
+  if (url !== location.pathname + location.search) history.pushState(null, '', url);
+  loadLocation();
+  window.scrollTo(0, 0);
+  $('#menu').focus({ preventScroll: true });
+}
+
 // ---------- drawing ----------
 
 function frame() {
   const pins = scenePins(c.scene);
-  const date = new Date(daily.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
   app.innerHTML = `
   <div class="cabinet${returnTo ? ' tutorial' : ''}">
-    <h1 class="sr-only">The Penny Murders, ${returnTo ? 'tutorial' : practice ? 'practice cabinet' : `No. ${daily.edition}, ${esc(date)}`}</h1>
+    <h1 class="sr-only">The Penny Murders, ${returnTo ? 'tutorial' : editionLabel()}</h1>
     <section class="stage">
       <div class="updatebar" id="updatebar" role="status" hidden></div>
       <header class="top">
@@ -348,19 +378,18 @@ function playbill() {
     `<i class="${ok ? 'ok' : 'no'}${i > 0 && blanks[i].panel !== blanks[i - 1].panel ? ' gap' : ''}"></i>`).join('')}</div>`).join('');
   const how = c.path.map((s) => `<li><b>${esc(s.how)}.</b> ${esc(s.say)}</li>`).join('');
   const traps = (c.traps || []).map((t) => `<li>${esc(t.say)}</li>`).join('');
-  const date = new Date(daily.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
   return `<div class="playbill">
       ${PAPER_BACK}
       <div class="canopy" aria-hidden="true"></div>
       ${BILL_HEADING}
-      <div class="stub"><span>Tonight's bill</span><span>${practice ? 'Practice' : `No. ${daily.edition} · ${esc(date)}`}</span></div>
+      <div class="stub"><span>Tonight's bill</span><span>${editionLabel()}</span></div>
       <h3>${won ? `Solved for ${state.tries.length === 1 ? 'one penny' : state.tries.length + ' pennies'}` : 'The machine keeps your pennies'}</h3>
       <div class="grid" aria-label="Your pennies, one row each">${grid}</div>
       <p class="meta">${E.clock(secs)} · ${paid ? paid + (paid === 1 ? ' tip' : ' tips') : 'no tips'}</p>
       <div class="actions">
         <button class="lever" id="share">Share playbill</button>
         <button class="plain" id="again">Play again</button>
-        <button class="plain" id="others">Other cabinets</button>
+        <button class="plain" id="others">Archive</button>
       </div>
       <label id="share-fallback" hidden>Copy this result to share it.
         <textarea readonly rows="${state.tries.length + 3}"></textarea>
@@ -384,26 +413,28 @@ function dialog(html) {
   }
 }
 
-function others() {
-  const date = new Date(daily.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+function others(month) {
+  const today = utcDate();
+  const selected = edition?.date;
+  const calendar = archiveCalendar({
+    month: month || (selected || today).slice(0, 7), today, selected,
+    statusFor: (date) => savedGame(caseIdForDate(date), true)?.status,
+  });
   ui.dialog = 'menu';
   dialog(`${BILL_HEADING}
-    <p class="edition">No. ${daily.edition} · ${esc(date)}</p>
-    <h3>The arcade</h3>
-    <p class="small">Today's cabinet is marked. The others are for practice.</p>
-    <ul class="arcade">${CASES.map((k, n) => {
-      const g = read('game:' + k.id);
-      const mark = !g ? 'Not played' : g.status === 'won' ? `Solved, ${g.tries.length} of ${E.PENNIES}` : g.status === 'lost' ? 'Out of pennies' : 'In play';
-      return `<li><button class="plain row" data-case="${k.id}"><span><b>${n + 1}. ${esc(k.title)}</b>${k.id === daily.case.id ? ' <em>today</em>' : ''}</span><span>${mark}</span></button></li>`;
-    }).join('')}</ul>
+    <p class="edition">${editionLabel()}</p>
+    ${calendar}
+    ${selected !== today ? '<button class="plain row" id="today">Back to today</button>' : ''}
     <button class="plain row trial" id="trials"><span><b>On trial</b></span></button>
     <div class="actions"><button class="plain" data-close>Close</button><button class="plain" id="how">How to play</button><button class="plain" id="install-help"${P.isInstalled() ? ' hidden' : ''}>Install</button></div>
     <p class="about">By <a href="https://ryanlmelvin.com" target="_blank" rel="noopener">Ryan L. Melvin</a> · Release ${esc(RELEASE)} · <a href="./update.html">Update help</a></p>`);
+  $('#dialog').setAttribute('aria-labelledby', 'archive-title');
+  if (!month) $(`[data-date="${selected || today}"]`)?.focus({ preventScroll: true });
 }
 
 function trialList(cases) {
   return `<ul class="arcade">${cases.map((k) => {
-    const g = read('game:' + k.id);
+    const g = savedGame(k.id, false);
     const mark = !g ? 'Not played' : g.status === 'won' ? `Solved, ${g.tries.length} of ${E.PENNIES}` : g.status === 'lost' ? 'Out of pennies' : 'In play';
     return `<li><button class="plain row" data-case="${k.id}"><span><b>${esc(k.title)}</b></span><span>${mark}</span></button></li>`;
   }).join('')}</ul>`;
@@ -414,7 +445,7 @@ function trials() {
   const reviews = reviewCases();
   dialog(`<h3>On trial</h3>
     <h4>Samples for review</h4>${trialList(reviews)}
-    <h4>From the composer</h4>${trialList(trialCases(daily.date).filter((k) => !reviews.some((r) => r.id === k.id)))}
+    <h4>From the composer</h4>${trialList(trialCases(utcDate()).filter((k) => !reviews.some((r) => r.id === k.id)))}
     <div class="actions"><button class="plain" id="others">Back</button><button class="plain" data-close>Close</button></div>`);
 }
 
@@ -449,7 +480,7 @@ function startUpdate(discard = false) {
   ui.hideUpdate = false;
   // Saves are written on every move; write once more and check it stuck before reloading.
   P.applyUpdate(() => {
-    if (returnTo?.state.t0 != null && !write('game:' + returnTo.c.id, returnTo.state)) return false;
+    if (returnTo?.state.t0 != null && !write(saveKey(returnTo.c.id, edition), returnTo.state)) return false;
     return c ? save() : true;
   }, { discard }).catch(() => chrome());
   chrome();
@@ -539,8 +570,9 @@ function drop() {
 }
 
 async function share() {
-  const link = location.origin + location.pathname;
-  const text = E.shareText(c, state, practice ? null : daily.date, link.startsWith('http://localhost') || link.startsWith('http://127.') ? '' : link);
+  const search = edition ? '?edition=' + edition.date : '?case=' + encodeURIComponent(c.id);
+  const link = location.origin + location.pathname + search;
+  const text = E.shareText(c, state, edition?.date, link.startsWith('http://localhost') || link.startsWith('http://127.') ? '' : link);
   const fallback = $('#share-fallback');
   fallback.hidden = true;
   if (typeof navigator.share === 'function') {
@@ -570,7 +602,14 @@ app.addEventListener('click', (ev) => {
     if (u === 'reload') return P.reloadNow();
     if (u === 'later') { ui.hideUpdate = true; return chrome(); }
   }
-  if (el.dataset.case) { document.getElementById('dialog').close(); return load(el.dataset.case); }
+  if (el.dataset.month) {
+    const arrow = el.getAttribute('aria-label');
+    others(el.dataset.month);
+    const target = $(`[data-month][aria-label="${arrow}"]:enabled`) || $('[data-month]:enabled');
+    return target?.focus();
+  }
+  if (el.dataset.date) return navigate(el.dataset.date === utcDate() ? '' : '?edition=' + el.dataset.date);
+  if (el.dataset.case) return navigate('?case=' + encodeURIComponent(el.dataset.case));
   if (el.dataset.ex) return ui.open === el.dataset.ex ? (ui.open = null, draw()) : openExhibit(el.dataset.ex);
   if (el.dataset.i !== undefined) return tapSlot(Number(el.dataset.i));
   if (el.dataset.w) return tapTile(el.dataset.w);
@@ -591,7 +630,12 @@ app.addEventListener('click', (ev) => {
       return tipDialog(tip);
     }
     case 'share': return share();
-    case 'again': state = E.newGame(c); save(); Object.assign(ui, { sel: null, open: null, fresh: [], message: '' }); return draw();
+    case 'again':
+      edition = null;
+      state = E.newGame(c);
+      save();
+      return navigate('?case=' + encodeURIComponent(c.id));
+    case 'today': return navigate('');
     case 'others': case 'menu': return others();
     case 'trials': return trials();
     case 'install': return install();
@@ -612,7 +656,5 @@ P.initInstall(chrome, () => {
   chrome();
 });
 
-// ?case=study opens a hand-made cabinet; ?date=2026-11-26 opens the one composed for that date.
-const wanted = params.get('date') ? 'day-' + params.get('date') : params.get('case');
-const initial = caseById(wanted) || CASES[Number(wanted) - 1] || daily.case;
-load(initial.id, read('seen') !== 1);
+window.addEventListener('popstate', () => loadLocation());
+loadLocation(read('seen') !== 1);

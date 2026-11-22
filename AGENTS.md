@@ -7,7 +7,8 @@ coin-operated arcade cabinet of cut-paper dolls, jammed at the moment of a death
 The player reads numbered tags in the cabinet window, collects the words they find,
 sets them as tiles into two brass plates (who the dolls are, and what happened), and
 inserts a penny to test the plates. Four pennies; each says only how many tiles are wrong
-on each plate. The daily rotation uses five hand-written cases. The arcade also offers composed cases and four hand-written approval samples.
+on each plate. The first five daily editions are hand-written. From edition six on,
+each day's case is composed for its UTC date.
 
 Static site, no server. Vanilla JS (ES modules), built with Vite. No framework, no
 TypeScript, no linter.
@@ -25,6 +26,8 @@ npm run build          # vite build into dist/ (never committed)
 Dev pages and switches:
 
 - `/?case=study` (or `?case=5`) opens a cabinet other than today's, as practice.
+- `/?edition=2026-11-21` opens the first official edition. The **?** button and
+  **Archive** on the end playbill open the calendar of released editions.
 - `/?case=brooch` opens the fixed composer sample. `?case=foxes`, `seance`, `encore` and
   `fanciers` open the other samples under **On trial → Samples for review**.
 - `/art.html` shows every scene with its tags; `?scene=train`, `?big=1`, `?nopins=1`.
@@ -45,7 +48,8 @@ Dev pages and switches:
   case's end playbill and tips.
 - `src/lint.js`: the case checker: structure, size, tags, then the proof.
   `scripts/check-cases.mjs` runs it.
-- `src/daily.js`: which case is today's. One edition per UTC day; the five cases repeat.
+- `src/daily.js` assigns one edition per UTC day from November 21, 2026. The five
+  hand-written cases run in difficulty order, followed by the composer from November 26.
 - `src/art/kit.js`: palette and SVG primitives, each shape drawn as a cut-paper piece. `src/art/doll.js`: the dolls.
   `src/art/props.js`: sets and props. `src/art/scenes.js`: one composed scene per case,
   plus where each exhibit's tag sits. `src/art/cogs.js`: the cog strip under the window.
@@ -167,10 +171,8 @@ scene from the case's `scene` object. Each crime has one arrangement that can be
 mirrored. A doll's trade determines its costume. Expressions and free-hand poses
 are drawn independently of guilt. A doll carrying the tray or cloak keeps its carry pose.
 
-- Composed cases are on trial. They are listed under **On trial** in the arcade and open
-  with `/?date=2026-11-26`; they are not part of the daily run (`src/daily.js` still
-  cycles the five hand-written cases). Putting them into the daily run is the owner's
-  decision.
+- **On trial** in the arcade offers fixed review samples and a composed preview in
+  each setting. `/?date=2026-11-26` opens that date's composed case for practice.
 - `/art.html?composed=1` shows a composed scene for each setting, plain and mirrored.
 - `tests/compose.test.js` checks the gate and the mix of culprits and clues across
   dates. Two dates pin the expected output. When a deliberate change alters a date's
@@ -286,4 +288,5 @@ It is an installable PWA following `../GITHUB_PAGES_PWA_TIPS.md` (in the parent
 ## Local saves
 
 Saves on the development machine are disposable (`localStorage`, keys `penny:v1:*`).
+The archive reads progress by case ID, which includes the composer version for composed editions.
 Wipe or seed them freely while testing.

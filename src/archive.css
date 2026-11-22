@@ -1,0 +1,44 @@
+/* The Penny Murders — Copyright (C) 2026 Ryan L. Melvin. SPDX-License-Identifier: GPL-3.0-only */
+.archive-nav {
+  display: grid;
+  grid-template-columns: 42px 1fr 42px;
+  align-items: center;
+  margin: 6px 2px 2px;
+  text-align: center;
+}
+
+.archive-nav h4 { font: 700 17px/1.2 var(--body); }
+.archive-nav .plain { padding: 0; font: 24px/1 var(--body); }
+.archive-nav .plain:disabled { opacity: .35; cursor: default; box-shadow: none; }
+
+.archive-calendar {
+  width: 100%;
+  table-layout: fixed;
+  border-spacing: 3px;
+  text-align: center;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.archive-calendar th { padding: 3px 0; font: 700 11px var(--cut); color: var(--wood-dark); }
+.archive-calendar td { height: 42px; padding: 0; }
+.archive-unavailable { color: var(--wood-dark); opacity: .7; }
+
+.archive-day {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 42px;
+  padding: 0;
+  font-size: 16px;
+  background: var(--cream);
+  box-shadow: 1px 2px 0 var(--cast);
+}
+
+.archive-day.is-selected { background: var(--yellow); }
+.archive-day[aria-current] { border: 2px solid var(--red-dark); }
+.archive-nav button:focus-visible, .archive-day:focus-visible { outline: 2px solid var(--teal-deep); outline-offset: 1px; }
+.archive-mark { position: absolute; inset: auto 0 1px; font: 700 12px/1 var(--body); }
+.archive-day:has(.archive-mark) { padding-bottom: 9px; }
+.archive-key { display: flex; justify-content: center; flex-wrap: wrap; gap: 2px 12px; margin-top: 5px; font-size: 13px; }
+.archive-mark.is-won, .archive-key .is-won { color: var(--teal-deep); }
+.archive-mark.is-lost, .archive-key .is-lost { color: var(--red-dark); }

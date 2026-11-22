@@ -6,7 +6,8 @@ import { CASES, SAMPLES } from '../src/cases/index.js';
 import { lintCase, BUDGET } from '../src/lint.js';
 import { scenePins, sceneSvg } from '../src/art/scenes.js';
 import * as E from '../src/engine.js';
-import { LAUNCH, editionFor, caseForEdition, today } from '../src/daily.js';
+import { LAUNCH, editionFor, caseForEdition, caseIdForDate, dailyForDate, today } from '../src/daily.js';
+import { composeDay } from '../src/compose.js';
 
 for (const c of [...CASES, ...SAMPLES]) {
   test(`${c.id}: passes the case checker`, () => {
@@ -60,12 +61,28 @@ test('the checker catches a broken case', () => {
   assert.ok(errors.some((e) => e.includes('not an exhibit')));
 });
 
-test('editions count UTC days from launch and the five cases repeat', () => {
+test('the first five UTC editions are the five hand-written cabinets in order', () => {
+  assert.equal(LAUNCH, '2026-11-21');
   assert.equal(editionFor(LAUNCH), 1);
-  assert.equal(caseForEdition(1).id, CASES[0].id);
-  assert.equal(caseForEdition(CASES.length + 1).id, CASES[0].id);
-  assert.equal(caseForEdition(CASES.length).id, CASES[CASES.length - 1].id);
-  const t = today(Date.parse(LAUNCH + 'T23:59:59Z'));
-  assert.deepEqual([t.date, t.edition, t.case.id], [LAUNCH, 1, CASES[0].id]);
-  assert.equal(today(Date.parse(LAUNCH + 'T00:00:00Z') + 86400000).edition, 2);
+  for (const [i, c] of CASES.entries()) {
+    const date = `2026-11-${21 + i}`;
+    assert.deepEqual(today(Date.parse(date + 'T23:59:59.999Z')), { date, edition: i + 1, case: c });
+    assert.equal(caseForEdition(i + 1), c);
+    assert.equal(caseIdForDate(date), c.id);
+  }
+});
+
+test('later UTC editions publish the composed cabinet for that date', () => {
+  for (const [date, edition] of [['2026-11-26', 6], ['2026-11-27', 7], ['2027-01-01', 42]]) {
+    const c = composeDay(date);
+    assert.deepEqual(today(Date.parse(date + 'T00:00:00Z')), { date, edition, case: c });
+    assert.equal(caseIdForDate(date), c.id);
+  }
+});
+
+test('pre-launch dates and invalid calendar dates have no edition to open', () => {
+  for (const date of ['2026-11-20', '2026-11-31', '2026-2-1', 'abc']) {
+    assert.equal(dailyForDate(date), null);
+    assert.equal(caseIdForDate(date), null);
+  }
 });
