@@ -45,12 +45,13 @@ function bunch() {
   return flowers + path('M-4 0l7-2 2 5-8 1Z', C.pink);
 }
 
-function checks() {
+function tumblingCostume() {
   let patch = rect(-8, -56, 16, 14, C.cream);
   for (let row = 0; row < 3; row++) {
     for (let col = row % 2; col < 4; col += 2) patch += bar(-8 + col * 4, -56 + row * 4.5, 4, 4.5, C.tealDark);
   }
-  return patch;
+  const bells = [-10, -6, 6, 10].map(x => circ(x, 12, 1.3, C.brass)).join('');
+  return patch + bells;
 }
 
 function curtain() {
@@ -76,8 +77,8 @@ export function draw() {
   scene += doll({ x: 117, y: 238, s: 1.12, dir: -1, body: 'dress', paint: '#d05868', hat: 'plume', hatColor: C.mustard, hatBand: C.red,
     skin: SKIN[2], hair: 'curls', hairColor: C.black, pose: 'hold', hold: bunch(), carry: songSash(), nod: [-2, 2, 2] });
   scene += doll({ x: 218, y: 248, s: 1.13, dir: 1, body: 'coat', paint: C.tealDark, legs: C.tealDark, hat: 'bowler',
-    hatColor: C.mustard, hair: 'crop', hairColor: '#925c37', collar: 'bow', collarColor: C.pink, skin: SKIN[1],
-    pose: 'stand', carry: checks(), rock: [-1, 1, 2] });
+    hatColor: C.mustard, hair: 'bob', hairColor: '#925c37', collar: 'bow', collarColor: C.pink, skin: SKIN[1],
+    pose: 'stand', carry: tumblingCostume(), rock: [-1, 1, 2] });
   for (const [x, y, angle] of [[253, 244, 73], [260, 257, 94]]) {
     scene += g(`translate(${x} ${y}) rotate(${angle})`, path('M-1-11q-4-7-5-1-1 5 4 9v12h2V-3q3-5-1-8Z', C.pink));
   }

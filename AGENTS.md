@@ -73,7 +73,7 @@ what the body shows, what would leave that mark, what is untouched, who holds wh
 boarded where), followed by its telling: the sentence the player reads.
 
 ```js
-['tag', 'body', { initials: 'S.C.' }, 'In his waistcoat, a {watch} engraved: | cut: $name Thirty years among the roses'],
+['fits', 'body', 'gardener', 'Soil under his nails. The back of his {watch} reads: | cut: Thirty years among the roses.'],
 ['untouched', 'shears', 'straight blades, thick with dust.'],
 ['dead', 'body', null]
 ```
@@ -145,20 +145,23 @@ checks the telling, proof, size and tags. If a case fails, the composer tries a 
 salt, up to 40 attempts. Each date and composer version gives the same case and has
 its own save ID.
 
-Version 5 rotates three crimes by date (`crimeOf`).
+Version 6 rotates three crimes by date (`crimeOf`).
 
 - **The interrupted theft** (`buildTheft`) has three dolls in a glasshouse, library
   or plate room. Either the visitor or the servant holds the missing item. Either
   wall tool or the guilty doll's own carried object can match the wound. The same
   eight tags appear whoever did it. An invitation accounts for an innocent visitor's
-  journey, and a receipt clears an innocent servant's debt.
+  journey, and a receipt clears an innocent servant's debt. Two staff share a duty
+  on the roster. A numbered luggage check links the traveller to the bag.
 - **The wrong glass** (`buildSwitch`) has four dolls in a dressing room, kitchen or
   ship's cabin. The poisoner may be the doll at the door or the one across from it.
   A receipt, an empty container, or a trace matching an opened poison on the shelf
   ties them to the means. An innocent suspect can have a receipt for a sealed
-  poison or a dismissal that was taken back.
+  poison or a dismissal that was taken back. A scrap on the doll at the door fits
+  a page in a signed book, and the duty list records who held matching passes or keys.
 - **The Mourning Brooch** (`src/brooch.js`) has three mourners at a memorial
-  supper and a guest on the floor. A numbered button identifies the assailant.
+  supper and the host on the floor. Two stewards wear the same badge. The porter's
+  account distinguishes them. A numbered button identifies the assailant.
   The constable’s inventory and the admission tickets establish a later theft.
   Each mourner can kill and either other mourner can take the jewel.
 

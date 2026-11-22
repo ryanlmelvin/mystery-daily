@@ -15,7 +15,7 @@ const PLACES = [
   { id: 'clock', label: 'By the clock', title: 'The mourner by the clock' },
   { id: 'door', label: 'At the door', title: 'The mourner at the door' }
 ];
-const COATS = [['plum', C.plum], ['navy', C.navy], ['green', C.green]];
+const COATS = [C.plum, C.navy, C.green];
 const CLOCKS = [
   ['7.35', '7.50', '8.05', '8.20'], ['8.10', '8.25', '8.35', '8.50'], ['7.10', '7.25', '7.40', '7.55']
 ];
@@ -32,36 +32,46 @@ export function buildBrooch(date, attempt, turn, { pick, shuffled, chance, face 
   const thief = pick(PLACES.filter((place) => place !== killer));
   const stamps = shuffled(['17', '24', '31', '46', '52', '68']).slice(0, 3);
   const coats = shuffled(COATS);
+  const [flowers, otherSteward, musician] = shuffled(PLACES);
+  const nameOf = (place) => guests[PLACES.indexOf(place)];
   const [first, second, examined, late] = pick(CLOCKS);
   const earlier = shuffled([first, second]);
   const site = pick(['collar', 'lapel']);
-  const body = { id: 'body', title: 'The guest on the floor', facts: [
+  const body = { id: 'body', title: 'The mourner on the floor', facts: [
     ['dead', 'body', null],
-    ['tag', 'body', { initials: victim.split(' ').map((p) => p[0] + '.').join('') }, 'Inside the coat: | cut: $name'],
+    ['fits', 'body', 'host', 'In one pocket, a toast beginning “My dear guests”.'],
     ['bare', site, 'Black crape torn at the $key. Two empty pinholes.'],
     ['grippedButton', stamps[PLACES.indexOf(killer)], 'Clenched in one fist, a brass cuff button stamped $mark.']
   ] };
-  const roster = { id: 'roster', title: 'Cloakroom book', facts: [
-    ['listed', victim, 'host', 'hand: Memorial supper. $Key, $name.'],
-    ...guests.map((name, i) => ['listed', name, coats[i][0], i === 0 ? 'hand: Loan coats. $Key, $name.' : 'hand: $Key, $name.'])
+  const stewards = [nameOf(flowers), nameOf(otherSteward)].sort();
+  const roster = { id: 'roster', title: 'Memorial supper programme', facts: [
+    ['listed', nameOf(musician), 'violinist', 'print: Memorial supper. $Key: $name.'],
+    ['listed', stewards[0], 'steward', 'print: $Key: $name.'],
+    ['listed', stewards[1], 'steward', 'print: $Key: $name.'],
+    ['listed', victim, 'host', 'print: A welcome from our $key, $name.']
   ] };
   const witness = { id: 'witness', title: 'The porter’s deposition', facts: [
-    ['witnessedButton', 'hand: I saw the blow land. The guest caught the attacker’s cuff and tore off a button before falling.']
+    ['listed', nameOf(flowers), 'wreath', 'hand: I lent $name my pliers to wire the $key.'],
+    ['witnessedButton', 'hand: As the blow fell, the mourner tore a button from the attacker’s cuff.']
   ] };
   const record = { id: 'inventory', title: 'The constable’s inventory', facts: [
-    ['inventory', site, loot, examined, 'hand: $time. Examined the dead guest. On the $key, a $thing, still firmly pinned.'],
+    ['inventory', site, loot, examined, 'hand: $time. Examined the body. On the $key, a $thing, still firmly pinned.'],
     ['untouched', keepsake, 'Sealed in the property tray, the $thing'],
     ['untouched', chain, 'and the $thing.']
   ] };
   const scene = { kind: 'brooch', setting, mirror: chance(0.5), floor: { look: { ...face(), body: 'coat', paint: C.black, collar: 'bow' } } };
   const suspects = PLACES.map((place, i) => {
-    const [colour, paint] = coats[i];
+    const paint = coats[i];
     scene[place.id] = { look: { ...face(), body: 'coat', paint, collar: 'tie', hat: pick(['bowler', 'flat', null]), pose: pick(['stand', 'hip', 'alarm']) } };
-    const facts = [
-      ['fits', place.id, colour, `A ${colour} loan coat.`],
+    const dress = place === musician
+      ? ['fits', place.id, 'violinist', 'Spare fiddle strings. Rosin on the fingertips.']
+      : ['fits', place.id, 'steward', 'A steward’s badge under the lapel.'];
+    const facts = [dress];
+    if (place === flowers) facts.push(['fits', place.id, 'wreath', 'Pliers still grip yew and florist’s wire.']);
+    facts.push(
       ['cuffNumber', place.id, stamps[i], place === killer ? 'One cuff button gone. Its mate bears $mark.' : 'Cuff buttons stamped $mark.'],
-      ['admitted', place.id, place === thief ? late : earlier.pop(), 'The doorkeeper punched the entry ticket: | print: First admission $time.']
-    ];
+      ['admitted', place.id, place === thief ? late : earlier.pop(), 'Punched ticket: | print: First admission $time.']
+    );
     if (place === thief) facts.push(['has', place.id, loot, 'Hidden inside one glove, the $thing. Black crape caught in its pin.']);
     return { id: place.id, title: place.title, facts };
   });
@@ -88,8 +98,8 @@ export function buildBrooch(date, attempt, turn, { pick, shuffled, chance, face 
     panels: [
       { id: 'cast', title: 'The cast', parts: cast },
       { id: 'story', title: 'What happened', parts: [
-        ['person', guests[PLACES.indexOf(killer)], 'culprit'], ' killed ', ['person', victim, 'victim'], '. Afterward, ',
-        ['person', guests[PLACES.indexOf(thief)], 'thief'], ' took the ', ['thing', loot, 'loot'], '.'
+        ['person', nameOf(killer), 'culprit'], ' killed ', ['person', victim, 'victim'], '. Afterward, ',
+        ['person', nameOf(thief), 'thief'], ' took the ', ['thing', loot, 'loot'], '.'
       ] }
     ]
   };

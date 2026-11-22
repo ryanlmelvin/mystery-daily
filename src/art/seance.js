@@ -48,7 +48,8 @@ export function draw() {
     + armchairArms(202, 233, C.red);
   s += doll({ x: 76, y: 246, s: 1.13, dir: 1, body: 'shirt', paint: C.green, hair: 'curls', hat: 'boater',
     hatBand: C.mustard, skin: SKIN[3], pose: 'hold', nod: [-3, 3, 2.7],
-    carry: line('M-3 -44 Q-6 -34 -11 -41', 1.2, C.brass) + g('translate(-7,-53) scale(.44)', bird(0, 0, C.black)) });
+    carry: line('M-3 -44 Q-6 -34 -11 -41', 1.2, C.brass) + g('translate(-7,-53) rotate(-28)', ell(0, -2.2, 1.8, 1.5, C.brass)
+      + dot(0, -2.2, .7, C.ink) + line('M0 -.8v4.5h1.6m-1.6-1.5h1.2', 1.4, C.brassDark)) });
   s += doll({ x: 324, y: 245, s: 1.14, dir: -1, body: 'coat', paint: C.blue, collar: 'bow',
     hat: 'top', hair: 'part', whiskers: 'pencil', skin: SKIN[0], pose: 'clutch', rock: [-1, 1, 2.4],
     carry: blob('M4 -56 l2 1.5 l2 -1.8 l-.6 3.2 l-1.6 1.7 l-1.2 -1.3Z', C.mustard) });

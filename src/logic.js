@@ -138,12 +138,16 @@ function solveCast(c, atoms) {
       if (ids[d]) continue;
       const open = cand[d].filter((n) => !Object.values(ids).includes(n));
       if (open.length !== 1) continue;
+      // The clue that distinguishes two otherwise alike dolls also establishes the
+      // other identity. Carry its exhibits through any further eliminations.
+      const eliminated = steps.filter((s) => cand[d].includes(s.name));
       ids[d] = open[0];
       steps.push({
         doll: d,
         name: open[0],
+        eliminated: eliminated.map((s) => s.doll),
         how: uniq(cons[d].map((k) => k.rule)).concat(cand[d].length > 1 ? ['the only name left'] : []),
-        from: uniq(cons[d].flatMap((k) => k.from))
+        from: uniq([...cons[d].flatMap((k) => k.from), ...eliminated.flatMap((s) => s.from)])
       });
       moved = true;
     }

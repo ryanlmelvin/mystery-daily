@@ -5,6 +5,15 @@ import assert from 'node:assert/strict';
 import seance from '../src/cases/seance.js';
 import { proveCase } from '../src/logic.js';
 
+test('the sitters each need their own match outside the booth', () => {
+  for (const [id, kind, sitter] of [['bill', 'listed', 'left'], ['counterfoils', 'owner', 'right']]) {
+    const c = structuredClone(seance);
+    const exhibit = c.exhibits.find((e) => e.id === id);
+    exhibit.facts = exhibit.facts.filter((f) => f[0] !== kind);
+    assert.deepEqual(proveCase(c).cast.stalled, [sitter]);
+  }
+});
+
 test('the invitation, signature and accusation follow separate clues', () => {
   const { story, errors } = proveCase(seance);
   assert.deepEqual(errors, []);

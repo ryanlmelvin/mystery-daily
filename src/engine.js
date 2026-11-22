@@ -65,14 +65,21 @@ const note = (s, now, what) => {
   s.log.push([Math.round((now - s.t0) / 100) / 10, what]);
 };
 
+function collectWords(exhibit, s) {
+  for (const word of wordsIn(exhibit)) if (!s.bank.includes(word)) s.bank.push(word);
+}
+
+// An updated telling may offer another word on a tag the player has already read.
+export function collectReadWords(c, s) {
+  for (const ex of c.exhibits) if (s.opened.includes(ex.id)) collectWords(ex, s);
+}
+
 export function openExhibit(c, s, id, now) {
   const ex = c.exhibits.find((e) => e.id === id);
   if (!ex) return false;
   note(s, now, `open ${id}`);
-  if (!s.opened.includes(id)) {
-    s.opened.push(id);
-    for (const w of wordsIn(ex)) if (!s.bank.includes(w)) s.bank.push(w);
-  }
+  if (!s.opened.includes(id)) s.opened.push(id);
+  collectWords(ex, s);
   return true;
 }
 

@@ -7,7 +7,7 @@ import { explain } from '../src/explain.js';
 import { told } from '../src/tell.js';
 
 test('a carried weapon explains the unused wall tools and cites their tag in the text', () => {
-  const c = composeDay('2026-12-03');
+  const c = composeDay('2026-11-27');
   const wall = c.exhibits.find((ex) => ex.id === 'tools');
   const means = c.path.find((s) => s.how === 'With what');
   assert.ok(means.from.includes(wall.id));
@@ -19,7 +19,7 @@ test('a carried weapon explains the unused wall tools and cites their tag in the
 });
 
 test('one receipt clears the suspect and the apparent motive together', () => {
-  const c = composeDay('2026-11-27');
+  const c = composeDay('2026-11-30');
   const receipt = c.exhibits.find((ex) => ex.id === 'pocket');
   const [, doll, paid] = receipt.facts.find(([type]) => type === 'excused');
   const suspect = explain(c).proof.cast.ids[doll];
@@ -33,7 +33,7 @@ test('one receipt clears the suspect and the apparent motive together', () => {
 });
 
 test('removing the invitation leaves a lead unanswered and the gate refuses the case', () => {
-  const c = structuredClone(composeDay('2026-11-30'));
+  const c = structuredClone(composeDay('2026-12-03'));
   const bag = c.exhibits.find((ex) => ex.id === 'bag');
   bag.facts = bag.facts.filter(([type]) => type !== 'explained');
   const result = explain(c);

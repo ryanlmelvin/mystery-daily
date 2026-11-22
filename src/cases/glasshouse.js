@@ -26,20 +26,20 @@ export default {
       id: 'body',
       title: 'The man on the floor',
       facts: [
-        ['fits', 'body', 'gardener', 'Soil under his nails.'],
+        ['fits', 'body', 'gardener', 'Soil under his nails. The back of his {watch} reads: | cut: Thirty years among the roses.'],
         ['dead', 'body', null],
-        ['sign', 'crescent-shaped gash', 'One $mark behind the ear.'],
-        ['tag', 'body', { initials: 'S.C.' }, 'In his waistcoat, a {watch} engraved: | cut: $name Thirty years among the roses']
+        ['sign', 'crescent-shaped gash', 'One $mark behind the ear.']
       ]
     },
     {
       id: 'wagebook',
-      title: 'Wage book on the bench',
+      title: 'Estate accounts on the bench',
       facts: [
-        ['listed', 'Silas Crane', 'gardener', 'print: $name, head $key:'],
-        ['wants', 'Silas Crane', 'wages', 'print: $thing three months unpaid.'],
+        ['listed', 'Jasper Vane', 'nephew', 'hand: Allowance paid to $name, {Cordelia Vane}’s $key.'],
         ['listed', 'Nell Fisk', 'housemaid', 'print: $name, $key.'],
-        ['listed', 'Tobias Ruck', 'groom', 'print: $name, $key.']
+        ['listed', 'Tobias Ruck', 'groom', 'print: $name, $key.'],
+        ['listed', 'Silas Crane', 'gardener', 'print: $name, head $key:'],
+        ['wants', 'Silas Crane', 'wages', 'print: $thing three months unpaid.']
       ]
     },
     {
@@ -61,15 +61,14 @@ export default {
       id: 'letter',
       title: 'Letter in his breast pocket',
       facts: [
-        ['tag', 'youth', { full: 'Jasper Vane' }, 'hand: $name:'],
-        ['wants', 'Jasper Vane', 'debts', 'hand: I have paid your $thing for the last time. The {Ghost Orchid} goes to the Society on Friday. Your aunt, {Cordelia Vane}.']
+        ['wants', 'youth', 'debts', 'hand: I have paid your $thing for the last time. The {Ghost Orchid} goes to the Society on Friday.'],
+        ['fits', 'youth', 'nephew', 'hand: Your affectionate aunt, {Cordelia Vane}.']
       ]
     },
     {
       id: 'bag',
       title: 'Carpet bag at his feet',
       facts: [
-        ['tag', 'youth', { initials: 'J.V.' }, 'The clasp is stamped: | cut: $name'],
         ['has', 'youth', 'Ghost Orchid', 'Inside, $thing~[a white orchid], its roots wrapped in wet newspaper.']
       ]
     },
@@ -92,12 +91,12 @@ export default {
   ],
   panels: [
     { id: 'cast', title: 'The cast', parts: ['On the floor, ', ['person', 'Silas Crane', 'body'], '. In the doorway, ', ['person', 'Nell Fisk', 'maid'], '. By the garden door, ', ['person', 'Jasper Vane', 'youth'], '.'] },
-    { id: 'story', title: 'What happened', parts: [['person', 'Jasper Vane', 'culprit'], ' struck ', ['person', 'Silas Crane', 'victim'], ' with the ', ['thing', 'spade', 'means'], ' when the gardener caught him stealing the ', ['thing', 'Ghost Orchid', 'loot'], ' to pay his ', ['thing', 'debts', 'motive'], '.'] }
+    { id: 'story', title: 'What happened', parts: [['person', 'Jasper Vane', 'culprit'], ' struck ', ['person', 'Silas Crane', 'victim'], ' with the ', ['thing', 'spade', 'means'], ' when caught stealing the ', ['thing', 'Ghost Orchid', 'loot'], ' to pay off ', ['thing', 'debts', 'motive'], '.'] }
   ],
   path: [
-    { how: 'Initials', from: ['body', 'wagebook'], gives: [0, 4], say: 'The watch says S.C. and the wage book has one S.C.: the man on the floor is Silas Crane, the gardener.' },
+    { how: 'Thirty years among the roses', from: ['body', 'wagebook'], gives: [0, 4], say: 'Soil under his nails and a watch marking thirty years among the roses point to the gardener. The estate pays Silas Crane to tend the gardens.' },
     { how: 'Trade', from: ['maid', 'wagebook'], gives: [1], say: 'Cap, apron and house keys: the woman is the housemaid, Nell Fisk.' },
-    { how: 'A letter in the pocket', from: ['letter', 'bag'], gives: [2], say: 'The letter in his pocket is to Jasper Vane, and his bag is stamped J.V.' },
+    { how: 'A letter in the pocket', from: ['letter', 'wagebook'], gives: [2], say: 'Cordelia signs the letter in the young man’s pocket as his aunt. The estate pays an allowance to her nephew, Jasper Vane.' },
     { how: 'Fit', from: ['body', 'tools', 'maid'], gives: [5], say: 'A crescent gash fits the curved spade, not the straight, dusty shears or the unbroken lamp.' },
     { how: 'Trace', from: ['stand', 'bag', 'youth'], gives: [6, 3], say: 'The Ghost Orchid is gone from its stand and a white orchid is in his bag, with a ticket out tonight: Jasper is the thief the gardener caught.' },
     { how: 'Motive', from: ['letter', 'wagebook'], gives: [7], say: 'His aunt will not pay his debts again, and the orchid was about to leave the house.' }

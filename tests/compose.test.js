@@ -27,16 +27,42 @@ function culpritAndMeans(c) {
 test('a date always gives the same case', () => {
   const a = composeDay('2026-11-26');
   assert.equal(a.title, 'The Cameo at the Royal Waiting Room');
-  assert.equal(a.id, 'day-2026-11-26-c5');
+  assert.equal(a.id, 'day-2026-11-26-c6');
   assert.equal(a.where, "A memorial supper in the Royal Waiting Room");
-  assert.deepEqual(answers(a), ['Linus Marsh', 'Edwin Fisk', 'Olive Nash', 'Rufus Dove', 'Olive Nash', 'Linus Marsh', 'Rufus Dove', 'coral cameo']);
+  assert.deepEqual(answers(a), ['Thea Lark', 'Felix Bellamy', 'Dorian Holt', 'Elias Ruck', 'Dorian Holt', 'Thea Lark', 'Felix Bellamy', 'coral cameo']);
   const b = composeDay('2026-11-27');
   assert.equal(b.title, 'A Dark Night in the Book Room');
-  assert.equal(b.id, 'day-2026-11-27-c5');
-  assert.equal(b.where, 'Orme Park, a little after ten at night');
-  assert.deepEqual(answers(b), ['Cornelius Thrale', 'Barnaby Hobb', 'Edwin Sparrow', 'Edwin Sparrow', 'Cornelius Thrale', 'paperweight', 'Black Herbal', 'debts']);
+  assert.equal(b.id, 'day-2026-11-27-c6');
+  assert.equal(b.where, 'Slade Priory, half past eight in the evening');
+  assert.deepEqual(answers(b), ['Mungo Bellamy', 'Lettice Quill', 'Barnaby Pym', 'Lettice Quill', 'Mungo Bellamy', 'lamp', 'Black Herbal', 'debts']);
   assert.equal(composeDay('2026-11-26'), a);
 });
+
+// Remove only the observation distinguishing two plausible dolls. The rest of the
+// exhibit and the crime evidence stay in place when checking the rival casts.
+for (const [crime, date, exhibit, type] of [
+  ['brooch', '2026-11-26', 'witness', 'listed'],
+  ['theft', '2026-11-27', 'doorway', 'fits'],
+  ['switch', '2026-11-28', 'book', 'owner']
+]) {
+  test(`the ${crime} cast needs the distinguishing clue from ${exhibit}`, () => {
+    const c = structuredClone(composeDay(date));
+    assert.equal(c.composed.crime, crime);
+    const full = proveCase(c);
+    assert.equal(full.cast.solutions.length, 1);
+    const inferred = full.cast.steps.find((step) => step.how.includes('the only name left') && step.from.includes(exhibit));
+    assert.ok(inferred, 'the elimination must cite the clue that rules out its rival');
+
+    const clue = c.exhibits.find((ex) => ex.id === exhibit);
+    assert.equal(clue.facts.filter(([kind]) => kind === type).length, 1);
+    clue.facts = clue.facts.filter(([kind]) => kind !== type);
+    const incomplete = proveCase(c);
+    const names = new Set(incomplete.cast.solutions.map((cast) => cast[inferred.doll]));
+    assert.ok(names.size > 1, `the remaining evidence still identifies ${inferred.doll}`);
+    assert.ok(names.has(inferred.name));
+    assert.equal(incomplete.ok, false);
+  });
+}
 
 // What a player would notice coming round again is rotated, not drawn: a proofread of a
 // year found 49 cases repeating a setting with the same things as one the week before.

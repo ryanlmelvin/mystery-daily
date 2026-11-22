@@ -167,9 +167,21 @@ test('train: without the key to the sample case, the standing man could be the g
   const c = structuredClone(caseById('train'));
   drop(c, 'traveller', 'link');
   const p = proveCase(c);
-  assert.ok(has(p, 'The cast can be named 2 ways'));
-  assert.ok(has(p, 'traveller: Amos Pike'));
+  assert.ok(p.cast.solutions.some((s) => s.traveller === 'Amos Pike'));
+  assert.ok(p.cast.stalled.includes('traveller'));
   assert.ok(caseById('train').exhibits.find((e) => e.id === 'traveller').lines[0][1].includes('key to a sample case'));
+});
+
+test('the two collars need the bishop’s letter, the two hat repairs need the feather', () => {
+  const parish = structuredClone(caseById('vicarage'));
+  drop(parish, 'visitor', 'link');
+  const collars = proveCase(parish).cast.solutions;
+  assert.deepEqual(new Set(collars.map((s) => s.vicar)), new Set(['Osric Thrale', 'Ambrose Pell']));
+  assert.equal(collars.length, 2);
+
+  const train = structuredClone(caseById('train'));
+  drop(train, 'lady', 'fits');
+  assert.ok(proveCase(train).cast.solutions.some((s) => s.lady === 'Dora Bly'));
 });
 
 test('the brooch needs evidence for both the fatal struggle and the later theft', () => {

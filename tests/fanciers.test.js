@@ -8,6 +8,15 @@ import { told } from '../src/tell.js';
 import { lintCase } from '../src/lint.js';
 import { proveCase } from '../src/logic.js';
 
+test('the May Day nest slip and the seed scales each need a catalogue entry', () => {
+  for (const [key, doll] of [['May Day', 'hat'], ['seed merchant', 'satchel']]) {
+    const c = structuredClone(fanciers);
+    const catalogue = c.exhibits.find((e) => e.id === 'catalogue');
+    catalogue.facts = catalogue.facts.filter(([kind, , entry]) => kind !== 'listed' || entry !== key);
+    assert.deepEqual(proveCase(c).cast.stalled, [doll]);
+  }
+});
+
 test('Fanciers’ Hall proves the prize claim and refutes the displayed winner', () => {
   const result = lintCase(told(fanciers), pins);
   assert.deepEqual(result.errors, []);

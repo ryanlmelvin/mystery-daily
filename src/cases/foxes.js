@@ -9,18 +9,22 @@ export default {
   },
   exhibits: [
     { id: 'doorcard', title: 'The doorkeeper’s dance card', facts: [
-      ['maskAtDoor', 'Dinah Dove', 'Fox', 'print: Masks on arrival. $Who came as the $thing.'],
-      ['maskAtDoor', 'Pearl Finch', 'Hare', 'print: $Who came as the $thing.'],
-      ['maskAtDoor', 'Lionel Jay', 'Stag', 'print: $Who, our host, came as the $thing.']
+      ['listed', 'Lionel Jay', 'host', 'print: Masks on arrival. $Key: $name,'],
+      ['maskAtDoor', 'Lionel Jay', 'Stag', 'print: the $thing.'],
+      ['listed', 'Pearl Finch', 'guest', 'print: $Key: $name,'],
+      ['maskAtDoor', 'Pearl Finch', 'Hare', 'print: the $thing.'],
+      ['listed', 'Dinah Dove', 'guest', 'print: $Key: $name,'],
+      ['maskAtDoor', 'Dinah Dove', 'Fox', 'print: the $thing.']
     ] },
     { id: 'fan', title: 'The guest with the fan', facts: [
-      ['tag', 'fan', { initials: 'D.D.' }, 'A peacock feather flickers in her fingers. On her fan, picked out in tiny pearls: | cut: $name']
+      ['link', 'fan', 'bluebell card', 'Inside the peacock fan, the stub of a dance card. Its torn edge cuts a painted bluebell in two.']
     ] },
     { id: 'rose', title: 'The guest with the rose', facts: [
-      ['tag', 'rose', { surname: 'Finch' }, 'A scarlet rose in her buttonhole. Her little silver pencil is engraved: | cut: Miss $name']
+      ['fits', 'rose', 'guest', 'A white ribbon fastens her rose. | print: Guest of the Assembly Rooms']
     ] },
     { id: 'host', title: 'The fallen host', facts: [
-      ['tag', 'host', { initials: 'L.J.' }, 'Across his sash: | cut: Master of Revels • $name'],
+      ['fits', 'host', 'host', 'His sash reads HOST. In his glove, half a dance card with half a bluebell,'],
+      ['owner', 'bluebell card', { surname: 'Dove' }, 'signed in a round hand: | hand: My first dance is yours. Miss $name.'],
       ['dead', 'host', null]
     ] },
     { id: 'slip', title: 'A slip from the forfeit bowl', facts: [
@@ -43,9 +47,9 @@ export default {
     { id: 'story', title: 'What happened', parts: [['person', 'Pearl Finch', 'culprit'], ' struck ', ['person', 'Lionel Jay', 'victim'], ' in the ', ['thing', 'Fox', 'guise'], ' mask. ', ['person', 'Dinah Dove', 'firstWearer'], ' wore it on arrival.'] }
   ],
   path: [
-    { how: 'Initials on the fan', from: ['fan', 'doorcard'], gives: [0], say: 'D.D. on the peacock fan belongs to Dinah Dove.' },
-    { how: 'An engraved pencil', from: ['rose', 'doorcard'], gives: [1], say: 'Miss Finch is engraved on the pencil beside the rose. Pearl Finch carries it.' },
-    { how: 'The master of revels', from: ['host', 'doorcard'], gives: [2, 4], say: 'The host on the door card is Lionel Jay. His sash bears his initials.' },
+    { how: 'Two halves of a dance card', from: ['fan', 'host', 'doorcard'], gives: [0], say: 'Fit the bluebell in the fan to the half in the host’s glove. Miss Dove signed the promise of that first dance. The fan belongs to Dinah Dove.' },
+    { how: 'The other guest', from: ['rose', 'doorcard', 'fan', 'host'], gives: [1], say: 'The door card names two guests. Dinah holds the fan, so the guest wearing a rose is Pearl Finch.' },
+    { how: 'The host’s sash', from: ['host', 'doorcard'], gives: [2, 4], say: 'The sash marks the fallen man as the host. The doorkeeper entered Lionel Jay in that place.' },
     { how: 'A witness at the ball', from: ['fiddle', 'masks', 'doorcard'], gives: [5, 6], say: 'The fiddler saw a Fox with a white-tipped muzzle. Dinah wore that mask when she arrived.' },
     { how: 'One dance later', from: ['slip', 'score', 'doorcard', 'fiddle', 'masks'], gives: [3], say: 'Dinah and Pearl traded after dance one. The fiddler stopped in dance two, with Pearl behind the Fox’s muzzle.' }
   ],

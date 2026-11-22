@@ -39,7 +39,7 @@ import { explain } from './explain.js';
 import { scenePins } from './art/scenes.js';
 import { C, SKIN } from './art/kit.js';
 
-export const COMPOSER = 5;
+export const COMPOSER = 6;
 const ATTEMPTS = 40;
 
 // A small seeded generator (xmur3 into mulberry32): the same text gives the same draws.
@@ -76,8 +76,8 @@ const MOODS = ['shock', 'shock', 'shifty', 'stern', 'calm'];
 
 // A grievance the keeper has of his own: a trap. It is his, and he is the one dead.
 const GRIEVANCES = [
-  { word: 'wages', tell: 'print: $thing three months unpaid.' },
-  { word: 'pension', tell: 'print: his $thing refused.' }
+  { word: 'wages', tell: 'print: $who: $thing three months overdue.' },
+  { word: 'pension', tell: 'print: $who: $thing refused.' }
 ];
 
 // Others on the household list who are not in the room.
@@ -132,12 +132,12 @@ const TOOLS = {
 const SETTINGS = {
   glasshouse: {
     rooms: ['the Fernery', 'the Orchid House', 'the Palm House'],
-    trade: 'gardener', listed: 'print: $name, head $key', tradeSign: 'Soil under his nails.',
-    keeperLook: { body: 'shirt', paint: C.green, legs: '#6a5034' },
-    belongings: [
-      ['watch', 'In his waistcoat, a {watch} engraved:', 'Thirty years among the roses'],
-      ['snuffbox', 'In his apron, a {snuffbox} engraved:', 'For the best marrow in the county']
+    trade: 'gardener',
+    duties: [
+      ['Repotting seedlings', 'Damp potting moss clings to his knees.'],
+      ['Tying vines', 'Green tying raffia caught on his cuff.']
     ],
+    keeperLook: { body: 'shirt', paint: C.green, legs: '#6a5034' },
     roster: 'Wage book on the bench',
     servants: ['housemaid', 'footman'],
     loot: [
@@ -152,12 +152,12 @@ const SETTINGS = {
   },
   library: {
     rooms: ['the Long Library', 'the Map Room', 'the Book Room'],
-    trade: 'librarian', listed: 'print: $name, $key', tradeSign: 'Ink on his fingers and a pencil behind his ear.',
-    keeperLook: { body: 'coat', paint: '#7a5a3a', legs: '#3b3f4a', collar: 'bow', collarColor: C.teal, specs: true },
-    belongings: [
-      ['watch', 'In his waistcoat, a {watch} engraved:', 'Forty years among the shelves'],
-      ['snuffbox', 'In his pocket, a {snuffbox} engraved:', 'From the Antiquarian Society']
+    trade: 'librarian',
+    duties: [
+      ['Binding books', 'Binder’s thread and paste on his cuffs.'],
+      ['Marbling endpapers', 'Swirls of marbling ink on his sleeves.']
     ],
+    keeperLook: { body: 'coat', paint: '#7a5a3a', legs: '#3b3f4a', collar: 'bow', collarColor: C.teal, specs: true },
     roster: 'Household book on the table',
     servants: ['housemaid', 'footman'],
     loot: [
@@ -172,12 +172,12 @@ const SETTINGS = {
   },
   gallery: {
     rooms: ['the Plate Room', 'the Silver Pantry', 'the Trophy Room'],
-    trade: 'butler', listed: 'print: $name, $key', tradeSign: 'Silver polish on his cuffs.',
-    keeperLook: { body: 'coat', paint: C.black, legs: '#4a4652', collar: 'bow', collarColor: C.white },
-    belongings: [
-      ['watch', 'In his waistcoat, a {watch} engraved:', 'For faithful service'],
-      ['snuffbox', 'In his waistcoat, a {snuffbox} engraved:', 'From a grateful house']
+    trade: 'butler',
+    duties: [
+      ['Polishing silver', 'Pink silver polish on both cuffs.'],
+      ['Lining drawers', 'Green baize clippings stuck to his sleeves.']
     ],
+    keeperLook: { body: 'coat', paint: C.black, legs: '#4a4652', collar: 'bow', collarColor: C.white },
     roster: 'Plate book on the table',
     servants: ['cook', 'housemaid', 'footman'],
     loot: [
@@ -218,17 +218,17 @@ const SWITCHES = {
     roster: 'Playbill on the wall',
     heads: ["Tonight: The Tyrant's Supper.", 'Tonight: The Last Emperor.', 'Tonight: A Throne for Two.'],
     lead: { role: 'the King', sign: 'Robe and {crown}, powdered for the stage.', plate: 'In the crown', title: 'The gentleman in the crown', look: { body: 'robe', paint: C.red, trim: C.white, hat: 'crown', hair: 'curls', head: 'wide' } },
-    second: { role: 'understudy', title: 'The young man at the door' },
-    drinker: { role: 'prompter', sign: 'A prompt-book under his arm,', look: { body: 'shirt', paint: '#8a5630', legs: '#3b3f4a' } },
+    second: { role: 'understudy', title: 'The young man at the door', scrap: 'A torn half-page in his cuff ends “Your Maj—”.' },
+    drinker: { role: 'prompter', issue: 'Wing passes', sign: 'A wing pass pinned to his shirt.', look: { body: 'shirt', paint: '#8a5630', legs: '#3b3f4a' } },
     fourth: {
       role: 'wardrobe', women: true, sign: 'Pincushion at her wrist, a half-hemmed cloak over her arm.', plate: 'With the pins', title: 'The woman with the pins', carry: 'cloak', keeps: 'her work-basket',
-      grudge: (lede, name, by) => `${lede}, a notice: | hand: ${name}: not required after Saturday. ${by}`,
+      grudge: (lede) => `${lede}, a notice: | hand: Your services end Saturday.`,
       look: { body: 'dress', paint: C.teal, hair: 'bun', specs: true }
     },
     absent: { role: 'call-boy', women: false },
     vessel: { word: 'tonic', hue: 'green', colour: C.green, title: 'The green bottle', label: 'print: Throat {tonic}. For Mr $name ONLY. | A bitter smell under the syrup.' },
     threat: (v) => `In his sleeve, a note: | hand: ${v}: touch my {tonic} again and you are sacked.`,
-    coveted: { word: 'crown', title: 'Script on the chair', tell: "The King's lines, all underlined. On the cover: | hand: The $thing at last. Tonight." },
+    coveted: { word: 'crown', title: 'Script on the chair', stub: 'A torn page begins “—esty”.', tell: "The King's lines underlined. | hand: The $thing at last. Tonight." },
     shelf: { title: 'The dressing table' }
   },
   kitchen: {
@@ -238,17 +238,17 @@ const SWITCHES = {
     roster: 'Rota on the wall',
     heads: ["Tonight's brigade.", 'Dinner service.', 'Saturday, both sittings.'],
     lead: { role: 'chef', sign: 'Tall white hat, a carving steel at his belt.', plate: 'In the tall hat', title: 'The gentleman in the tall hat', look: { body: 'coat', paint: C.white, legs: '#4a4652', hat: 'toque' } },
-    second: { role: 'sous-chef', title: 'The young man at the door' },
-    drinker: { role: 'scullion', sign: 'His hands red from the sink,', look: { body: 'shirt', paint: '#6f7f8a', legs: '#3b3f4a' } },
+    second: { role: 'sous-chef', title: 'The young man at the door', scrap: 'A torn recipe in his cuff ends “mush—”.' },
+    drinker: { role: 'scullion', issue: 'Pantry keys', sign: 'A pantry key at his belt.', look: { body: 'shirt', paint: '#6f7f8a', legs: '#3b3f4a' } },
     fourth: {
       role: 'waiter', women: false, sign: 'Tailcoat and white gloves, a tray in both hands.', plate: 'With the tray', title: 'The man with the tray', carry: 'tray', keeps: 'his waistcoat',
-      grudge: (lede, name, by) => `${lede}, a note: | hand: ${name}: you are finished here after tonight. ${by}`,
+      grudge: (lede) => `${lede}, a note: | hand: Tonight is your last service.`,
       look: { body: 'coat', paint: C.black, legs: '#3b3f4a', collar: 'bow', collarColor: C.white, hair: 'part' }
     },
     absent: { role: 'pastry-cook', women: true },
     vessel: { word: 'brandy', hue: 'brown', colour: '#8a5630', title: 'The brown bottle', label: 'print: Cooking {brandy}. For Mr $name ONLY. | A bitter smell under the spirit.' },
     threat: (v) => `In his apron, a note: | hand: ${v}: touch my {brandy} again and you are out.`,
-    coveted: { word: 'kitchen', title: 'Recipe book on the chair', tell: "The chef's sauces, all copied out. On the cover: | hand: The $thing is mine at last. Tonight." },
+    coveted: { word: 'kitchen', title: 'Recipe book on the chair', stub: 'A torn page begins “—rooms”.', tell: "The chef's sauces copied out. | hand: My own $thing at last. Tonight." },
     shelf: { title: 'The pantry table' }
   },
   cabin: {
@@ -258,17 +258,17 @@ const SWITCHES = {
     roster: 'Watch bill on the wall',
     heads: ["Ship's company.", 'Watch bill, outward bound.', 'Officers and hands.'],
     lead: { role: 'captain', sign: 'Gold braid on his cuffs and a peaked cap.', plate: 'In the peaked cap', title: 'The gentleman in the peaked cap', look: { body: 'coat', paint: C.navy, legs: '#2f3550', hat: 'peaked', hatColor: C.navy, hatBand: C.mustard } },
-    second: { role: 'mate', title: 'The man at the door' },
-    drinker: { role: 'steward', sign: 'A napkin still over his arm,', look: { body: 'coat', paint: C.white, legs: '#3b3f4a' } },
+    second: { role: 'mate', title: 'The man at the door', scrap: 'A torn chart in his cuff ends “Ports—”.' },
+    drinker: { role: 'steward', issue: 'Stores keys', sign: 'A stores key on his belt.', look: { body: 'coat', paint: C.white, legs: '#3b3f4a' } },
     fourth: {
       role: 'bosun', women: false, sign: "A tarred pigtail and a bosun's whistle on a cord.", plate: 'With the whistle', title: 'The man with the whistle', carry: null, keeps: 'his jacket',
-      grudge: (lede, name, by) => `${lede}, a note: | hand: ${name}: you are disrated, and go ashore at the next port. ${by}`,
+      grudge: (lede) => `${lede}, a note: | hand: Disrated. Leave at the next port.`,
       look: { body: 'shirt', paint: C.navy, legs: '#3b3f4a', hat: 'flat', hatColor: '#3b3f4a' }
     },
     absent: { role: 'cook', women: false },
     vessel: { word: 'rum', hue: 'square', colour: '#c9a15a', title: 'The square bottle', label: 'print: Navy {rum}. For Mr $name ONLY. | A bitter smell under the spirit.' },
     threat: (v) => `In his cuff, a note: | hand: ${v}: tap my {rum} again and I put you ashore.`,
-    coveted: { word: 'command', title: 'Log book on the chair', tell: "The captain's courses, copied in another hand. On the flyleaf: | hand: The $thing at last. Tonight." },
+    coveted: { word: 'command', title: 'Log book on the chair', stub: 'A chart stub begins “—mouth”.', tell: "The captain's courses copied out. | hand: The $thing at last. Tonight." },
     shelf: { title: 'The medicine locker' }
   }
 };
@@ -280,7 +280,6 @@ export const SETTING_IDS = [...Object.keys(SETTINGS), ...Object.keys(SWITCHES), 
 // left behind and never loaded against the new case.
 export const composedId = (date) => `day-${date}-c${COMPOSER}`;
 
-const initials = (name) => name.split(' ').map((p) => p[0] + '.').join('');
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 // The draws for one attempt: a generator seeded with the date, and the ways of using it.
@@ -301,6 +300,13 @@ function draws(text) {
   return { pick, chance, shuffled, face };
 }
 
+// A shared duty gives two candidates. Print the names alphabetically so their
+// order cannot tell a returning player which one is on the floor.
+function dutyPair(heading, a, b) {
+  return [a, b].sort(([first], [second]) => first.localeCompare(second, 'en')).map(([name, role], i) =>
+    ['listed', name, role, i === 0 ? `print: ${heading}: $name ($key) and` : 'print: $name ($key).']);
+}
+
 // ---------- the interrupted theft ----------
 
 function buildTheft(date, attempt, turn, { pick, chance, shuffled, face }) {
@@ -315,12 +321,12 @@ function buildTheft(date, attempt, turn, { pick, chance, shuffled, face }) {
   const room = set.rooms[visit % set.rooms.length];
   const servant = SERVANTS[pick(set.servants)];
   const grievance = chance(0.6) ? pick(GRIEVANCES) : null;
-  const belonging = pick(set.belongings);
+  const [duty, trace] = pick(set.duties);
   const absent = pick(ABSENT);
   const train = pick(TRAINS);
   const visitorIsWoman = chance(0.4);
   const ownerIsWoman = chance(0.6);
-  const engraved = chance(0.6); // the keeper's belonging carries his initials
+  const baggageCheck = pick(['19', '42', '67', '83']);
   // The parts that move: who did it, and what with.
   const servantDidIt = chance(0.5);
   const weaponFrom = pick(['tool1', 'tool2', 'carried']);
@@ -336,7 +342,6 @@ function buildTheft(date, attempt, turn, { pick, chance, shuffled, face }) {
   const owner = `${first(ownerIsWoman)} ${surnames[3]}`;
 
   const stick = STICKS[visitorIsWoman ? 'woman' : 'man'];
-  const v = visitorIsWoman ? { his: 'her', noun: 'woman' } : { his: 'his', noun: 'man' };
   const thief = servantDidIt ? inDoorway : visitor;
   const relation = ownerIsWoman ? 'aunt' : 'uncle';
   // An innocent servant has had money troubles too, and they are over.
@@ -352,19 +357,18 @@ function buildTheft(date, attempt, turn, { pick, chance, shuffled, face }) {
   const things = [tool1, tool2, servant.carry, stick.word, lootName, motive];
   if (!servantDidIt) things.push(settled);
   if (grievance) things.push(grievance.word);
-  if (engraved) things.push(belonging[0]);
   for (const w of things) words[w] = 'thing';
 
   const body = [
-    ['fits', 'body', set.trade, set.tradeSign],
+    ['fits', 'body', [set.trade, servant.trade], trace],
     ['dead', 'body', null],
     ['sign', wound.mark, `${wound.a} $mark on his temple.`]
   ];
-  if (engraved) body.push(['tag', 'body', { initials: initials(keeper) }, `${belonging[1]} | cut: $name ${belonging[2]}`]);
-
-  const roster = [['listed', keeper, set.trade, `${set.listed}${grievance ? ':' : '.'}`]];
+  const roster = [
+    ...dutyPair(`${duty} tonight`, [keeper, set.trade], [inDoorway, servant.trade]),
+    ['listed', away, absent[0], 'print: Day duty: $name ($key).']
+  ];
   if (grievance) roster.push(['wants', keeper, grievance.word, grievance.tell]);
-  roster.push(['listed', inDoorway, servant.trade, 'print: $name, $key.'], ['listed', away, absent[0], 'print: $name, $key.']);
 
   // Whatever is in a hand is either the weapon, held by the one who used it, or plainly
   // not used. The same goes for the tools on the wall.
@@ -376,8 +380,12 @@ function buildTheft(date, attempt, turn, { pick, chance, shuffled, face }) {
   const doorway = [['fits', 'doorway', servant.trade, servant.sign], ...inHand('doorway', { ...servant, word: servant.carry })];
 
   // Dressed for a journey, with a ticket for tonight: coming or going, it does not say.
-  const journey = `${visitorIsWoman ? 'Travelling cloak, still fastened. In her glove' : 'Travelling coat, still buttoned. In the pocket'}, a third-class ticket: | print: The ${train[0]}, ${train[1]} line. Tonight only.`;
-  const exit = [['lead', 'exit', 'was dressed for a journey', journey], ...inHand('exit', stick)];
+  const journey = `Travelling ${visitorIsWoman ? 'cloak' : 'coat'} still buttoned. Ticket: | print: ${train[0]}, ${train[1]} line. Tonight only.`;
+  const exit = [
+    ['lead', 'exit', 'was dressed for a journey', journey],
+    ['link', 'exit', 'carpet bag', `A brass luggage check, No. ${baggageCheck}.`],
+    ...inHand('exit', stick)
+  ];
 
   const tools = [onWall(tool1), onWall(tool2)];
 
@@ -392,24 +400,23 @@ function buildTheft(date, attempt, turn, { pick, chance, shuffled, face }) {
       ['wants', 'doorway', settled, "A pawnbroker's receipt: | hand: For your $thing:"],
       ['excused', 'doorway', settled, 'hand: paid in full. Nothing owing.']
     ];
-  const bag = servantDidIt
-    ? [
-      ['tag', 'exit', { full: visitor }, `Inside, ${visitorIsWoman ? 'linen, a hairbrush' : 'shirts, a razor'} and a letter: | hand: $name:`],
-      ['explained', 'exit', 'was dressed for a journey', `hand: come up by tonight's train, your room is ready. Your ${relation}, {${owner}}.`]
-    ]
-    : [
+  const bag = [['owner', 'carpet bag', { full: visitor }, `Handle check ${baggageCheck}. Luggage label: | hand: $name.`]];
+  if (servantDidIt) {
+    bag.push(['explained', 'exit', 'was dressed for a journey', `Inside, an invitation: | hand: Come by tonight's train. Your room is ready. Your ${relation}, {${owner}}.`]);
+  } else {
+    bag.push(
       ['has', 'exit', lootName, `Inside, $thing~[${lootVeiled}], and a letter:`],
-      ['tag', 'exit', { full: visitor }, 'hand: $name:'],
       ['wants', visitor, motive, `hand: I have paid your $thing for the last time. The {${lootName}} goes to ${lootBound} on Friday. Your ${relation}, {${owner}}.`]
-    ];
+    );
+  }
 
   const exhibits = [
     { id: 'body', title: 'The man on the floor', facts: body },
     { id: 'roster', title: set.roster, facts: roster },
     { id: 'doorway', title: `The ${servant.noun} in the doorway`, facts: doorway },
     { id: 'pocket', title: servant.pocket, facts: pocket },
-    { id: 'exit', title: `The young ${v.noun} by the ${set.exit}`, facts: exit },
-    { id: 'bag', title: `Carpet bag at ${v.his} feet`, facts: bag },
+    { id: 'exit', title: `The young ${visitorIsWoman ? 'woman' : 'man'} by the ${set.exit}`, facts: exit },
+    { id: 'bag', title: 'The carpet bag', facts: bag },
     { id: 'stand', title: set.stand.title, facts: [['taken', lootName, set.stand.tell]] },
     { id: 'tools', title: set.toolTitles[visit % set.tools.length], facts: tools }
   ];
@@ -492,8 +499,6 @@ function buildSwitch(date, attempt, turn, { pick, chance, shuffled, face }) {
   const away = `${first(absent.women)} ${surnames[4]}`;
   const poisoner = fourthDidIt ? atLeft : atDoor;
   const f = fourth.women ? 'her' : 'his';
-  const by = initials(meant);
-  const card = (name) => `${name[0]}. ${name.split(' ')[1]}`;
 
   const onShelf = shows === 'shelf' ? [used, spare] : [spare, other];
   const words = {};
@@ -513,35 +518,28 @@ function buildSwitch(date, attempt, turn, { pick, chance, shuffled, face }) {
     ['makes', spare, MARK, 'print: Poison.']
   ];
 
-  // The doll at the door. He is always named by a paper he carries.
-  const door = [];
-  const named = ['tag', 'second', { abbr: card(atDoor) }, 'print: Signed for: $name.'];
-  const calling = ['tag', 'second', { abbr: card(atDoor) }, 'In his breast pocket, a card: | print: Mr $name.'];
+  // His scrap fits a torn page in the book on the chair. Its owner signed the cover.
+  const book = 'working copy';
+  const door = [['link', 'second', book, second.scrap]];
   if (!fourthDidIt) {
-    if (shows === 'receipt') {
-      door.push(...tie('second', 'his', 'his pocket'), named);
-    } else {
-      door.push(calling, ...tie('second', 'his', 'his pocket'));
-    }
+    door.push(...tie('second', 'his', 'his pocket'));
   } else {
     // He wanted the place, but it is already promised to him: no reason left.
-    const promised = (lede) => ['excused', 'second', coveted.word, `${lede}, a letter: | hand: ${surnames[1]}: the $thing is yours from Monday. ${by}`];
-    if (decoyReceipt) door.push(...herring('second', 'his pocket'), named, promised('Beside it'));
-    else door.push(calling, promised('In his pocket'));
+    if (decoyReceipt) door.push(...herring('second', 'his pocket'));
+    door.push(['excused', 'second', coveted.word, 'A letter in his pocket: | hand: The $thing is yours from Monday.']);
   }
 
   // The doll at the left. Their trade shows; what else they carry depends on the day.
   const left = [['fits', 'fourth', fourth.role, fourth.sign]];
   if (fourthDidIt) {
     left.push(...tie('fourth', f, fourth.keeps));
-    if (shows === 'receipt') left.push(['tag', 'fourth', { abbr: card(atLeft) }, 'print: Signed for: $name.']);
-    left.push(['lead', 'fourth', 'had been dismissed', fourth.grudge(shows === 'shelf' ? `In ${fourth.keeps}` : 'With it', surnames[3], by)]);
+    left.push(['lead', 'fourth', 'had been dismissed', fourth.grudge(shows === 'shelf' ? `In ${fourth.keeps}` : 'With it')]);
   } else if (decoyReceipt) {
-    left.push(...herring('fourth', fourth.keeps), ['tag', 'fourth', { abbr: card(atLeft) }, 'print: Signed for: $name.']);
+    left.push(...herring('fourth', fourth.keeps));
   } else if (innocent === 'mended') {
     left.push(
-      ['lead', 'fourth', 'had been dismissed', fourth.grudge(`In ${fourth.keeps}`, surnames[3], by)],
-      ['explained', 'fourth', 'had been dismissed', `Beneath, in the same hand: | hand: I spoke in temper. Stay. ${by}`]
+      ['lead', 'fourth', 'had been dismissed', fourth.grudge(`In ${fourth.keeps}`)],
+      ['explained', 'fourth', 'had been dismissed', 'Beneath, in the same hand: | hand: I spoke in temper. Stay.']
     );
   }
 
@@ -558,30 +556,31 @@ function buildSwitch(date, attempt, turn, { pick, chance, shuffled, face }) {
       facts: [
         ['listed', meant, lead.role, `print: ${head} $Key: $name.`],
         ['listed', atDoor, second.role, 'print: His $key: $name.'],
-        ['listed', drank, drinker.role, 'print: $Key: $name.'],
-        ['listed', atLeft, fourth.role, 'print: $Key: $name.'],
+        ...dutyPair(`${drinker.issue} issued`, [drank, drinker.role], [atLeft, fourth.role]),
         ['listed', away, absent.role, 'print: $Key: $name.']
       ]
     },
     {
       id: 'body', title: 'The man on the floor',
       facts: [
-        ['fits', 'body', drinker.role, drinker.sign],
+        ['fits', 'body', [drinker.role, fourth.role], drinker.sign],
         ['dead', 'body', null],
-        ['sign', MARK, `$mark. A ${vessel.hue} bottle in his fist.`]
+        ['sign', MARK, `$Mark. A ${vessel.hue} bottle in his fist.`]
       ]
     },
     { id: 'vessel', title: vessel.title, facts: [['meantFor', { surname: surnames[0] }, vessel.label]] },
     {
       id: 'lead', title: lead.title,
       facts: [
-        ['fits', 'lead', lead.role, lead.sign],
-        ['lead', 'lead', 'had threatened the dead man', set.threat(surnames[2])],
-        ['tag', 'lead', { initials: by }, 'hand: $name']
+        ['fits', 'lead', [lead.role, second.role], lead.sign],
+        ['lead', 'lead', 'had threatened the dead man', set.threat(surnames[2])]
       ]
     },
     { id: 'second', title: second.title, facts: door },
-    { id: 'book', title: coveted.title, facts: [['wants', { listed: second.role }, coveted.word, coveted.tell]] },
+    { id: 'book', title: coveted.title, facts: [
+      ['owner', book, { surname: surnames[1] }, `${coveted.stub} Signed inside: | hand: $name.`],
+      ['wants', { listed: second.role }, coveted.word, coveted.tell]
+    ] },
     { id: 'fourth', title: fourth.title, facts: left },
     { id: 'shelf', title: set.shelf.title, facts: shelf }
   ];

@@ -25,9 +25,19 @@ test('the mask at the blow identifies its current wearer and its opening wearer'
 });
 
 test('the blow, mask, entry, exchange and timing all matter', () => {
-  for (const id of ['fiddle', 'masks', 'doorcard', 'slip', 'score']) {
+  for (const kind of ['strikingMask', 'maskFeature', 'maskAtDoor', 'exchanged', 'stoppedAt']) {
     const c = structuredClone(foxes);
-    c.exhibits = c.exhibits.filter((e) => e.id !== id);
-    assert.ok(proveCase(c).story.stalled.includes('culprit'), id);
+    for (const exhibit of c.exhibits) exhibit.facts = exhibit.facts.filter((f) => f[0] !== kind);
+    c.exhibits = c.exhibits.filter((e) => e.facts.length);
+    assert.ok(proveCase(c).story.stalled.includes('culprit'), kind);
   }
+});
+
+test('either guest can hold the fan without its matching dance card', () => {
+  const c = structuredClone(foxes);
+  const host = c.exhibits.find((e) => e.id === 'host');
+  host.facts = host.facts.filter((f) => f[0] !== 'owner');
+  const { cast } = proveCase(c);
+  assert.deepEqual(cast.stalled, ['fan', 'rose']);
+  assert.equal(cast.solutions.length, 2);
 });

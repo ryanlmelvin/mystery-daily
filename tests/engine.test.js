@@ -47,6 +47,25 @@ test('opening an exhibit banks its words once and starts the clock', () => {
   assert.equal(E.openExhibit(toy, s, 'nope', 8000), false);
 });
 
+test('a returning game gets the current words of its read tags and keeps its progress', () => {
+  const earlier = { ...toy, exhibits: [{ id: 'a', lines: [['see', '{Ann}, {Bob}, {key}.']] }, toy.exhibits[1]] };
+  const s = E.newGame(earlier);
+  E.openExhibit(earlier, s, 'a', 1000);
+  fill(s, ['Ann', 'Bob', 'Bob', 'key']);
+  E.takeTip(earlier, s, 2500);
+  E.dropPenny(earlier, s, 3000);
+  const saved = structuredClone(s);
+  const bank = ['Ann', 'Bob', 'key', 'rope', 'vase'];
+
+  E.collectReadWords(toy, s);
+  E.collectReadWords(toy, s);
+  assert.deepEqual(s, { ...saved, bank });
+
+  E.openExhibit(toy, saved, 'a', 4000);
+  assert.deepEqual(saved.bank, bank);
+  assert.deepEqual(saved.opened, ['a']);
+});
+
 test('a tile only goes in a gap of its own kind, and only once found', () => {
   const s = E.newGame(toy);
   assert.equal(E.place(toy, s, 0, 'Ann', 1).why, 'unknown');

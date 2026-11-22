@@ -54,7 +54,7 @@ test('case ids and scenes are distinct', () => {
 test('the checker catches a broken case', () => {
   const broken = structuredClone(CASES[0]);
   broken.exhibits.pop();
-  broken.path[0].gives = [];
+  broken.path.find((step) => step.gives.includes(0)).gives = [];
   const { errors } = lintCase(broken, scenePins(broken.scene));
   assert.ok(errors.some((e) => e.includes('no exhibit offers it')));
   assert.ok(errors.some((e) => e.includes('No step in the chain reaches blank 0')));

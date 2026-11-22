@@ -9,6 +9,7 @@ export default {
   words: {
     'Edwin Marsh': 'person',
     'Lavinia Stroud': 'person',
+    'Dora Bly': 'person',
     'Barnaby Quill': 'person',
     'Amos Pike': 'person',
     hatpin: 'thing',
@@ -56,15 +57,16 @@ export default {
       facts: [
         ['makes', 'hatpin', 'narrow wound', 'Travelling cloak. Two pearl $thing[hatpins],'],
         ['untouched', 'hatpin', 'both still in her hat.'],
+        ['fits', 'lady', 'plume', 'Fine wire splints a break in her hat feather.'],
         ['boarded', 'lady', 'Ashby', 'Her ticket: | print: $place to {Kelling}. First class.']
       ]
     },
     {
       id: 'hatbox',
-      title: 'Hatbox on the rack above her',
+      title: 'Milliner’s hatbox on the rack',
       facts: [
-        ['owner', 'hatbox', { full: 'Lavinia Stroud' }, 'print: Mrs $name, {Kelling}.'],
-        ['link', 'lady', 'hatbox', 'Empty. The hat it carried is on her head.']
+        ['listed', 'Dora Bly', 'brim', 'A milliner’s docket tied to the handle: | hand: Repairs delivered. Mrs $name, reshape $key.'],
+        ['listed', 'Lavinia Stroud', 'plume', 'hand: Mrs $name, mend broken $key.']
       ]
     },
     {
@@ -88,11 +90,11 @@ export default {
   ],
   panels: [
     { id: 'cast', title: 'The cast', parts: ['By the window, ', ['person', 'Edwin Marsh', 'victim'], '. In the corner seat, ', ['person', 'Lavinia Stroud', 'lady'], '. On his feet, ', ['person', 'Barnaby Quill', 'traveller'], '.'] },
-    { id: 'story', title: 'What happened', parts: [['person', 'Barnaby Quill', 'culprit'], ' stabbed ', ['person', 'Edwin Marsh', 'victim'], ' with a ', ['thing', 'carving knife', 'means'], ' before the train reached ', ['place', 'Ashby', 'before'], ', and took the ', ['thing', 'ledger', 'loot'], '.'] }
+    { id: 'story', title: 'What happened', parts: [['person', 'Barnaby Quill', 'culprit'], ' stabbed ', ['person', 'Edwin Marsh', 'victim'], ' with a ', ['thing', 'carving knife', 'means'], '. The next stop was ', ['place', 'Ashby', 'before'], '. The killer took the ', ['thing', 'ledger', 'loot'], '.'] }
   ],
   path: [
     { how: 'A name on a card', from: ['victim', 'letter'], gives: [0, 4], say: 'His card case and the letter in his briefcase both name him: Edwin Marsh, the auditor.' },
-    { how: 'A label', from: ['hatbox', 'lady'], gives: [1], say: 'The hatbox above her is labelled Mrs Lavinia Stroud, and its hat is on her head.' },
+    { how: 'A milliner’s repair', from: ['hatbox', 'lady'], gives: [1], say: 'Wire splints the feather on her hat. The milliner mended Lavinia Stroud’s plume and reshaped Dora Bly’s brim.' },
     { how: 'A name on a case', from: ['samples', 'traveller', 'letter'], gives: [2], say: "He carries the key to a sample case, and the case on the rack belongs to Barnaby Quill. The missing money is on Quill's rounds." },
     { how: 'Alibi', from: ['victim', 'timetable', 'lady', 'traveller'], gives: [6, 3], say: 'The watch stopped at 9.02, after Thorne and before Ashby. The lady only boarded at Ashby; Quill has been aboard since Marrow.' },
     { how: 'Fit', from: ['victim', 'samples', 'lady', 'letter'], gives: [5], say: 'A narrow wound, and one carving knife missing from twelve. Both hatpins are in her hat and the paper-knife is clean.' },
@@ -100,7 +102,7 @@ export default {
   ],
   traps: [
     { word: 'hatpin', from: ['lady'], against: ['lady', 'timetable'], say: 'Both hatpins are still in her hat, and she was not yet on the train.' },
-    { word: 'Kelling', from: ['timetable'], against: ['victim'], say: 'He was dead at 9.02, long before Kelling.' }
+    { word: 'Kelling', from: ['timetable'], against: ['victim'], say: 'Kelling was the end of the line. At 9.02 the train still had Ashby to call at first.' }
   ],
   tips: [
     'A stopped watch and a timetable can say who was on the train.',

@@ -88,6 +88,7 @@ function loadLocation(firstVisit = false) {
   c = sample || edition?.case || CASES[0];
   const saved = savedGame(c.id, edition);
   state = saved?.fills?.length === E.blanksOf(c).length ? saved : E.newGame(c);
+  E.collectReadWords(c, state);
   Object.assign(ui, { sel: null, open: null, fresh: [], message: '', won: false, dialog: null });
   if (firstVisit) startTutorial(true);
   else frame();
@@ -98,6 +99,7 @@ function startTutorial(firstRun = false) {
   c = tutorialCase;
   const saved = firstRun && read('seen')?.tutorial;
   state = restoreTutorial(saved);
+  E.collectReadWords(c, state);
   Object.assign(ui, { sel: null, open: null, fresh: [], message: '', dialog: null });
   frame();
 }

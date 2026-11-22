@@ -14,8 +14,7 @@ import { tellExhibit } from './tell.js';
 const CAST = {
   'a name on a belonging': 'a belonging carries the name',
   'a belonging that names its owner': 'something tied to them names its owner',
-  'a description on a list': 'the list gives that description to one name',
-  'the only name left': 'no other name is left'
+  'a description on a list': 'their belongings or dress match the written description'
 };
 
 // ...as what marks someone out as the one who did it (each completes "X ...").
@@ -79,7 +78,11 @@ export function explain(c) {
   const path = [];
   for (const s of proof.cast.steps) {
     const i = blanks.findIndex((b) => b.panel === 'cast' && b.key === s.doll);
-    path.push({ how: places[s.doll] || 'A name', from: s.from, gives: [i], say: `${s.name}: ${list(s.how.map((h) => CAST[h] || h))}${cite(s.from)}.` });
+    const others = s.eliminated.map((doll) => `${proof.cast.ids[doll]} is ${places[doll].toLowerCase()}`);
+    const reason = others.length
+      ? `${list(others)}. That leaves ${s.name} ${places[s.doll].toLowerCase()}`
+      : `${s.name}: ${list(s.how.map((h) => CAST[h] || h))}`;
+    path.push({ how: places[s.doll] || 'A name', from: s.from, gives: [i], say: `${reason}${cite(s.from)}.` });
   }
   for (const s of proof.story.steps) {
     const i = blanks.findIndex((b) => b.panel === 'story' && b.key === s.role);
@@ -88,7 +91,7 @@ export function explain(c) {
     else if (s.role === 'victim') say = `${s.value} is the one who has stopped for good`;
     else if (s.role === 'means') say = `${cap(the(s.value))} would leave the mark on the body`;
     else if (s.role === 'thief') say = `${s.value} first entered after the constable recorded the ${answer.loot} on the body. It turned up inside their glove`;
-    else if (s.role === 'loot' && c.ruleSet === 'brooch') say = `The constable recorded the ${s.value} still pinned to the guest. Only torn crape and pinholes remain`;
+    else if (s.role === 'loot' && c.ruleSet === 'brooch') say = `The constable recorded the ${s.value} still pinned to the body. Only torn crape and pinholes remain`;
     else if (s.role === 'loot') say = `${cap(the(s.value))} is missing from its place`;
     else if (s.role === 'motive') say = `${cap(the(s.value))}: that was ${answer.culprit ? `${answer.culprit}'s` : 'the'} reason`;
     else if (s.role === 'intended') say = `The label says it was for ${s.value}`;
@@ -180,7 +183,7 @@ export function explain(c) {
   ];
   if (c.ruleSet === 'brooch') {
     tips[0] = 'When did the jewel disappear? Read the inventory before you accuse its new owner.';
-    tips[1] = 'Compare the first admission on each ticket with the constable’s time. Then match the button in the guest’s fist to a cuff.';
+    tips[1] = 'Compare the first admission on each ticket with the constable’s time. Then match the button in the mourner’s fist to a cuff.';
   }
   return { path, traps, tips, proof };
 }

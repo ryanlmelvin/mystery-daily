@@ -24,8 +24,7 @@ export default {
       facts: [
         ['fits', 'vicar', ['vicar', 'curate'], 'Clerical collar.'],
         ['dead', 'vicar', null],
-        ['sign', 'lips are quite blue and his hands are cold', 'His $mark.'],
-        ['tag', 'vicar', { initials: 'O.T.' }, 'On his spectacle case: | cut: $name']
+        ['sign', 'lips are quite blue and his hands are cold', 'His $mark.']
       ]
     },
     {
@@ -68,7 +67,7 @@ export default {
       title: 'Letter inside his hat',
       facts: [
         ['owner', 'hat', { surname: 'Pell' }, 'hand: Mr $name,'],
-        ['wants', { surname: 'Pell' }, 'pulpit', "hand: I regret that St Mark's has only the one $thing, and Mr Thrale is in excellent health. Yours, the Bishop."]
+        ['wants', { surname: 'Pell' }, 'pulpit', "hand: I regret that St Mark's has only the one $thing, and its occupant is in excellent health. Yours, the Bishop."]
       ]
     },
     {
@@ -86,9 +85,9 @@ export default {
     { id: 'story', title: 'What happened', parts: [['person', 'Ambrose Pell', 'culprit'], ' put ', ['thing', 'wolfsbane', 'means'], ' in the tea of ', ['person', 'Osric Thrale', 'victim'], ', to have his ', ['thing', 'pulpit', 'motive'], '.'] }
   ],
   path: [
-    { how: 'Initials', from: ['vicar', 'notice'], gives: [0, 5], say: 'The spectacle case says O.T. and the notice names the vicar: the man in the armchair is Osric Thrale.' },
-    { how: 'Trade', from: ['tray', 'notice'], gives: [1], say: 'Cap, apron and tea tray: the woman is the housekeeper, Hetty Brill.' },
-    { how: 'A letter in the pocket', from: ['letter', 'visitor', 'notice'], gives: [2, 3], say: "The Bishop writes to Mr Pell, and the letter is in this man's hat: the second clergyman is the curate, Ambrose Pell." },
+    { how: 'Trade', from: ['tray', 'notice'], gives: [1], say: 'Cap, apron and tea tray identify Hetty Brill, the parish housekeeper.' },
+    { how: 'A letter inside a hat', from: ['letter', 'visitor', 'notice'], gives: [2, 3], say: 'The man at the window holds the hat with the Bishop’s letter to Mr Pell. The parish notice names Ambrose Pell as curate.' },
+    { how: 'Two clerical collars', from: ['vicar', 'visitor', 'letter', 'notice'], gives: [0, 5], say: 'Both men wear clerical collars. With the curate at the window, the man in the armchair is the vicar, Osric Thrale.' },
     { how: 'Symptoms', from: ['vicar', 'herbal', 'visitor', 'cup'], gives: [4], say: "Blue lips and cold hands are wolfsbane, by the herbal, and the half-empty bottle is in Pell's coat." },
     { how: 'Motive', from: ['letter'], gives: [6], say: 'There is one pulpit, and Thrale was in excellent health. Pell wanted the pulpit.' }
   ],
@@ -97,7 +96,7 @@ export default {
     { word: 'gold watch', from: ['tray'], against: ['tray'], say: 'The watch in her pocket was only going to be mended.' }
   ],
   tips: [
-    'Two men wear the same collar. Something small tells them apart.',
+    'Two men wear the same collar. Which one brought the Bishop’s reply?',
     "Set the dead man's lips and hands beside the herbal on the shelf, then look in the other gentleman's coat."
   ]
 };

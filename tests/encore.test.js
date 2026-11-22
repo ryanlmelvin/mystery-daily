@@ -33,3 +33,12 @@ test('the box photograph identifies the striker independently of the audible ali
   c.exhibits.find((e) => e.id === 'tumbler').facts.push(['wornSash', 'tumbler', 'a star between two notes', 'The sash bears $mark.']);
   assert.equal(proveCase(c).story.fill.culprit, 'Kit Plum');
 });
+
+test('the double billing leaves both performers possible until the shoe bells have an owner', () => {
+  const c = structuredClone(encore);
+  const sleeve = c.exhibits.find((e) => e.id === 'sleeve');
+  sleeve.facts = sleeve.facts.filter((f) => f[0] !== 'owner');
+  const { cast } = proveCase(c);
+  assert.deepEqual(cast.stalled, ['flower', 'tumbler']);
+  assert.equal(cast.solutions.length, 2);
+});
