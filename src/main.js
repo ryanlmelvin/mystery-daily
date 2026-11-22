@@ -294,11 +294,13 @@ function playbill() {
       <div class="grid" aria-label="Your pennies, one row each">${grid}</div>
       <p class="meta">${E.clock(secs)} · ${paid ? paid + (paid === 1 ? ' tip' : ' tips') : 'no tips'}</p>
       <div class="actions">
-        <button class="lever" id="share">Copy playbill</button>
+        <button class="lever" id="share">Share playbill</button>
         <button class="plain" id="again">Play again</button>
         <button class="plain" id="others">Other cabinets</button>
       </div>
-      <p class="status" role="status">${esc(ui.message)}</p>
+      <label id="share-fallback" hidden>Copy this result to share it.
+        <textarea readonly rows="${state.tries.length + 3}"></textarea>
+      </label>
       <h4>How it was done</h4>
       <ol class="how">${how}</ol>
       ${traps ? `<h4>What it was not</h4><ul class="how">${traps}</ul>` : ''}
@@ -481,13 +483,21 @@ function drop() {
 async function share() {
   const link = location.origin + location.pathname;
   const text = E.shareText(c, state, practice ? 'practice' : daily.edition, link.startsWith('http://localhost') || link.startsWith('http://127.') ? '' : link);
-  try {
-    await navigator.clipboard.writeText(text);
-    ui.message = 'Playbill copied.';
-  } catch {
-    ui.message = text;
+  const fallback = $('#share-fallback');
+  fallback.hidden = true;
+  if (typeof navigator.share === 'function') {
+    try {
+      await navigator.share({ text });
+      return;
+    } catch (error) {
+      if (error.name === 'AbortError') return;
+    }
   }
-  draw();
+  const field = fallback.querySelector('textarea');
+  field.value = text;
+  fallback.hidden = false;
+  field.focus();
+  field.select();
 }
 
 app.addEventListener('click', (ev) => {

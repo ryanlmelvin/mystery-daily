@@ -19,7 +19,9 @@ moment of a death. Nothing is explained. You work out who everyone is and what h
 Looking costs nothing. The attendant has three tips: the first is free, and the other two
 are marked on your playbill. Win or lose, the cabinet then shows how it was done.
 
-The playbill you can copy is spoiler-free: one row per penny, one square per tile.
+After a case, **Share playbill** opens your device’s share sheet. If sharing is
+unavailable, you can copy the result by hand. Each row shows one penny, with the
+cast tiles on the left and the story tiles on the right. The answers stay secret.
 
 ```
 The Penny Murders · No. 1 · 2/4 🪙

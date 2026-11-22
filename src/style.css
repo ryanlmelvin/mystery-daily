@@ -768,7 +768,9 @@ dialog .edition { margin-top: 2px; }
 /* On the mustard bill the yellow lever would vanish: print it in red. */
 .playbill .lever { background: var(--red); color: var(--paper); }
 
-.playbill .status { color: var(--ink); }
+#share-fallback:not([hidden]) { display: block; margin-top: 12px; }
+
+#share-fallback textarea { display: block; width: 100%; margin-top: 4px; padding: 6px; font: inherit; color: var(--ink); background: var(--paper); }
 
 .playbill h4 {
   margin: 12px 0 4px;
