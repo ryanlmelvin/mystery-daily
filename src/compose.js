@@ -5,9 +5,15 @@
 // puts the case through the same gate as a hand-written one (lint.js, which runs the
 // telling and the proof) and tries again with the next salt if the gate refuses it.
 //
-// So far it knows one kind of crime, the interrupted theft: a thief, dressed to leave,
-// is caught by the keeper of the thing being stolen, strikes the keeper down, and is
-// still holding the thing when the machine jams. It tells that story in three settings.
+// It knows two kinds of crime, and takes them turn about by date so that two days
+// running never share a shape:
+//
+//   the interrupted theft   a thief, dressed to leave, is caught by the keeper of the
+//                           thing being stolen, strikes the keeper down, and still has
+//                           the thing in a bag (glasshouse, library, plate room)
+//   the wrong glass         a poison is put in a bottle meant for one man, and another,
+//                           who kept helping himself to it, drinks it (dressing room,
+//                           kitchen, ship's cabin)
 //
 // Everything is chosen from the lists below by a generator seeded with the date, so a
 // date always gives the same case. Changing a list or the order of the draws changes
@@ -18,7 +24,7 @@ import { lintCase } from './lint.js';
 import { scenePins } from './art/scenes.js';
 import { C, SKIN } from './art/kit.js';
 
-export const COMPOSER = 1;
+export const COMPOSER = 2;
 const ATTEMPTS = 40;
 
 // A small seeded generator (xmur3 into mulberry32): the same text gives the same draws.
@@ -81,7 +87,7 @@ const WITNESSES = {
 // to be untouched, and that same remark in short for the end screen.
 const SETTINGS = {
   glasshouse: {
-    rooms: ['the Glasshouse', 'the Orchid House', 'the Palm House'],
+    rooms: ['the Fernery', 'the Orchid House', 'the Palm House'],
     trade: 'gardener', listed: 'print: $name, head $key:', tradeSign: 'Soil under his nails.', tradeShort: 'Soil under his nails',
     keeperLook: { body: 'shirt', paint: C.green, legs: '#6a5034' },
     belongings: [
@@ -172,14 +178,86 @@ const SETTINGS = {
   }
 };
 
-export const SETTING_IDS = Object.keys(SETTINGS);
+// The wrong glass. Every poison can be the one used (bought on a chemist's receipt) or a
+// decoy on the shelf, plainly untouched.
+const POISONS = {
+  'prussic acid': { receipt: '$Thing, one phial.', kept: 'phial', decoy: ['A phial of $thing,', 'sealed with wax.'], short: 'sealed with wax' },
+  arsenic: { receipt: '$Thing, two ounces.', kept: 'packet', decoy: ['A packet of $thing,', "still tied with the chemist's string."], short: "still tied with the chemist's string" },
+  strychnine: { receipt: '$Thing, ten grains.', kept: 'phial', decoy: ['A phial of $thing,', 'its cork still wired down.'], short: 'still wired shut' },
+  laudanum: { receipt: '$Thing, one phial.', kept: 'phial', decoy: ['A phial of $thing,', 'full to the cork.'], short: 'full to the cork' },
+  'rat poison': { receipt: '$Thing, one tin.', kept: 'tin', decoy: ['A tin of $thing for the mice,', 'its lid rusted shut.'], short: 'rusted shut' },
+  'weed-killer': { receipt: '$Thing, one can.', kept: 'can', decoy: ['A can of $thing,', 'its cap sealed with red wax.'], short: 'sealed with red wax' }
+};
+const MARK = 'foam on his lips';
+
+// In each setting: the one the bottle is for (`lead`), the one who wants his place
+// (`second`), the one who drinks it (`drinker`), a fourth who only watches, and someone on
+// the list who is not in the room.
+const SWITCHES = {
+  theatre: {
+    rooms: ['the Alhambra', 'the Empire', 'the Pavilion'],
+    titles: ['Curtain at {room}', 'Last Call at {room}', 'A Bitter Cup at {room}'],
+    where: ['A dressing room, ten minutes before the second act', 'A dressing room, just after the interval'],
+    roster: 'Playbill on the wall',
+    heads: ["Tonight: The Tyrant's Supper.", 'Tonight: The Last Emperor.', 'Tonight: A Throne for Two.'],
+    lead: { role: 'the King', sign: 'Robe and {crown}, powdered for the stage.', plate: 'In the crown', title: 'The gentleman in the crown', look: { body: 'robe', paint: C.red, trim: C.white, hat: 'crown', hair: 'curls', head: 'wide' } },
+    second: { role: 'understudy' },
+    drinker: { role: 'prompter', sign: 'Shirt-sleeves, a prompt-book under his arm,', short: 'A prompt-book under his arm', look: { body: 'shirt', paint: '#8a5630', legs: '#3b3f4a' } },
+    fourth: { role: 'wardrobe', mrs: true, sign: "Pincushion at her wrist, tape about her neck. Over her arm, the King's second-act cloak, half hemmed.", short: 'Pins, tape and a half-hemmed cloak', plate: 'With the pins', title: 'The woman with the pins', carry: 'cloak', look: { body: 'dress', paint: C.teal, hair: 'bun', specs: true } },
+    absent: { role: 'call-boy', style: 'Master', women: false },
+    vessel: { word: 'tonic', hue: 'green', colour: C.green, title: 'The green bottle', label: 'print: Throat {tonic}. For Mr $name ONLY. Hands off. | A bitter smell under the syrup.' },
+    threat: (v) => `Tucked in his sleeve, a note not yet pinned up: | hand: ${v}: drink my {tonic} once more and I will have you sacked.`,
+    noteWhere: 'in his sleeve',
+    coveted: { word: 'crown', title: 'Script on the chair', tell: "Every one of the King's lines is underlined. Pencilled on the cover: | hand: The $thing at last. Tonight.", short: "learned every one of the King's lines" },
+    culprit: { title: 'The young man at the door', dressed: 'Street coat, hat already on.' },
+    shelf: { title: 'The dressing table', intro: 'Greasepaint and powder.' }
+  },
+  kitchen: {
+    rooms: ['the Golden Hind', 'the Grand Hotel', 'the Blue Boar'],
+    titles: ['Last Orders at {room}', 'A Bitter Cup at {room}', 'Service at {room}'],
+    where: ['The kitchen, an hour before the dinner service', 'The kitchen, just after the fish course'],
+    roster: 'Rota on the wall',
+    heads: ["Tonight's brigade.", 'Dinner service.', 'Saturday, both sittings.'],
+    lead: { role: 'chef', sign: 'Tall white hat, a carving steel at his belt.', plate: 'In the tall hat', title: 'The gentleman in the tall hat', look: { body: 'coat', paint: C.white, legs: '#4a4652', hat: 'toque' } },
+    second: { role: 'sous-chef' },
+    drinker: { role: 'scullion', sign: 'Rolled sleeves, his hands red from the sink,', short: 'Hands red from the sink', look: { body: 'shirt', paint: '#6f7f8a', legs: '#3b3f4a' } },
+    fourth: { role: 'waiter', mrs: false, sign: 'Tailcoat and white gloves, a tray in both hands.', short: 'Tailcoat, gloves and a tray', plate: 'With the tray', title: 'The man with the tray', carry: 'tray', look: { body: 'coat', paint: C.black, legs: '#3b3f4a', collar: 'bow', collarColor: C.white, hair: 'part' } },
+    absent: { role: 'pastry-cook', style: 'Mrs', women: true },
+    vessel: { word: 'brandy', hue: 'brown', colour: '#8a5630', title: 'The brown bottle', label: 'print: Cooking {brandy}. For Mr $name ONLY. Hands off. | A bitter smell under the spirit.' },
+    threat: (v) => `Tucked in his apron, a note not yet pinned up: | hand: ${v}: touch my {brandy} once more and you are out on the street.`,
+    noteWhere: 'in his apron',
+    coveted: { word: 'kitchen', title: 'Recipe book on the chair', tell: "Every one of the chef's sauces is copied out. Pencilled on the cover: | hand: The $thing is mine at last. Tonight.", short: "copied out every one of the chef's sauces" },
+    culprit: { title: 'The young man at the door', dressed: 'Street coat, hat already on.' },
+    shelf: { title: 'The pantry table', intro: 'Flour, salt and vinegar.' }
+  },
+  cabin: {
+    rooms: ['the Kittiwake', 'the Marigold', 'the Petrel'],
+    titles: ['Eight Bells aboard {room}', 'A Bitter Cup aboard {room}', 'Becalmed aboard {room}'],
+    where: ["The captain's cabin, the first night out", "The captain's cabin, two days from port"],
+    roster: 'Watch bill on the wall',
+    heads: ['Ship\'s company.', 'Watch bill, outward bound.', 'Officers and hands.'],
+    lead: { role: 'captain', sign: 'Gold braid on his cuffs and a peaked cap.', plate: 'In the peaked cap', title: 'The gentleman in the peaked cap', look: { body: 'coat', paint: C.navy, legs: '#2f3550', hat: 'peaked', hatColor: C.navy, hatBand: C.mustard } },
+    second: { role: 'mate' },
+    drinker: { role: 'steward', sign: 'White jacket, a napkin still over his arm,', short: 'White jacket and a napkin', look: { body: 'coat', paint: C.white, legs: '#3b3f4a' } },
+    fourth: { role: 'bosun', mrs: false, sign: "A tarred pigtail and a bosun's whistle on a cord.", short: "A pigtail and a bosun's whistle", plate: 'With the whistle', title: 'The man with the whistle', carry: null, look: { body: 'shirt', paint: C.navy, legs: '#3b3f4a', hat: 'flat', hatColor: '#3b3f4a' } },
+    absent: { role: 'cook', style: 'Mr', women: false },
+    vessel: { word: 'rum', hue: 'square', colour: '#c9a15a', title: 'The square bottle', label: 'print: Navy {rum}. For Mr $name ONLY. Hands off. | A bitter smell under the spirit.' },
+    threat: (v) => `Folded in his cuff, a note not yet posted: | hand: ${v}: tap my {rum} once more and I will put you ashore.`,
+    noteWhere: 'in his cuff',
+    coveted: { word: 'command', title: 'Log book on the chair', tell: "Every one of the captain's courses is copied in another hand. On the flyleaf: | hand: The $thing at last. Tonight.", short: "copied every one of the captain's courses" },
+    culprit: { title: 'The man at the door', dressed: 'Shore coat, sea-bag packed.' },
+    shelf: { title: 'The medicine locker', intro: 'Lint, quinine and salts.' }
+  }
+};
+
+export const SETTING_IDS = [...Object.keys(SETTINGS), ...Object.keys(SWITCHES)];
 
 const initials = (name) => name.split(' ').map((p) => p[0] + '.').join('');
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
-// One attempt at the case for a date. Pure: the same date and attempt give the same case.
-function build(date, attempt) {
-  const rnd = seeded(`penny-tableau|${COMPOSER}|${date}|${attempt}`);
+// The draws for one attempt: a generator seeded with the date, and the ways of using it.
+function draws(text) {
+  const rnd = seeded(text);
   const pick = (list) => list[Math.floor(rnd() * list.length)];
   const chance = (p) => rnd() < p;
   const shuffled = (list) => {
@@ -190,8 +268,14 @@ function build(date, attempt) {
     }
     return out;
   };
+  const face = () => ({ skin: pick(SKIN), hairColor: pick(HAIR), head: pick(['egg', 'egg', 'ball', 'long']) });
+  return { pick, chance, shuffled, face };
+}
 
-  const settingId = pick(SETTING_IDS);
+// ---------- the interrupted theft ----------
+
+function buildTheft(date, attempt, { pick, chance, shuffled, face }) {
+  const settingId = pick(Object.keys(SETTINGS));
   const set = SETTINGS[settingId];
   const witness = WITNESSES[pick(set.witnesses)];
   const tools = pick(set.tools);
@@ -329,7 +413,6 @@ function build(date, attempt) {
   ];
 
   // How the dolls are dressed. Their trade fixes the costume; the rest is drawn by lot.
-  const face = () => ({ skin: pick(SKIN), hairColor: pick(HAIR), head: pick(['egg', 'egg', 'ball', 'long']) });
   const scene = {
     kind: 'theft',
     setting: settingId,
@@ -360,6 +443,149 @@ function build(date, attempt) {
   };
 }
 
+// ---------- the wrong glass ----------
+
+function buildSwitch(date, attempt, { pick, chance, shuffled, face }) {
+  const settingId = pick(Object.keys(SWITCHES));
+  const set = SWITCHES[settingId];
+  const { lead, second, drinker, fourth, absent, vessel, coveted } = set;
+  const [used, spare, other] = shuffled(Object.keys(POISONS));
+  const room = pick(set.rooms);
+  const head = pick(set.heads);
+
+  // Five people with different names: three men, a fourth of either sex, and one not here.
+  const surnames = shuffled(SURNAMES);
+  const firsts = { men: shuffled(MEN), women: shuffled(WOMEN) };
+  const first = (women) => (women ? firsts.women : firsts.men).pop();
+  const meant = `${first(false)} ${surnames[0]}`;
+  const poisoner = `${first(false)} ${surnames[1]}`;
+  const drank = `${first(false)} ${surnames[2]}`;
+  const watcher = `${first(fourth.mrs)} ${surnames[3]}`;
+  const away = `${first(absent.women)} ${surnames[4]}`;
+  const signed = `${poisoner[0]}. ${surnames[1]}`;
+  const theRole = lead.role.startsWith('the ') ? lead.role : `the ${lead.role}`;
+
+  const words = {};
+  for (const p of [meant, poisoner, drank, watcher, away]) words[p] = 'person';
+  for (const w of [used, spare, other, vessel.word, coveted.word]) words[w] = 'thing';
+
+  const exhibits = [
+    {
+      id: 'roster', title: set.roster,
+      facts: [
+        ['listed', meant, lead.role, `print: ${head} $Key: Mr $name.`],
+        ['listed', poisoner, second.role, 'print: His $key: Mr $name.'],
+        ['listed', drank, drinker.role, 'print: $Key: Mr $name.'],
+        ['listed', watcher, fourth.role, `print: $Key: ${fourth.mrs ? 'Mrs' : 'Mr'} $name.`],
+        ['listed', away, absent.role, `print: $Key: ${absent.style} $name.`]
+      ]
+    },
+    {
+      id: 'body', title: 'The man on the floor',
+      facts: [
+        ['fits', 'body', drinker.role, drinker.sign],
+        ['dead', 'body', null],
+        ['sign', MARK, `$mark. A ${vessel.hue} bottle in his fist, nearly empty.`]
+      ]
+    },
+    { id: 'vessel', title: vessel.title, facts: [['meantFor', { surname: surnames[0] }, vessel.label]] },
+    {
+      id: 'intended', title: lead.title,
+      facts: [
+        ['fits', 'intended', lead.role, lead.sign],
+        ['lead', 'intended', 'threatened the dead man', set.threat(surnames[2])],
+        ['tag', 'intended', { initials: initials(meant) }, 'hand: $name']
+      ]
+    },
+    {
+      id: 'culprit', title: set.culprit.title,
+      facts: [
+        ['has', 'culprit', used, `${set.culprit.dressed} In his pocket, a chemist's receipt: | print: ${POISONS[used].receipt}`],
+        ['makes', used, MARK, 'print: Poison.'],
+        ['tag', 'culprit', { abbr: signed }, 'print: Signed for: $name.']
+      ]
+    },
+    { id: 'book', title: coveted.title, facts: [['wants', { listed: second.role }, coveted.word, coveted.tell]] },
+    { id: 'witness', title: fourth.title, facts: [['fits', 'witness', fourth.role, fourth.sign]] },
+    {
+      id: 'shelf', title: set.shelf.title,
+      facts: [
+        ['makes', spare, MARK, `${set.shelf.intro} ${POISONS[spare].decoy[0]}`],
+        ['untouched', spare, POISONS[spare].decoy[1]],
+        ['makes', other, MARK, POISONS[other].decoy[0]],
+        ['untouched', other, POISONS[other].decoy[1]]
+      ]
+    }
+  ];
+
+  const panels = [
+    {
+      id: 'cast', title: 'The cast',
+      parts: ['On the floor, ', ['person', drank, 'body'], `. ${lead.plate}, `, ['person', meant, 'intended'], '. At the door, ', ['person', poisoner, 'culprit'], `. ${fourth.plate}, `, ['person', watcher, 'witness'], '.']
+    },
+    {
+      id: 'story', title: 'What happened',
+      parts: [['person', poisoner, 'culprit'], ' put ', ['thing', used, 'means'], ` in the ${vessel.word} meant for `, ['person', meant, 'intended'], ', but ', ['person', drank, 'victim'], ' drank it.']
+    }
+  ];
+
+  const path = [
+    { how: 'Trade', from: ['body', 'roster'], gives: [0, 7], say: `${drinker.short}: the man on the floor is the ${drinker.role}, ${drank}.` },
+    { how: 'Costume', from: ['intended', 'roster'], gives: [1], say: `${cap(theRole)} is ${meant}, and the note ${set.noteWhere} is signed ${initials(meant)}` },
+    { how: 'A name on a receipt', from: ['culprit', 'roster'], gives: [2], say: `The chemist's receipt in his pocket is signed ${signed}: ${poisoner}, the ${second.role}.` },
+    { how: 'Trade', from: ['witness', 'roster'], gives: [3], say: `${fourth.short}: the ${fourth.role}, ${watcher}.` },
+    { how: 'The switch', from: ['vessel', 'intended'], gives: [6], say: `The ${vessel.word} was for ${surnames[0]} only, and ${surnames[0]}'s own note says ${surnames[2]} kept at it. The poison was meant for ${surnames[0]}.` },
+    { how: 'The means', from: ['body', 'culprit', 'shelf'], gives: [5], say: `${surnames[1]} signed for ${used}. The ${spare} is ${POISONS[spare].short} and the ${other} is ${POISONS[other].short}.` },
+    { how: 'Motive', from: ['book', 'culprit'], gives: [4], say: `The ${second.role} has ${coveted.short}. With ${surnames[0]} gone, the ${coveted.word} is his.` }
+  ];
+  const traps = [
+    { word: meant, from: ['intended'], against: ['vessel'], say: `${surnames[0]} threatened ${surnames[2]}, but he would not poison his own ${vessel.word}.` },
+    { word: other, from: ['shelf'], against: ['shelf', 'culprit'], say: `The ${other} is ${POISONS[other].short}. Nothing came out of it tonight.` }
+  ];
+  const tips = [
+    'Ask whose bottle it is before you ask who drank from it.',
+    `The label says who the ${vessel.word} was for. The note ${set.noteWhere} says who kept drinking it.`
+  ];
+
+  const scene = {
+    kind: 'switch',
+    setting: settingId,
+    mirror: chance(0.5),
+    victim: { look: { ...face(), ...drinker.look, hair: pick(['crop', 'part', 'bald']), whiskers: pick(['goatee', 'pencil', null]) } },
+    intended: { look: { ...face(), ...lead.look, whiskers: pick(['walrus', 'handlebar', 'beard']) } },
+    culprit: { look: { ...face(), body: 'coat', paint: pick(['#4d5f8a', '#8a7a4a', C.plum, C.mustard]), legs: '#2f3550', collar: 'tie', collarColor: pick([C.mustard, C.red]), hat: pick(['bowler', 'boater', 'flat']), hair: pick(['part', 'crop']), whiskers: pick(['pencil', null, null]) } },
+    witness: { carry: fourth.carry, look: { ...face(), ...fourth.look } },
+    kept: [POISONS[spare].kept, POISONS[other].kept],
+    bottle: vessel.colour
+  };
+
+  return {
+    id: `day-${date}`,
+    title: pick(set.titles).replace('{room}', room),
+    where: pick(set.where),
+    scene,
+    composed: { date, attempt, crime: 'switch', setting: settingId },
+    words,
+    exhibits,
+    panels,
+    path,
+    traps,
+    tips
+  };
+}
+
+// The crimes take turns by date, so two days running never share a shape.
+const CRIMES = [['theft', buildTheft], ['switch', buildSwitch]];
+
+// One attempt at the case for a date. Pure: the same date and attempt give the same case.
+function build(date, attempt) {
+  const day = Math.floor(Date.parse(date + 'T00:00:00Z') / 86400000);
+  const [crime, make] = CRIMES[day % CRIMES.length];
+  return make(date, attempt, draws(`penny-tableau|${COMPOSER}|${crime}|${date}|${attempt}`));
+}
+
+export const crimeOf = (date) => CRIMES[Math.floor(Date.parse(date + 'T00:00:00Z') / 86400000) % CRIMES.length][0];
+
 // What the gate makes of a composed case: the same checks a hand-written case must pass.
 export function gate(c) {
   return lintCase(c, scenePins(c.scene)).errors;
@@ -371,13 +597,16 @@ const made = new Map();
 export function composeDay(date) {
   if (made.has(date)) return made.get(date);
   let refused = [];
+  const why = [];
   for (let attempt = 0; attempt < ATTEMPTS; attempt++) {
     const c = told(build(date, attempt));
     refused = gate(c);
     if (!refused.length) {
+      c.composed.refused = why; // what the gate said to each attempt before this one
       made.set(date, c);
       return c;
     }
+    why.push(refused[0]);
   }
   throw new Error(`No case for ${date} passed the gate in ${ATTEMPTS} attempts. The last was refused: ${refused.join(' ')}`);
 }

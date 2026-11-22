@@ -42,10 +42,15 @@ arcade, where the other four can be played as practice.
 
 ## On trial: composed cabinets
 
-The arcade also lists three cabinets **on trial**. These were not written by hand: a
-composer built each one from a date (cast, clues, text, plates, explanation and scene)
-and put it through the same proof as the hand-written five. So far it knows one kind of
-crime, the interrupted theft, and stages it in a glasshouse, a library or a plate room.
+The arcade also lists cabinets **on trial**. These were not written by hand: a composer
+built each one from a date (cast, clues, text, plates, explanation and scene) and put it
+through the same proof as the hand-written five. It knows two kinds of crime and takes
+them turn about, so two days running never share a shape:
+
+- **The interrupted theft**, in a glasshouse, a library or a plate room.
+- **The wrong glass**, a poison meant for one man and drunk by another, in a dressing
+  room, a kitchen or a ship's cabin.
+
 Any date has its own: add `?date=2026-11-26` to the address. They are not part of the
 daily run yet.
 
@@ -64,9 +69,10 @@ budget; add `-- --why` to see how each answer is reached.
 
 ## What is not built yet
 
-- The daily run is still five hand-written cases. The composer knows one kind of crime,
-  so its cases share a shape: the same eight exhibits and the same sentence, with
-  different people, things and rooms. Nobody has judged yet whether they are fun.
+- The daily run is still five hand-written cases. The composer knows two kinds of crime,
+  so composed cases come in two shapes; within a shape the exhibits and the sentence are
+  the same, with different people, things and rooms. Nobody has judged yet whether they
+  are fun.
 - Each case is proved to have exactly one answer, but only inside a model: every exhibit
   is a list of facts in a fixed vocabulary, and the proof reasons from those. The text
   is rendered from the same facts, so its names, things, places and times cannot differ

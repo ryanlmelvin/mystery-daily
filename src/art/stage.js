@@ -134,15 +134,7 @@ const SETS = {
   }
 };
 
-export const settingIds = Object.keys(SETS);
-
-export function stagePins(spec) {
-  const out = {};
-  for (const [id, [x, y]] of Object.entries(PINS)) out[id] = [spec.mirror ? P.W - x : x, y];
-  return out;
-}
-
-export function stageSvg(spec) {
+function theftScene(spec) {
   const set = SETS[spec.setting];
   if (!set) throw new Error(`No setting called ${spec.setting}`);
   const carried = CARRIED[spec.witness.carry];
@@ -153,6 +145,90 @@ export function stageSvg(spec) {
   s += P.carpetBag(360, 254, spec.bag);
   s += P.shadow(240, 274, 70, 6);
   s += doll({ x: 176, y: 272, s: S, dir: 1, pose: 'dead', spring: true, ...spec.keeper.look });
+  return s;
+}
+
+// ---------- the wrong glass ----------
+// A second blocking, for four dolls: the list on the wall and a witness at one side, the
+// one the bottle was meant for beside them with his arms up, a table of medicines at the
+// back, a chair with a book on it, the poisoner at the door, and the drinker on the
+// floor in front with the bottle still in his fist.
+
+const SWITCH_PINS = {
+  roster: [34, 102], body: [232, 264], vessel: [258, 208], intended: [146, 204],
+  culprit: [352, 204], book: [296, 178], witness: [60, 208], shelf: [216, 120]
+};
+
+// What stands on the table: one drawing for each way a poison is kept.
+const KEPT = {
+  phial: (x, y) => P.bottle(x, y, '#7fb0d8', 10),
+  tin: (x, y) => P.tin(x, y),
+  packet: (x, y) => P.rect(x - 6, y - 8, 12, 8, C.white, 1) + P.line(`M${x - 6} ${y - 4} h12 M${x} ${y - 8} v8`, 0.9, C.woodDark),
+  can: (x, y) => P.rect(x - 5.5, y - 12, 11, 12, C.green, 1.5) + P.rect(x - 2, y - 15, 4, 3.4, C.red, 1)
+};
+
+// What the fourth doll holds in both hands.
+const HELD = {
+  cloak: () => P.cloakOverArm(C.red),
+  tray: () => P.teaTray()
+};
+
+const porthole = (x, y) => P.circ(x, y, 15, C.brass) + P.circ(x, y, 10.5, C.night, 'stroke-width="1.1"') + P.dot(x + 3, y - 3, 1.2, '#f6e9b8');
+
+const SWITCH_SETS = {
+  theatre() {
+    let s = P.room({ wall: '#efc2ae', dado: '#7a3b63', floor: C.woodLight });
+    s += P.playbill(34, 44) + P.dressingTable(216, 196);
+    s += P.door(352, 196, { w: 44, h: 106, color: C.teal, frame: C.cream, knob: -1 });
+    return { set: s, top: 138 };
+  },
+  kitchen() {
+    let s = P.room({ wall: '#f3ecd6', stripe: '#e6dcc0', stripeGap: 16, dado: '#86b3a2', floor: '#d9c9a3' });
+    s += P.wallNotice(34, 52, 30, 40, C.teal);
+    s += P.shelf(176, 96, 82) + P.jar(190, 96, C.sky) + P.jar(206, 96, C.pink, 10) + P.jar(222, 96, C.mustard, 14) + P.jar(240, 96, C.white, 11);
+    s += P.line('M100 60 H126 M106 60 v14 M113 60 v18 M120 60 v12', 2, C.brassDark) + P.circ(106, 78, 4, C.brass) + P.circ(113, 82, 4.6, C.brass) + P.circ(120, 76, 3.6, C.brass);
+    s += table(172, 196, 88);
+    s += P.door(352, 196, { w: 44, h: 106, color: '#9a6238', frame: C.cream, knob: -1 });
+    return { set: s, top: 147 };
+  },
+  cabin() {
+    let s = P.room({ wall: '#c08a52', dado: '#8a5630', dadoH: 60, floor: C.wood });
+    s += P.frame(34, 56, 30, 40, '#f3ecd6');
+    s += porthole(118, 78) + porthole(262, 78);
+    s += P.shelf(180, 104, 76) + P.rect(188, 88, 60, 16, '#f3ecd6', 1) + P.line('M194 94 h30 M194 99 h44', 0.9, C.grey);
+    s += table(172, 196, 88);
+    s += P.door(352, 196, { w: 44, h: 106, color: C.tealDark, frame: C.woodLight, knob: -1 });
+    return { set: s, top: 147 };
+  }
+};
+
+function switchScene(spec) {
+  const build = SWITCH_SETS[spec.setting];
+  if (!build) throw new Error(`No setting called ${spec.setting}`);
+  const { set, top } = build();
+  const held = HELD[spec.witness.carry];
+  let s = set;
+  spec.kept.forEach((kind, i) => { s += (KEPT[kind] || KEPT.phial)(196 + i * 40, top); });
+  s += P.chair(286, 230) + P.scriptBook(286, 200);
+  s += doll({ x: 60, y: 246, s: S, dir: 1, mood: 'shock', pose: held ? 'carry' : 'alarm', carry: held ? held() : null, rock: [-1.3, 1.3, 1.6], ...spec.witness.look });
+  s += doll({ x: 146, y: 244, s: S, dir: -1, mood: 'shock', pose: 'alarm', rock: [-2, 2, 1.2], wave: [-5, 5, 0.9], ...spec.intended.look });
+  s += doll({ x: 352, y: 244, s: S, dir: -1, mood: 'shifty', pose: 'hip', nod: [-4, 3, 2.6], ...spec.culprit.look });
+  s += P.shadow(246, 274, 70, 6);
+  s += doll({ x: 184, y: 272, s: S, dir: 1, pose: 'dead', spring: true, ...spec.victim.look });
+  s += P.spiltBottle(240, 198, spec.bottle, 24);
+  return s;
+}
+
+export const settingIds = [...Object.keys(SETS), ...Object.keys(SWITCH_SETS)];
+
+export function stagePins(spec) {
+  const out = {};
+  for (const [id, [x, y]] of Object.entries(spec.kind === 'switch' ? SWITCH_PINS : PINS)) out[id] = [spec.mirror ? P.W - x : x, y];
+  return out;
+}
+
+export function stageSvg(spec) {
+  const s = spec.kind === 'switch' ? switchScene(spec) : theftScene(spec);
   const inner = spec.mirror ? P.g(`translate(${P.W},0) scale(-1,1)`, s) : s;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${P.W} ${P.H}" class="scene" role="img" aria-label="The scene inside the cabinet">${inner}${P.valance()}</svg>`;
 }

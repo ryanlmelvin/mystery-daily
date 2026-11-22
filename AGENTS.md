@@ -128,10 +128,19 @@ data. A generator seeded with the date makes every choice, so a date always give
 same case. The case then goes through `lintCase` (the telling, the proof, size, tags);
 if the gate refuses it, the composer tries the next salt, up to 40 times.
 
-It knows one kind of crime so far, the interrupted theft, in three settings (glasshouse,
-library, plate room). Its lists (names, houses, loot, tools, servants) are at the top of
-the file. `src/art/stage.js` draws the scene from the case's `scene` object: one
-blocking for all three settings, mirrored half the time, with costumes fixed by trade.
+It knows two kinds of crime, and takes them turn about by date (`crimeOf`), so two days
+running never share a shape:
+
+- **The interrupted theft** (`buildTheft`; glasshouse, library, plate room). Three dolls.
+  A thief dressed to leave is caught by the keeper of the thing, strikes him down, and
+  still has the thing in a bag. The trap is the keeper's own grievance.
+- **The wrong glass** (`buildSwitch`; dressing room, kitchen, ship's cabin). Four dolls.
+  A poison goes into a bottle meant for one man, and another, who kept helping himself,
+  drinks it. The trap is the man the bottle was for, who had threatened the drinker.
+
+The lists each crime draws from are at the top of the file. `src/art/stage.js` draws the
+scene from the case's `scene` object: one blocking for each crime, mirrored half the
+time, with costumes fixed by trade.
 
 - Composed cases are on trial. They are listed under **On trial** in the arcade and open
   with `/?date=2026-11-26`; they are not part of the daily run (`src/daily.js` still
@@ -141,11 +150,17 @@ blocking for all three settings, mirrored half the time, with costumes fixed by 
 - `tests/compose.test.js` composes 120 days and requires every one to pass the gate, and
   pins two dates. If you change a list or the order of the draws, every composed case
   changes: bump `COMPOSER` and update the pinned cases, on purpose.
-- A new tool needs a drawing in `TOOLS` in `src/art/stage.js`; a new thing the witness
-  carries needs one in `CARRIED`. A new setting needs an entry in `SETTINGS` and a set in
-  `SETS`. A new kind of crime needs its own `build`, and probably its own blocking.
+- A new tool needs a drawing in `TOOLS` in `src/art/stage.js`; a new thing a doll carries
+  needs one in `CARRIED` or `HELD`; a new way of keeping a poison needs one in `KEPT`. A
+  new setting needs an entry in `SETTINGS` or `SWITCHES` and a set in `SETS` or
+  `SWITCH_SETS`. A new kind of crime needs its own builder in `CRIMES`, and its own
+  blocking and tag positions in `src/art/stage.js`.
 - Keep the composer downstream of the facts: it chooses facts and tellings, and the gate
   decides. Never patch a refused case; let it reroll.
+- A reroll is a sign a list is wrong. `composed.refused` records what the gate said to
+  each refused attempt, and the test fails if more than a tenth of the days needed one.
+  The first run of the second crime rerolled 28 times in a year because one play title
+  mentioned a tray word; the fix was to the list.
 
 ## Art direction
 

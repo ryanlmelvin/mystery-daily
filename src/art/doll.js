@@ -17,7 +17,7 @@ const DEFAULTS = {
   head: 'egg', // egg | ball | long | wide
   hair: null, // part | crop | bald | bun | bob | curls
   hairColor: '#5a3a22',
-  hat: null, // top | bowler | mob | plume | crown | flat | boater
+  hat: null, // top | bowler | mob | plume | crown | flat | boater | toque | peaked
   hatColor: C.black,
   hatBand: C.red,
   whiskers: null, // handlebar | walrus | pencil | mutton | beard | goatee
@@ -132,6 +132,12 @@ function hat(style, col, band) {
       return path('M-13.2 -24.5 Q-13.5 -34.5 0 -34 Q12.5 -34 13.2 -27 L18 -24.5 Q8 -22.5 -13.2 -24.5Z', col);
     case 'boater':
       return rect(-9, -36, 18, 9.5, '#f3df9c', 1) + bar(-9, -31, 18, 3.4, band) + ell(0, -26.5, 15.5, 3, '#f3df9c');
+    case 'toque':
+      return path('M-10 -27 Q-11 -37 -9 -40 Q-15 -51 -4.5 -51 Q0 -56 4.5 -51 Q15 -51 9 -40 Q11 -37 10 -27Z', C.white) +
+        rect(-11, -30, 22, 5.5, C.white, 1.5);
+    case 'peaked':
+      return path('M-13 -26 Q-14.5 -38 0 -38 Q14.5 -38 13 -26Z', col) + bar(-13, -30, 26, 4, band) +
+        path('M-12.5 -26 Q0 -19.5 15 -24.5 Q6 -28 -12.5 -26Z', C.black);
     default:
       return '';
   }
