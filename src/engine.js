@@ -177,12 +177,11 @@ function tipMarksByPenny(s) {
   return rows;
 }
 
-function shareCaseName(date) {
-  if (!date) return 'a practice Penny Murder';
+function shareDate(date) {
+  if (!date) return 'Practice';
   const day = new Date(date + 'T00:00:00Z');
-  const weekday = day.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' });
-  const shortDate = day.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit', timeZone: 'UTC' });
-  return `the ${weekday} ${shortDate} Penny Murder`;
+  const weekday = day.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' });
+  return weekday + ' ' + day.toLocaleDateString('en-US', { timeZone: 'UTC' });
 }
 
 // The spoiler-free playbill: one row per penny, one square per tile, cast then story.
@@ -197,10 +196,7 @@ export function shareText(c, s, date, link = '') {
     });
     return tips[n] ? row + ' ' + tips[n] : row;
   });
-  const mystery = shareCaseName(date);
-  const time = clock(seconds(s, s.t1));
-  const head = s.status === 'won'
-    ? `I solved ${mystery} in ${time}.`
-    : `I ran out of pennies on ${mystery} after ${time}.`;
+  const time = s.status === 'won' ? ` · ⏱️${clock(seconds(s, s.t1))}` : '';
+  const head = `The Penny Murders · ${shareDate(date)}${time}`;
   return [head, ...rows, link].filter(Boolean).join('\n');
 }

@@ -577,8 +577,10 @@ function drop() {
 }
 
 async function share() {
-  const search = edition ? '?edition=' + edition.date : '?case=' + encodeURIComponent(c.id);
-  const link = location.origin + location.pathname + search;
+  const url = new URL('./', location.href);
+  if (!edition) url.searchParams.set('case', c.id);
+  else if (edition.date !== utcDate()) url.searchParams.set('edition', edition.date);
+  const link = url.href;
   const text = E.shareText(c, state, edition?.date, link.startsWith('http://localhost') || link.startsWith('http://127.') ? '' : link);
   const fallback = $('#share-fallback');
   fallback.hidden = true;
