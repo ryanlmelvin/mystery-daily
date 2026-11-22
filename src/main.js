@@ -260,13 +260,15 @@ function card() {
     part.word ? `<mark class="k-${c.words[part.word]}">${esc(part.text)}</mark>` : esc(part.text)).join('')}</p>`).join('');
   return `<div class="card" role="dialog" aria-label="${esc(ex.title)}">
       ${PAPER_BACK}
-      <div class="card-head"><span class="badge">${n}</span><h3>${esc(ex.title)}</h3><button class="close" id="close" aria-label="Put it back">×</button></div>
-      ${closeup(ex)}
-      <div class="card-body">${lines}</div>
-      ${ui.fresh.length ? `<p class="got"><span>Words added</span>${ui.fresh.map((w) => `<i class="k-${c.words[w]}">${esc(w)}</i>`).join('')}</p>` : ''}
-      <div class="card-foot">
-        <button class="plain wide" id="back">Back</button>
+      <div class="card-details">
+        <div class="card-head"><span class="badge">${n}</span><h3>${esc(ex.title)}</h3><button class="close" id="close" aria-label="Put it back">×</button></div>
+        <div class="card-body">${lines}</div>
+        ${ui.fresh.length ? `<p class="got"><span>Words added</span>${ui.fresh.map((w) => `<i class="k-${c.words[w]}">${esc(w)}</i>`).join('')}</p>` : ''}
+        <div class="card-foot">
+          <button class="plain wide" id="back">Back</button>
+        </div>
       </div>
+      ${closeup(ex)}
     </div>`;
 }
 
@@ -414,6 +416,7 @@ function openExhibit(id) {
   ui.message = '';
   save();
   draw();
+  $('.card-details').scrollIntoView({ block: 'nearest' });
 }
 
 function tapSlot(i) {
