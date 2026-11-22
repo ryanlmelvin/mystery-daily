@@ -297,6 +297,9 @@ export function doll(opts) {
   let body = g(`scale(${SLIM},1)`, lower(d) + g(`translate(0,${rise}) rotate(${slumped ? d.dir * 8 : 0} 0 -28)`, top) + knees);
   if (d.rock) body = sway(body, d.rock[0], d.rock[1], d.rock[2], d.rock[3] || 0);
 
-  if (fallen) return g(`translate(${d.x},${d.y - 16}) rotate(${d.dir * 90}) scale(${d.s})`, body);
-  return g(`translate(${d.x},${d.y}) scale(${d.s})`, (d.sit ? '' : shadow(0, 3, 24, 5)) + body);
+  // The whole doll casts one soft shadow on the set, kept outside its transform so the
+  // light always falls from the same side, fallen or standing.
+  const lifted = (inner) => `<g filter="url(#lift)">${inner}</g>`;
+  if (fallen) return lifted(g(`translate(${d.x},${d.y - 16}) rotate(${d.dir * 90}) scale(${d.s})`, body));
+  return (d.sit ? '' : g(`translate(${d.x},${d.y}) scale(${d.s})`, shadow(0, 3, 24, 5))) + lifted(g(`translate(${d.x},${d.y}) scale(${d.s})`, body));
 }

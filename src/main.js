@@ -222,7 +222,7 @@ function card() {
   const n = c.exhibits.indexOf(ex) + 1;
   const lines = ex.lines.map(([style, text]) => `<p class="line ${style}">${E.segments(text).map((part) =>
     part.word ? `<mark class="k-${c.words[part.word]}">${esc(part.text)}</mark>` : esc(part.text)).join('')}</p>`).join('');
-  return `<div class="card" role="dialog" aria-label="${esc(ex.title)}">
+  return `<div class="card paper" role="dialog" aria-label="${esc(ex.title)}">
       <div class="card-head"><span class="badge">${n}</span><h3>${esc(ex.title)}</h3><button class="close" id="close" aria-label="Put it back">×</button></div>
       <div class="card-body">${lines}</div>
       ${ui.fresh.length ? `<p class="got"><span>Words added</span>${ui.fresh.map((w) => `<i class="k-${c.words[w]}">${esc(w)}</i>`).join('')}</p>` : ''}
@@ -242,7 +242,7 @@ function playbill() {
   const how = c.path.map((s) => `<li><b>${esc(s.how)}.</b> ${esc(s.say)}</li>`).join('');
   const traps = (c.traps || []).map((t) => `<li>${esc(t.say)}</li>`).join('');
   const date = new Date(daily.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
-  return `<div class="playbill">
+  return `<div class="playbill paper">
       <div class="canopy" aria-hidden="true"></div>
       <p class="playbill-sign">Penny Tableau</p>
       <div class="stub"><span>Tonight's bill</span><span>${practice ? 'Practice' : `No. ${daily.edition} · ${esc(date)}`}</span></div>

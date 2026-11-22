@@ -44,10 +44,13 @@ export const OUT = `stroke="${C.ink}" stroke-width="1.4" stroke-linejoin="round"
 // The hatching every piece is printed with. A scene's <svg> carries it once.
 export const PAPER_DEFS = '<defs>' +
   '<pattern id="hatch" width="2.6" height="2.6" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)"><path d="M0 0V2.6" stroke="#2b1b17" stroke-width=".42"/></pattern>' +
+  // The shadow a whole doll casts on the set behind it.
+  '<filter id="lift" x="-20%" y="-20%" width="150%" height="150%"><feDropShadow dx="2.4" dy="3.2" stdDeviation="2" flood-color="#280a05" flood-opacity=".5"/></filter>' +
   '</defs>';
 
 const MARGIN = '#fffaf0';
-const CAST = 'rgba(43,27,23,.3)';
+const CAST = 'rgba(40,10,5,.24)';
+const CAST_SOFT = 'rgba(40,10,5,.12)';
 
 // One cut piece. `geo` is the shape's geometry attributes; `edge` the scissor margin,
 // kept small on small pieces so an eye or a button does not turn into a sticker.
@@ -57,7 +60,10 @@ function piece(tag, geo, fill, extra, edge = 2.6) {
     return `<${tag} ${geo} fill="${fill}" ${OUT} ${extra}/>`;
   }
   const e = Math.max(0.8, Math.min(2.6, edge));
-  return `<${tag} ${geo} fill="${CAST}" transform="translate(.9 1.3)"/>` +
+  // A soft shadow without a filter (the scene keeps moving, and filters would be redrawn
+  // every frame): a faint wide halo and a firmer core, both dropped down and right.
+  return `<${tag} ${geo} fill="${CAST_SOFT}" stroke="${CAST_SOFT}" stroke-width="4" stroke-linejoin="round" transform="translate(2.6 3.6)"/>` +
+    `<${tag} ${geo} fill="${CAST}" transform="translate(2 2.9)"/>` +
     `<${tag} ${geo} fill="${MARGIN}" stroke="${MARGIN}" stroke-width="${n(e)}" stroke-linejoin="round"/>` +
     `<${tag} ${geo} fill="${fill}"/>` +
     `<${tag} ${geo} fill="url(#hatch)" opacity=".4"/>` +

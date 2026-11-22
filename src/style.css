@@ -32,6 +32,10 @@
   --torn-slip: polygon(0 4%, 6% 0, 50% 3%, 96% 0, 100% 10%, 99% 92%, 94% 100%, 40% 97%, 3% 100%, 1% 60%);
   --torn-frame: polygon(0 1%, 3% 0, 30% .6%, 58% 0, 80% .8%, 100% 0, 99.4% 30%, 100% 62%, 99.2% 100%, 70% 99.3%, 40% 100%, 12% 99.4%, 0 100%, .7% 66%, 0 33%);
   --torn-top: polygon(0 9px, 20% 0, 52% 7px, 80% 1px, 100% 8px, 100% 100%, 0 100%);
+  /* The tag in the window: a torn scrap on a brass split pin, unread, read and open. */
+  --scrap: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cfilter id='s' x='-20%' y='-20%' width='150%' height='150%'%3E%3CfeDropShadow dx='1' dy='1.6' stdDeviation='.9' flood-color='%23280a05' flood-opacity='.5'/%3E%3C/filter%3E%3Cpolygon points='3.5,5 8,3.2 12.5,4.6 17,3 21.5,4.4 26.5,3.6 25.8,9 27,14 25.9,19 26.8,25.6 21,26.6 16,25.4 11,26.9 6,25.8 3,26.4 3.9,21 2.6,16 3.8,11 2.8,7' fill='%23fffaf0' filter='url(%23s)'/%3E%3Ccircle cx='15' cy='5.6' r='2.1' fill='%23f0cc66' stroke='%236a4a18' stroke-width='.7'/%3E%3Cpath d='M13.8 5.6h2.4' stroke='%236a4a18' stroke-width='.6'/%3E%3C/svg%3E");
+  --scrap-read: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cfilter id='s' x='-20%' y='-20%' width='150%' height='150%'%3E%3CfeDropShadow dx='1' dy='1.6' stdDeviation='.9' flood-color='%23280a05' flood-opacity='.5'/%3E%3C/filter%3E%3Cpolygon points='3.5,5 8,3.2 12.5,4.6 17,3 21.5,4.4 26.5,3.6 25.8,9 27,14 25.9,19 26.8,25.6 21,26.6 16,25.4 11,26.9 6,25.8 3,26.4 3.9,21 2.6,16 3.8,11 2.8,7' fill='%23ffd23a' filter='url(%23s)'/%3E%3Ccircle cx='15' cy='5.6' r='2.1' fill='%23f0cc66' stroke='%236a4a18' stroke-width='.7'/%3E%3Cpath d='M13.8 5.6h2.4' stroke='%236a4a18' stroke-width='.6'/%3E%3C/svg%3E");
+  --scrap-on: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cfilter id='s' x='-20%' y='-20%' width='150%' height='150%'%3E%3CfeDropShadow dx='1' dy='1.6' stdDeviation='.9' flood-color='%23280a05' flood-opacity='.5'/%3E%3C/filter%3E%3Cpolygon points='3.5,5 8,3.2 12.5,4.6 17,3 21.5,4.4 26.5,3.6 25.8,9 27,14 25.9,19 26.8,25.6 21,26.6 16,25.4 11,26.9 6,25.8 3,26.4 3.9,21 2.6,16 3.8,11 2.8,7' fill='%23e0322a' filter='url(%23s)'/%3E%3Ccircle cx='15' cy='5.6' r='2.1' fill='%23f0cc66' stroke='%236a4a18' stroke-width='.7'/%3E%3Cpath d='M13.8 5.6h2.4' stroke='%236a4a18' stroke-width='.6'/%3E%3C/svg%3E");
   --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .2 0 0 0 0 .1 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
   --body: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
   --show: 'Abril Fatface', 'Fraunces Variable', Georgia, serif;
@@ -239,16 +243,15 @@ h1, h2, h3, h4, p { margin: 0; }
 .pins { position: absolute; inset: 0; }
 
 /* A numbered scrap pinned to the scene, a brass split pin through its head. */
+/* A numbered scrap torn from card and pinned to the scene. */
 .pin {
   position: absolute;
-  width: 24px;
-  height: 24px;
-  margin: -12px 0 0 -12px;
-  padding: 2px 0 0;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  padding: 4px 0 0;
   border: 0;
-  border-radius: 2px 4px 2px 5px;
-  background: radial-gradient(circle at 50% 3px, #f0cc66 0 2px, #6a4a18 2.2px 2.8px, transparent 3px), var(--paper);
-  box-shadow: 1.5px 2.5px 2px rgba(28, 20, 16, .5);
+  background: var(--scrap) center / 100% 100% no-repeat;
   font-family: var(--body);
   font-style: italic;
   font-weight: 750;
@@ -269,15 +272,16 @@ h1, h2, h3, h4, p { margin: 0; }
   inset: -5px;
   border-radius: 4px;
   border: 2px solid var(--paper);
+  inset: -2px;
   opacity: 0;
   animation: beckon 2.2s ease-out infinite;
 }
 
-.pin.read { background: radial-gradient(circle at 50% 3px, #f0cc66 0 2px, #6a4a18 2.2px 2.8px, transparent 3px), var(--yellow); color: var(--ink); }
+.pin.read { background-image: var(--scrap-read); color: var(--ink); }
 
 .pin.read::after { animation: none; }
 
-.pin.on { background: radial-gradient(circle at 50% 3px, #f0cc66 0 2px, #6a4a18 2.2px 2.8px, transparent 3px), var(--red); color: var(--paper); transform: rotate(var(--r, -4deg)) scale(1.15); }
+.pin.on { background-image: var(--scrap-on); color: var(--paper); transform: rotate(var(--r, -4deg)) scale(1.15); }
 
 @keyframes beckon {
   0% { transform: scale(.8); opacity: .9; }
@@ -542,116 +546,124 @@ h1, h2, h3, h4, p { margin: 0; }
 
 /* ---------- the exhibit card ---------- */
 
+/* The exhibit is a torn card laid over the plates, a little crooked. */
 .card {
+  --sheet: var(--paper);
   display: flex;
   flex-direction: column;
-  background: var(--paper);
-  border: 2px solid var(--ink);
-  border-radius: 14px;
-  box-shadow: 2px 4px 3px var(--cast), inset 0 0 0 3px var(--paper), inset 0 0 0 4.5px var(--red);
-  padding: 12px 14px 14px;
+  padding: 14px 16px 16px;
+  transform: rotate(-.4deg);
   animation: rise .22s ease-out both;
 }
 
 @keyframes rise { from { transform: translateY(14px); opacity: 0; } }
 
-.card-head { display: flex; align-items: center; gap: 10px; }
+.card-head { display: flex; align-items: center; gap: 10px; padding-bottom: 6px; border-bottom: 1.5px solid var(--ink); }
 
+/* The same numbered scrap as the tag in the window. */
 .badge {
   flex: none;
   width: 28px;
   height: 28px;
-  border-radius: 50%;
-  background: var(--red);
-  border: 2px solid var(--ink);
+  padding-top: 3px;
+  border-radius: 2px 4px 2px 5px;
+  background: radial-gradient(circle at 50% 3px, #f0cc66 0 2px, #6a4a18 2.2px 2.8px, transparent 3px), var(--red);
+  box-shadow: 1.5px 2.5px 2px rgba(28, 20, 16, .45);
   color: var(--paper);
-  font-family: var(--cut);
-  font-weight: 700;
-  font-size: 13px;
+  font-family: var(--body);
+  font-style: italic;
+  font-weight: 750;
+  font-size: 15px;
   line-height: 24px;
   text-align: center;
+  transform: rotate(-4deg);
 }
 
 .card h3 { flex: 1; font-family: var(--show); font-weight: 400; font-size: 19px; line-height: 1.12; }
 
-.close { flex: none; width: 34px; height: 34px; border: 0; background: none; font-size: 26px; line-height: 1; color: var(--wood-dark); }
+.close { flex: none; width: 34px; height: 34px; border: 0; background: none; font-size: 26px; line-height: 1; color: var(--ink); }
 
 .card-body { flex: 1; padding: 10px 2px 8px; display: grid; gap: 8px; align-content: start; }
 
 .line { font-size: 16.5px; line-height: 1.42; }
 
+/* What the exhibit says, each kind of writing on its own scrap pasted to the card. */
 .line.hand {
   font-family: var(--hand);
   font-size: 23px;
   line-height: 1.14;
   padding: 8px 12px 9px;
-  background: #fbefc9;
-  border: 1.5px solid rgba(43, 27, 23, .5);
-  border-radius: 3px 12px 4px 10px;
-  transform: rotate(-.7deg);
+  background: repeating-linear-gradient(transparent 0 25px, rgba(47, 98, 200, .18) 25px 26px), #fff8e0;
+  background-position: 0 6px;
+  border-radius: 3px 12px 4px 10px / 10px 4px 12px 3px;
+  box-shadow: 1.5px 2.5px 2px rgba(40, 10, 5, .35);
+  transform: rotate(-.8deg);
 }
 
 .line.print {
   padding: 7px 11px 8px;
-  border: 2px solid var(--ink);
-  border-radius: 4px;
+  border-radius: 2px;
   background: #fff;
+  box-shadow: 1.5px 2.5px 2px rgba(40, 10, 5, .35), inset 0 0 0 3px #fff, inset 0 0 0 4px var(--ink);
   font-size: 15px;
   font-weight: 600;
   font-variant-caps: small-caps;
   letter-spacing: .02em;
   line-height: 1.34;
+  transform: rotate(.4deg);
 }
 
 .line.cut {
   width: fit-content;
   padding: 5px 12px 6px;
-  border: 2px solid var(--ink);
-  border-radius: 6px;
-  background: linear-gradient(165deg, var(--brass-light), var(--brass) 60%);
+  border-radius: 3px 6px 2px 5px;
+  background: repeating-linear-gradient(-35deg, rgba(60, 25, 8, .14) 0 .7px, transparent .7px 2.6px), var(--brass-light);
+  box-shadow: 1.5px 2.5px 2px rgba(40, 10, 5, .35);
   font-family: var(--cut);
   font-weight: 700;
   font-size: 13.5px;
   letter-spacing: .09em;
+  transform: rotate(-.6deg);
 }
 
-mark { background: none; color: inherit; font-weight: 750; box-shadow: inset 0 -.42em 0 color-mix(in srgb, var(--k) 34%, transparent); border-radius: 2px; padding: 0 1px; }
+mark { background: none; color: inherit; font-weight: 750; box-shadow: inset 0 -.46em 0 color-mix(in srgb, var(--k) 70%, transparent); border-radius: 2px; padding: 0 1px; }
 
 .got { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 2px 0 12px; font-size: 13px; }
 
-.got span { font-family: var(--cut); font-weight: 700; font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--wood-dark); margin-right: 2px; }
+.got span { font-family: var(--cut); font-weight: 700; font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--red-dark); margin-right: 2px; }
 
-.got i { font-style: normal; font-weight: 650; padding: 1px 8px 3px; border: 1.5px solid var(--ink); border-radius: 5px; background: var(--paper); box-shadow: inset 0 -3px 0 var(--k); animation: land .45s cubic-bezier(.2, 1.5, .4, 1) both; }
+.got i { font-style: normal; font-weight: 650; padding: 2px 8px 4px; border-radius: 3px 6px 2px 5px / 5px 2px 6px 3px; background: var(--k); box-shadow: 1px 2px 2px rgba(40, 10, 5, .45); animation: land .45s cubic-bezier(.2, 1.5, .4, 1) both; }
+
+.got i:nth-of-type(odd) { transform: rotate(-1.5deg); }
+.got i:nth-of-type(even) { transform: rotate(1.2deg); }
 
 .card-foot { display: flex; gap: 8px; }
 
+/* A plain button is a slip of card with an inked edge. */
 .plain {
   height: 40px;
   padding: 0 14px 1px;
-  border-radius: 20px;
-  border: 2px solid var(--ink);
-  background: var(--cream);
+  border-radius: 3px 7px 4px 6px / 6px 3px 7px 4px;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
   font-weight: 650;
   font-size: 14.5px;
-  box-shadow: 0 3px 0 var(--ink);
+  box-shadow: 2px 3px 0 var(--cast);
 }
 
-.plain:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.plain:active { transform: translate(1px, 2px); box-shadow: 0 0 0 var(--cast); }
 
 .plain.wide { flex: 1; }
 
 /* ---------- the playbill ---------- */
 
+/* The playbill: a torn mustard bill pasted up under its striped awning. */
 .playbill {
+  --sheet: var(--bill);
   margin-top: 12px;
-  padding: 0 16px 16px;
-  overflow: hidden;
-  /* Mustard, so both the cherry and the cream stripes of the awning stand out. */
-  background: var(--bill);
-  border: 2px solid var(--ink);
-  border-radius: 12px;
-  box-shadow: 2px 4px 3px var(--cast);
+  padding: 0 16px 18px;
   text-align: center;
+  transform: rotate(.4deg);
   animation: rise .3s ease-out both;
 }
 
@@ -661,9 +673,8 @@ mark { background: none; color: inherit; font-weight: 750; box-shadow: inset 0 -
   font-family: var(--show);
   font-size: 26px;
   line-height: 1.05;
-  color: var(--teal);
-  text-shadow: 0 2px 0 var(--teal-deep);
-  -webkit-text-stroke: .5px var(--ink);
+  color: var(--red);
+  text-shadow: 1.5px 2px 0 var(--ink);
   text-align: center;
 }
 
@@ -694,19 +705,22 @@ dialog .edition { margin-top: 2px; }
 
 .grid-row { display: flex; gap: 4px; justify-content: center; }
 
-.grid i { width: 20px; height: 20px; border-radius: 5px; border: 2px solid var(--ink); background: var(--ink); }
+.grid i { width: 20px; height: 20px; border-radius: 2px 4px 2px 3px; background: var(--ink); box-shadow: 1px 1.5px 1px rgba(40, 10, 5, .4); }
 
-.grid i.ok { background: #3fa35c; }
+.grid i.ok { background: #2f9a4a; }
 
 .grid i.gap { margin-left: 10px; }
 
-.meta { font-size: 13.5px; font-style: italic; color: var(--wood-dark); }
+.meta { font-size: 13.5px; font-style: italic; color: var(--ink); }
 
 .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 12px; }
 
 .playbill .lever, dialog .lever { flex: 0 1 auto; }
 
-.playbill .status { color: var(--wood-dark); }
+/* On the mustard bill the yellow lever would vanish: print it in red. */
+.playbill .lever { background: var(--red); color: var(--paper); }
+
+.playbill .status { color: var(--ink); }
 
 .playbill h4 {
   margin: 12px 0 4px;
