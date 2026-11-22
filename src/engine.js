@@ -145,7 +145,7 @@ export function takeTip(c, s, now) {
   const blanks = blanksOf(c);
   const order = blanks.map((_, i) => i).sort((a, b) => (blanks[b].panel === 'story') - (blanks[a].panel === 'story'));
   const i = order.find((k) => !isFixed(c, s, k) && s.fills[k] !== blanks[k].answer);
-  if (i === undefined) return { tier: 3, text: 'Every tile on the plates is already right.' };
+  if (i === undefined) return { tier: 3, text: 'Every tile is already right.' };
   s.tips += 1;
   s.fills[i] = blanks[i].answer;
   if (!s.bank.includes(blanks[i].answer)) s.bank.push(blanks[i].answer);

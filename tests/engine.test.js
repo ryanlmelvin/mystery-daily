@@ -118,7 +118,7 @@ test('tips: two written ones, then the attendant sets a story tile', () => {
   assert.equal(E.isFixed(toy, s, 2), true);
   assert.equal(E.paidTips(s), 3);
   fill(s, ['Ann', 'Bob', null, 'rope']);
-  assert.equal(E.takeTip(toy, s, 4).text, 'Every tile on the plates is already right.');
+  assert.equal(E.takeTip(toy, s, 4).text, 'Every tile is already right.');
   assert.equal(E.paidTips(s), 3);
 });
 

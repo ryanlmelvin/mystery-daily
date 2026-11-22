@@ -11,10 +11,9 @@ moment of a death. Nothing is explained. You work out who everyone is and what h
 
 1. **Inspect.** Tap the numbered tags in the cabinet window. Each shows an exhibit: what
    is in a pocket, a letter, a label. Words you find drop into your tray.
-2. **Set the plates.** Tap a gap on a brass plate, then a tile. The first plate names
-   the cast. The second says what happened.
-3. **Insert penny.** The machine tells you only how many tiles are wrong on each plate,
-   never which. A plate with nothing wrong locks. You have four pennies.
+2. **Fill the gaps.** Tap a gap, then a tile. Name the cast and piece together what happened.
+3. **Insert penny.** The cast and story each show how many tiles are wrong. When every
+   tile in a section is correct, that section locks. You have four pennies.
 
 Looking costs nothing. Each tip you take adds one mark to your playbill. You can reread
 your tips for free. Win or lose, the cabinet then shows how it was done.

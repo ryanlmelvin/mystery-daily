@@ -503,7 +503,7 @@ function tapTile(word) {
     const kind = c.words[word];
     const blanks = E.blanksOf(c);
     const free = blanks.findIndex((b, i) => b.kind === kind && !state.fills[i] && !E.isFixed(c, state, i));
-    if (free < 0) { ui.message = 'Tap a gap on a plate first.'; return draw(); }
+    if (free < 0) { ui.message = 'Tap a gap first.'; return draw(); }
     ui.sel = free;
   }
   const res = E.place(c, state, ui.sel, word, Date.now());
@@ -526,7 +526,7 @@ function tapTile(word) {
 function drop() {
   const res = E.dropPenny(c, state, Date.now());
   if (!res.ok) {
-    ui.message = res.why === 'unfilled' ? 'Fill every gap on both plates first.' : res.why === 'same' ? 'Nothing has changed since your last penny.' : '';
+    ui.message = res.why === 'unfilled' ? 'Fill every gap first.' : res.why === 'same' ? 'Nothing has changed since your last penny.' : '';
     return draw();
   }
   ui.sel = null;
