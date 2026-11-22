@@ -49,14 +49,16 @@ npm install
 npm run dev
 ```
 
-Open http://127.0.0.1:4331. `npm test` runs the rules and case tests, and
-`npm run check:cases` prints each case's size against the five-minute budget.
+Open http://127.0.0.1:4331. `npm test` runs the rules, proof and case tests.
+`npm run check:cases` proves each case and prints its size against the five-minute
+budget; add `-- --why` to see how each answer is reached.
 
 ## What is not built yet
 
 - Only five cases, all hand-written. There is no case generator.
-- The case checker confirms structure and the author's chain of deductions. It does not
-  prove that a case has exactly one answer.
+- Each case is proved to have exactly one answer, but only inside a model: every exhibit
+  states its facts in a fixed vocabulary, and the proof reasons from those. It cannot
+  tell whether the written sentences really say what the facts claim.
 - No streaks, statistics, archive, sound, or offline install.
 - The five-minute target is an estimate. Nobody has been timed on these cases.
 

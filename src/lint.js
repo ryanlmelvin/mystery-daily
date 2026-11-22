@@ -1,10 +1,12 @@
 // Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
-// The case checker. It does not prove a mystery has one answer: it checks that a case is
-// well formed, that the author's chain of deductions reaches every blank, that no exhibit
-// is dead weight, and that the case fits the five-minute size budget.
+// The case checker. It checks that a case is well formed and fits the five-minute size
+// budget, then hands it to the proof (logic.js), which decides from the case's stated
+// facts whether exactly one answer follows. Last, it checks that the chain of deductions
+// the case shows the player agrees with the one the proof found.
 
 import { blanksOf, wordsIn, segments } from './engine.js';
+import { proveCase } from './logic.js';
 
 export const BUDGET = { exhibits: 9, blanks: 9, words: 16, reading: 175, dolls: 4 };
 export const KINDS = ['person', 'thing', 'place'];
@@ -104,5 +106,25 @@ export function lintCase(c, pins = null) {
     }
   }
 
-  return { errors, warnings, stats };
+  // The proof: do the stated facts give exactly one answer, reachable without a guess?
+  const proof = proveCase(c);
+  for (const e of proof.errors) errors.push(`Proof: ${e}`);
+  for (const w of proof.warnings) warnings.push(w);
+
+  // The chain shown to the player must rest on exhibits the proof actually uses.
+  if (proof.ok) {
+    blanks.forEach((b, i) => {
+      const step = b.panel === 'cast' ? proof.cast.steps.find((s) => s.doll === b.key) : proof.story.steps.find((s) => s.role === b.key);
+      const told = c.path.filter((s) => s.gives.includes(i)).flatMap((s) => s.from);
+      if (step && told.length && !told.some((id) => step.from.includes(id))) {
+        errors.push(`The written chain for "${b.answer}" cites ${told.join(', ')}, but the proof settles it from ${step.from.join(', ')}.`);
+      }
+    });
+    for (const t of proof.story.traps) {
+      const explained = (c.traps || []).some((x) => x.word === t.value || x.from.some((id) => t.from.includes(id)));
+      if (!t.self && !explained) warnings.push(`The proof finds a trap the case never explains to the player: ${t.role} = ${t.value}.`);
+    }
+  }
+
+  return { errors, warnings, stats, proof };
 }

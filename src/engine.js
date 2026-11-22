@@ -6,11 +6,13 @@
 export const PENNIES = 4;
 
 // Every blank in the order it is read: the cast plate first, then the story plate.
+// `key` says what the gap stands for: a doll's id on the cast plate, a part of the
+// story (culprit, means, motive and so on) on the story plate. Only the proof uses it.
 export function blanksOf(c) {
   const out = [];
   for (const panel of c.panels) {
     for (const part of panel.parts) {
-      if (typeof part !== 'string') out.push({ panel: panel.id, kind: part[0], answer: part[1] });
+      if (typeof part !== 'string') out.push({ panel: panel.id, kind: part[0], answer: part[1], key: part[2] || null });
     }
   }
   return out;

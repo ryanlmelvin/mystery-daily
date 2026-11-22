@@ -18,34 +18,75 @@ export default {
     pulpit: 'thing'
   },
   exhibits: [
-    { id: 'vicar', title: 'The gentleman in the armchair', lines: [
+    { id: 'vicar', title: 'The gentleman in the armchair',
+      facts: [
+        ['tag', 'vicar', { initials: 'O.T.' }],
+        ['fits', 'vicar', 'clergy'],
+        ['dead', 'vicar'],
+        ['sign', 'blue lips and cold hands']
+      ],
+      lines: [
       ['see', 'Clerical collar. His lips are quite blue and his hands are cold. On his spectacle case:'],
       ['cut', 'O.T.']
     ] },
-    { id: 'cup', title: 'Teacup on the carpet', lines: [
+    { id: 'cup', title: 'Teacup on the carpet',
+      facts: [
+        ['untouched', 'sugar']
+      ],
+      lines: [
       ['see', 'Fallen from his hand, half drunk. No milk in it and no sugar. It smells bitter, like crushed leaves.']
     ] },
-    { id: 'notice', title: 'Parish notice by the door', lines: [
+    { id: 'notice', title: 'Parish notice by the door',
+      facts: [
+        ['listed', 'Osric Thrale', 'clergy'],
+        ['listed', 'Ambrose Pell', 'clergy'],
+        ['listed', 'Hetty Brill', 'housekeeper']
+      ],
+      lines: [
       ['print', "St Mark's. Vicar: the Rev. {Osric Thrale}. Curate: Mr {Ambrose Pell}. Housekeeper: Mrs {Hetty Brill}."]
     ] },
-    { id: 'tray', title: 'The woman with the tray', lines: [
+    { id: 'tray', title: 'The woman with the tray',
+      facts: [
+        ['fits', 'tray', 'housekeeper'],
+        ['untouched', 'sugar'],
+        ['wants', 'tray', 'gold watch'],
+        ['excused', 'tray', 'gold watch']
+      ],
+      lines: [
       ['see', "Cap and apron. On her tray the {sugar} bowl is full to the brim. In her pocket, his {gold watch}, with a jeweller's ticket:"],
       ['print', 'To be mended.']
     ] },
-    { id: 'visitor', title: 'The gentleman at the window', lines: [
+    { id: 'visitor', title: 'The gentleman at the window',
+      facts: [
+        ['fits', 'visitor', 'clergy'],
+        ['link', 'visitor', 'hat'],
+        ['has', 'visitor', 'wolfsbane']
+      ],
+      lines: [
       ['see', 'Clerical collar, hat in hand. In his coat, a blue bottle, half empty:'],
       ['print', '{wolfsbane|Wolfsbane} liniment. Not to be swallowed.']
     ] },
-    { id: 'letter', title: 'Letter inside his hat', lines: [
+    { id: 'letter', title: 'Letter inside his hat',
+      facts: [
+        ['owner', 'hat', { surname: 'Pell' }],
+        ['wants', { surname: 'Pell' }, 'pulpit']
+      ],
+      lines: [
       ['hand', "Mr Pell, I regret that St Mark's has only the one {pulpit}, and Mr Thrale is in excellent health. Yours, the Bishop."]
     ] },
-    { id: 'herbal', title: 'Herbal, open on the shelf', lines: [
+    { id: 'herbal', title: 'Herbal, open on the shelf',
+      facts: [
+        ['makes', 'wolfsbane', 'blue lips and cold hands'],
+        ['makes', 'foxglove', 'yellow sight and a slow pulse'],
+        ['makes', 'arsenic', 'garlic breath']
+      ],
+      lines: [
       ['print', '{foxglove|Foxglove}: the sight turns yellow, the pulse slows. {wolfsbane|Wolfsbane}: the lips turn blue, the hands grow cold. {arsenic|Arsenic}: the breath smells of garlic.']
     ] }
   ],
   panels: [
-    { id: 'cast', title: 'The cast', parts: ['In the armchair, ', ['person', 'Osric Thrale'], '. With the tray, ', ['person', 'Hetty Brill'], '. At the window, ', ['person', 'Ambrose Pell'], '.'] },
-    { id: 'story', title: 'What happened', parts: [['person', 'Ambrose Pell'], ' put ', ['thing', 'wolfsbane'], ' in the tea of ', ['person', 'Osric Thrale'], ', to have his ', ['thing', 'pulpit'], '.'] }
+    { id: 'cast', title: 'The cast', parts: ['In the armchair, ', ['person', 'Osric Thrale', 'vicar'], '. With the tray, ', ['person', 'Hetty Brill', 'tray'], '. At the window, ', ['person', 'Ambrose Pell', 'visitor'], '.'] },
+    { id: 'story', title: 'What happened', parts: [['person', 'Ambrose Pell', 'culprit'], ' put ', ['thing', 'wolfsbane', 'means'], ' in the tea of ', ['person', 'Osric Thrale', 'victim'], ', to have his ', ['thing', 'pulpit', 'motive'], '.'] }
   ],
   path: [
     { how: 'Initials', from: ['vicar', 'notice'], gives: [0, 5], say: 'The spectacle case says O.T. and the notice names the vicar: the man in the armchair is Osric Thrale.' },

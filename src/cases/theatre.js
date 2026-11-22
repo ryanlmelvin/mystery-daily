@@ -18,38 +18,82 @@ export default {
     crown: 'thing'
   },
   exhibits: [
-    { id: 'playbill', title: 'Playbill on the wall', lines: [
+    { id: 'playbill', title: 'Playbill on the wall',
+      facts: [
+        ['listed', 'Hector Bellamy', 'the King'],
+        ['listed', 'Leo Sparrow', 'understudy'],
+        ['listed', 'Amos Tull', 'prompter'],
+        ['listed', 'Ida Crewe', 'wardrobe']
+      ],
+      lines: [
       ['print', "Tonight: The Tyrant's Supper. The King: Mr {Hector Bellamy}. His understudy: Mr {Leo Sparrow}. Prompter: Mr {Amos Tull}. Wardrobe: Mrs {Ida Crewe}."]
     ] },
-    { id: 'fallen', title: 'The man on the floor', lines: [
+    { id: 'fallen', title: 'The man on the floor',
+      facts: [
+        ['fits', 'fallen', 'prompter'],
+        ['dead', 'fallen'],
+        ['sign', 'poisoned']
+      ],
+      lines: [
       ['see', 'Shirt-sleeves, a prompt-book under his arm, foam on his lips. A green bottle in his fist, nearly empty.']
     ] },
-    { id: 'bottle', title: 'The green bottle', lines: [
+    { id: 'bottle', title: 'The green bottle',
+      facts: [
+        ['meantFor', { surname: 'Bellamy' }]
+      ],
+      lines: [
       ['print', 'Throat {tonic}. For Mr Bellamy ONLY. Hands off.'],
       ['see', 'It smells of bitter almonds.']
     ] },
-    { id: 'king', title: 'The gentleman in the crown', lines: [
+    { id: 'king', title: 'The gentleman in the crown',
+      facts: [
+        ['fits', 'king', 'the King'],
+        ['tag', 'king', { initials: 'H.B.' }],
+        ['lead', 'king', 'threatened the dead man']
+      ],
+      lines: [
       ['see', 'Robe and crown, powdered for the stage. Tucked in his sleeve, a note not yet pinned up:'],
       ['hand', 'Tull: drink my tonic once more and I will have you sacked. H.B.']
     ] },
-    { id: 'exit', title: 'The young man at the door', lines: [
+    { id: 'exit', title: 'The young man at the door',
+      facts: [
+        ['tag', 'exit', { abbr: 'L. Sparrow' }],
+        ['has', 'exit', 'prussic acid'],
+        ['makes', 'prussic acid', 'poisoned']
+      ],
+      lines: [
       ['see', "Street coat, hat already on. In his pocket, a chemist's receipt:"],
       ['print', '{prussic acid|Prussic acid}, one phial. Signed for: L. Sparrow.']
     ] },
-    { id: 'script', title: 'Script on the chair', lines: [
+    { id: 'script', title: 'Script on the chair',
+      facts: [
+        ['wants', { listed: 'understudy' }, 'crown']
+      ],
+      lines: [
       ['see', "Every one of the King's lines is underlined. Pencilled on the cover:"],
       ['hand', 'The {crown} at last. Tonight.']
     ] },
-    { id: 'wardrobe', title: 'The woman with the pins', lines: [
+    { id: 'wardrobe', title: 'The woman with the pins',
+      facts: [
+        ['fits', 'wardrobe', 'wardrobe']
+      ],
+      lines: [
       ['see', "Pincushion at her wrist, tape about her neck. Over her arm, the King's second-act cloak, half hemmed."]
     ] },
-    { id: 'table', title: 'The dressing table', lines: [
+    { id: 'table', title: 'The dressing table',
+      facts: [
+        ['makes', 'laudanum', 'poisoned'],
+        ['untouched', 'laudanum'],
+        ['makes', 'rat poison', 'poisoned'],
+        ['untouched', 'rat poison']
+      ],
+      lines: [
       ['see', 'Greasepaint and powder. A phial of {laudanum}, full to the cork. A tin of {rat poison} for the mice, its lid rusted shut.']
     ] }
   ],
   panels: [
-    { id: 'cast', title: 'The cast', parts: ['On the floor, ', ['person', 'Amos Tull'], '. In the crown, ', ['person', 'Hector Bellamy'], '. At the door, ', ['person', 'Leo Sparrow'], '. With the pins, ', ['person', 'Ida Crewe'], '.'] },
-    { id: 'story', title: 'What happened', parts: [['person', 'Leo Sparrow'], ' put ', ['thing', 'prussic acid'], ' in the tonic meant for ', ['person', 'Hector Bellamy'], ', but ', ['person', 'Amos Tull'], ' drank it.'] }
+    { id: 'cast', title: 'The cast', parts: ['On the floor, ', ['person', 'Amos Tull', 'fallen'], '. In the crown, ', ['person', 'Hector Bellamy', 'king'], '. At the door, ', ['person', 'Leo Sparrow', 'exit'], '. With the pins, ', ['person', 'Ida Crewe', 'wardrobe'], '.'] },
+    { id: 'story', title: 'What happened', parts: [['person', 'Leo Sparrow', 'culprit'], ' put ', ['thing', 'prussic acid', 'means'], ' in the tonic meant for ', ['person', 'Hector Bellamy', 'intended'], ', but ', ['person', 'Amos Tull', 'victim'], ' drank it.'] }
   ],
   path: [
     { how: 'Trade', from: ['fallen', 'playbill'], gives: [0, 7], say: 'A prompt-book under his arm: the man on the floor is the prompter, Amos Tull.' },
