@@ -3,7 +3,7 @@
 Guidance for coding agents working in this repository.
 
 Penny Tableau (working title) is a daily five-minute mystery. Each case is a
-coin-operated arcade cabinet of painted wooden dolls, jammed at the moment of a death.
+coin-operated arcade cabinet of cut-paper dolls, jammed at the moment of a death.
 The player reads numbered tags in the cabinet window, collects the words they find,
 sets them as tiles into two brass plates (who the dolls are, and what happened), and
 drops a penny to test the plates. Four pennies; each says only how many tiles are wrong
@@ -42,7 +42,7 @@ Dev pages and switches:
 - `src/lint.js`: the case checker: structure, size, tags, then the proof.
   `scripts/check-cases.mjs` runs it.
 - `src/daily.js`: which case is today's. One edition per UTC day; the five cases repeat.
-- `src/art/kit.js`: palette and SVG primitives. `src/art/doll.js`: the dolls.
+- `src/art/kit.js`: palette and SVG primitives, each shape drawn as a cut-paper piece. `src/art/doll.js`: the dolls.
   `src/art/props.js`: sets and props. `src/art/scenes.js`: one composed scene per case,
   plus where each exhibit's tag sits. `src/art/cogs.js`: the cog strip under the window.
 - `src/main.js`: the cabinet front (window, tags, plates, tray, lever, playbill, dialogs)
@@ -171,20 +171,36 @@ with costumes fixed by trade.
 
 ## Art direction
 
-The look is a fairground cabinet of turned, painted wooden automaton dolls: big egg
-heads, painted faces, riveted paddle arms, round bases in floor slots, a sprung coil on
-any doll that has stopped for good. Flat enamel colours with one warm dark outline, a
-little gloss, a swagged pelmet over every scene, brass plates, enamel tiles, a striped
-awning. Parts sway on their pivots while the machine is jammed and run when it is solved.
+The look is a Victorian penny-in-the-slot working model, cut from printed card: a scene
+of jointed paper dolls in the manner of engraved cut-out collage, in bright hand-tinted
+colours. Big egg heads with engraved faces (almond eyes, a lid line, a nose stroke,
+hatching down the shadowed cheek), arms fixed at shoulder and elbow with brass split
+pins, round bases in floor slots, a sprung coil on any doll that has stopped for good.
+Every outlined shape is a cut piece: a white scissor margin, a short crisp shadow on
+whatever lies beneath, flat bright colour, fine engraver's hatching and a thin ink line
+(`piece` in `src/art/kit.js` does this for every `rect`, `ell`, `circ` and `path`; dots,
+lines and blobs are printed on the piece). A swagged pelmet hangs over every scene.
+Parts sway on their pivots while the machine is jammed and run when it is solved.
+
+The cabinet front is the same paper: a torn red card frames the window, the case title is
+a yellow slip pasted across its top edge (title only; the time and place stay for screen
+readers), the plates are torn cards, the words are crooked scraps of tinted paper
+(yellow for people, blue for things, pink for places), the tags are numbered scraps on
+split pins, and the dock is a red card torn along its top. Torn cards use the `.paper`
+class in `src/style.css`; its shadow is a still layer so the moving scene is never
+re-blurred.
 
 It must stay clearly different from:
 
 - The Case of the Golden Idol: no pixel art, no grotesque human caricature, no scroll.
 - Dungeon Chess Daily: no newspaper, no blackletter, no pixel fonts, no dark screen.
 - Debrief: no dossier or typewriter look, no monospace, no parchment on dark green.
+- Monty Python's animations: the technique (engraved cut-outs, split pins) is common
+  property; never copy a recognisable image or character from them.
 
-So: no paper-document chrome, no monospace type, no dark background, no stamps.
-Fonts are Abril Fatface (signs), Fraunces (text), Cinzel (engraving) and Caveat
+So: paper as cut card and pasted scraps, never as a document (no forms, files, stamps,
+typed sheets or aged parchment). No monospace type, no dark background, sepia kept to the
+ink. Fonts are Abril Fatface (signs), Fraunces (text), Cinzel (engraving) and Caveat
 (handwriting), bundled from `@fontsource`. All drawings are original SVG built in code.
 
 ## Design constraints

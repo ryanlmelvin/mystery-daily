@@ -1,6 +1,6 @@
 // Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
-// The cast: turned wooden automaton dolls with painted faces and riveted arms.
+// The cast: cut-paper automaton dolls, printed faces, arms pinned at shoulder and elbow.
 // A doll is drawn in its own space, base at the origin, head up the negative y axis,
 // about 105 units tall before its hat: a third of that is head, as on a peg doll. Everything a clue relies on (cap, apron, crown, whiskers)
 // is a named option here, so a case can describe its cast in data.
@@ -54,7 +54,8 @@ const POSES = {
 };
 
 const thin = `stroke="${C.ink}" stroke-width=".8"`;
-const rivet = (x, y) => dot(x, y, 1.9, C.brass, thin);
+// A brass split pin through both pieces, its slit across the head.
+const rivet = (x, y) => dot(x, y, 2, C.brass, thin) + line(`M${x - 1.2} ${y} h2.4`, 0.6, C.brassDark);
 
 // A riveted paddle arm: shoulder at the origin, elbow part way down, a ball for a hand.
 function arm(side, [a1, a2], sleeve, skin, held, wave) {
@@ -157,26 +158,32 @@ export function head(opts) {
   if (d.hair === 'bob' || d.hair === 'bun') s += ''; // drawn over the head below
   s += ell(0, cy, rx, ry, d.skin);
   s += gloss(-rx * 0.45, cy - ry * 0.48, 2.6, 4.6);
-  if (d.cheeks && !dead) s += dot(-rx * 0.64, cy + 5, 3, C.pink, 'opacity=".7"') + dot(rx * 0.64, cy + 5, 3, C.pink, 'opacity=".7"');
+  if (d.cheeks && !dead) s += dot(-rx * 0.64, cy + 5, 2.6, C.pink, 'opacity=".55"') + dot(rx * 0.64, cy + 5, 2.6, C.pink, 'opacity=".55"');
   if (d.hair) s += fit(hair(d.hair, d.hairColor));
 
-  // eyes
+  // eyes, cut as an engraver would: an almond, a pupil, a lid line above
+  const almond = (x, open) =>
+    `<path d="M${x - 3.4} ${ey} Q${x} ${ey - open * 1.5} ${x + 3.4} ${ey} Q${x} ${ey + open * 1.2} ${x - 3.4} ${ey}Z" fill="${C.white}" stroke="${C.ink}" stroke-width=".7"/>`;
   for (const sx of [-1, 1]) {
     const x = sx * ex;
     if (dead) {
-      s += line(`M${x - 2.5} ${ey - 2.5} l5 5 M${x + 2.5} ${ey - 2.5} l-5 5`, 1.7);
+      s += line(`M${x - 2.5} ${ey - 2.5} l5 5 M${x + 2.5} ${ey - 2.5} l-5 5`, 1.5);
     } else if (d.mood === 'shock') {
-      s += circ(x, ey, 3.6, C.white, 'stroke-width="1.1"') + dot(x, ey, 1.4, C.ink);
-      s += line(`M${x - 3.2} ${ey - 6} Q${x} ${ey - 8.6} ${x + 3.2} ${ey - 6}`, 1.2);
+      s += almond(x, 2.9) + dot(x, ey - 0.2, 1.6, C.ink);
+      s += line(`M${x - 3.4} ${ey - 6.4} Q${x} ${ey - 8.8} ${x + 3.4} ${ey - 6.4}`, 0.9);
     } else if (d.mood === 'shifty') {
-      s += circ(x, ey, 3.1, C.white, 'stroke-width="1.1"') + dot(x + d.dir * 1.5, ey + 0.2, 1.4, C.ink);
-      s += line(`M${x - 3.4} ${ey - 5.2} L${x + 3.4} ${ey - 5.2 - sx * d.dir * 1.2}`, 1.2);
+      s += almond(x, 1.9) + dot(x + d.dir * 1.5, ey - 0.1, 1.2, C.ink);
+      s += line(`M${x - 3.6} ${ey - 2.6} L${x + 3.6} ${ey - 2.6 - sx * d.dir * 1.2}`, 1);
     } else {
-      s += dot(x, ey, 1.9, C.ink) + dot(x - 0.6, ey - 0.7, 0.55, '#fff');
-      if (d.mood === 'stern') s += line(`M${x - sx * 3.4} ${ey - 5.6} L${x + sx * 2.6} ${ey - 3.6}`, 1.3);
+      s += almond(x, 2) + dot(x, ey - 0.1, 1.25, C.ink);
+      s += d.mood === 'stern'
+        ? line(`M${x - sx * 3.6} ${ey - 5.2} L${x + sx * 2.8} ${ey - 3.4}`, 1.1)
+        : line(`M${x - 3.4} ${ey - 4.4} Q${x} ${ey - 5.8} ${x + 3.4} ${ey - 4.4}`, 0.8);
     }
   }
-  s += dot(0, cy + 2.6, 2, shade(d.skin, -0.22));
+  // the nose as a single engraved stroke, and hatching down the shadowed cheek
+  s += line(`M0.6 ${cy - 0.5} l1.6 4 l-2.2 .7`, 0.7);
+  s += `<path d="M${rx * 0.3} ${cy - ry} A${rx} ${ry} 0 0 1 ${rx * 0.3} ${cy + ry} A${rx * 0.62} ${ry} 0 0 0 ${rx * 0.3} ${cy - ry}Z" fill="url(#hatch)" opacity=".55"/>`;
 
   const mouth = d.mouth || { calm: 'smile', shock: 'o', shifty: 'flat', stern: 'frown', dead: 'flat' }[d.mood] || 'smile';
   const my = cy + 8;
@@ -204,7 +211,7 @@ export function head(opts) {
 function upper(d) {
   const p = d.paint;
   const buttons = (ys, col = C.brass) => ys.map((y) => dot(0, y, 1.4, col, thin)).join('');
-  const sheen = bar(-11.5, -57, 3, 24, '#fff', 1.5, 'opacity=".18"');
+  const sheen = '';
   if (d.body === 'dress') {
     let s = path('M-11.5 -41 Q-15 -62 -6 -64 L6 -64 Q15 -62 11.5 -41 Q0 -39 -11.5 -41Z', p) + sheen;
     s += path('M-5.5 -63.6 Q0 -57 5.5 -63.6', C.white);

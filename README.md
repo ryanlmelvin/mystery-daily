@@ -4,7 +4,7 @@
 
 A daily five-minute mystery in a penny-arcade cabinet. Working title; playable prototype.
 
-Each case is a coin-operated machine of painted wooden dolls that has jammed at the
+Each case is a coin-operated machine of cut-paper dolls that has jammed at the
 moment of a death. Nothing is explained. You work out who everyone is and what happened.
 
 ## Play

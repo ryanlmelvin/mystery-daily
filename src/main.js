@@ -68,10 +68,10 @@ function frame() {
       <div class="updatebar" id="updatebar" role="status" hidden></div>
       <header class="top">
         <button class="knob install" id="install" aria-label="Install Penny Tableau" title="Install" hidden>${INSTALL_ICON}</button>
-        <div class="marquee"><h2>${esc(c.title)}</h2><p>${esc(c.where)}</p></div>
+        <div class="marquee paper"><h2>${esc(c.title)}</h2><p class="sr-only">${esc(c.where)}</p></div>
         <button class="knob" id="menu" aria-label="Menu">?</button>
       </header>
-      <div class="window" id="window">
+      <div class="window paper" id="window">
         <div class="glass">
           ${sceneSvg(c.scene)}
           <div class="pins">${c.exhibits.map((ex, i) => {
@@ -182,7 +182,7 @@ function plates() {
         ? '<span class="flag ok">All right</span>'
         : `<span class="flag bad${stale ? ' stale' : ''}">${stale ? 'was ' : ''}${wrong} wrong</span>`;
     }
-    return `<div class="plate" data-panel="${panel.id}"><div class="plate-head"><h3>${esc(panel.title)}</h3>${flag}</div>${body}</div>`;
+    return `<div class="plate paper" data-panel="${panel.id}"><div class="plate-head"><h3>${esc(panel.title)}</h3>${flag}</div>${body}</div>`;
   }).join('')}</div>`;
 }
 

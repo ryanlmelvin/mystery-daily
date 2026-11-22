@@ -2,33 +2,35 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Paint box and drawing primitives for the cabinet scenes.
 // Every helper returns SVG markup; a scene is a string of them, painted back to front.
-// The look: turned and painted wooden toys. Flat enamel colours, one warm outline,
-// a little gloss, no gradients, no textures.
+// The look: a cut-paper working model. Each outlined shape is a piece cut from
+// printed card: a white scissor margin, a crisp shadow on whatever lies beneath,
+// bright hand-tinted colour, engraver's hatching and a fine ink line. Paint with
+// no outline (dots, lines, blobs) is printed straight onto the piece.
 
 export const C = {
   ink: '#2b1b17',
   cream: '#f7edd6',
   white: '#fffaf0',
-  red: '#d5362d',
-  redDark: '#a2251f',
-  mustard: '#e9ad2f',
-  teal: '#1f7f7c',
-  tealDark: '#145957',
-  sky: '#a9d6cf',
-  night: '#27365e',
-  navy: '#1f2a4d',
-  pink: '#f09a8f',
-  wood: '#cf9457',
+  red: '#e0322a',
+  redDark: '#b3221c',
+  mustard: '#f2b51c',
+  teal: '#1fa39a',
+  tealDark: '#147a73',
+  sky: '#9fd8f0',
+  night: '#1d3378',
+  navy: '#1b2f7a',
+  pink: '#ff9a8a',
+  wood: '#d98f4a',
   woodDark: '#8a5630',
   woodLight: '#e6b97e',
   brass: '#d7ae52',
   brassDark: '#9c7628',
   black: '#2a2024',
-  green: '#4f9b58',
-  greenDark: '#2f6b3a',
-  plum: '#7a3b63',
+  green: '#2f9a4a',
+  greenDark: '#1f6e35',
+  plum: '#6a3fa0',
   grey: '#b9b3a6',
-  blue: '#3f6fb5',
+  blue: '#2f62c8',
   glass: '#cfe9e4',
   shadow: 'rgba(43,27,23,.2)'
 };
@@ -39,15 +41,38 @@ const n = (v) => Math.round(v * 10) / 10;
 
 export const OUT = `stroke="${C.ink}" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"`;
 
+// The hatching every piece is printed with. A scene's <svg> carries it once.
+export const PAPER_DEFS = '<defs>' +
+  '<pattern id="hatch" width="2.6" height="2.6" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)"><path d="M0 0V2.6" stroke="#2b1b17" stroke-width=".42"/></pattern>' +
+  '</defs>';
+
+const MARGIN = '#fffaf0';
+const CAST = 'rgba(43,27,23,.3)';
+
+// One cut piece. `geo` is the shape's geometry attributes; `edge` the scissor margin,
+// kept small on small pieces so an eye or a button does not turn into a sticker.
+// A see-through or unfilled shape is drawn plain: there is no card to cut.
+function piece(tag, geo, fill, extra, edge = 2.6) {
+  if (fill === 'none' || /(^|\s)opacity=/.test(extra) || /^rgba|transparent/.test(fill)) {
+    return `<${tag} ${geo} fill="${fill}" ${OUT} ${extra}/>`;
+  }
+  const e = Math.max(0.8, Math.min(2.6, edge));
+  return `<${tag} ${geo} fill="${CAST}" transform="translate(.9 1.3)"/>` +
+    `<${tag} ${geo} fill="${MARGIN}" stroke="${MARGIN}" stroke-width="${n(e)}" stroke-linejoin="round"/>` +
+    `<${tag} ${geo} fill="${fill}"/>` +
+    `<${tag} ${geo} fill="url(#hatch)" opacity=".4"/>` +
+    `<${tag} ${geo} fill="none" stroke="${C.ink}" stroke-width=".8" stroke-linejoin="round" ${extra.replace(/stroke-width="[^"]*"/, '')}/>`;
+}
+
 export const rect = (x, y, w, h, fill, r = 0, extra = '') =>
-  `<rect x="${n(x)}" y="${n(y)}" width="${n(w)}" height="${n(h)}" rx="${r}" fill="${fill}" ${OUT} ${extra}/>`;
+  piece('rect', `x="${n(x)}" y="${n(y)}" width="${n(w)}" height="${n(h)}" rx="${r}"`, fill, extra, Math.min(w, h) * 0.4);
 
 export const ell = (cx, cy, rx, ry, fill, extra = '') =>
-  `<ellipse cx="${n(cx)}" cy="${n(cy)}" rx="${n(rx)}" ry="${n(ry)}" fill="${fill}" ${OUT} ${extra}/>`;
+  piece('ellipse', `cx="${n(cx)}" cy="${n(cy)}" rx="${n(rx)}" ry="${n(ry)}"`, fill, extra, Math.min(rx, ry) * 0.6);
 
 export const circ = (cx, cy, r, fill, extra = '') => ell(cx, cy, r, r, fill, extra);
 
-export const path = (d, fill = 'none', extra = '') => `<path d="${d}" fill="${fill}" ${OUT} ${extra}/>`;
+export const path = (d, fill = 'none', extra = '') => piece('path', `d="${d}"`, fill, extra);
 
 // A stroke with no fill: creases, grain, painted lines.
 export const line = (d, w = 1.4, color = C.ink, extra = '') =>
@@ -65,8 +90,8 @@ export const g = (transform, inner, extra = '') => `<g transform="${transform}" 
 export const sway = (inner, a, b, dur = 2.4, delay = 0) =>
   `<g class="sway" style="--a:${a}deg;--b:${b}deg;--dur:${dur}s;--delay:${delay}s">${inner}</g>`;
 
-export const gloss = (cx, cy, rx, ry, rot = -20, op = 0.38) =>
-  `<ellipse cx="${n(cx)}" cy="${n(cy)}" rx="${rx}" ry="${ry}" fill="#fff" opacity="${op}" transform="rotate(${rot} ${n(cx)} ${n(cy)})"/>`;
+// Paper has no gloss. Kept so older drawings still call it.
+export const gloss = () => '';
 
 export const shadow = (cx, cy, rx, ry = 4.5) =>
   `<ellipse cx="${n(cx)}" cy="${n(cy)}" rx="${rx}" ry="${ry}" fill="${C.shadow}"/>`;

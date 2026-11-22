@@ -3,7 +3,7 @@
 // The five cabinets. Each scene paints itself back to front and says where the
 // numbered inspection tags sit, keyed by exhibit id.
 
-import { C, SKIN } from './kit.js';
+import { C, SKIN, PAPER_DEFS } from './kit.js';
 import { doll, head } from './doll.js';
 import * as P from './props.js';
 import { stagePins, stageSvg } from './stage.js';
@@ -109,5 +109,5 @@ export function sceneSvg(id) {
   if (id && typeof id === 'object') return stageSvg(id);
   const scene = SCENES[id];
   if (!scene) throw new Error(`No scene called ${id}`);
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${P.W} ${P.H}" class="scene" role="img" aria-label="The scene inside the cabinet">${scene.draw()}${P.valance()}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${P.W} ${P.H}" class="scene" role="img" aria-label="The scene inside the cabinet">${PAPER_DEFS}${scene.draw()}${P.valance()}</svg>`;
 }

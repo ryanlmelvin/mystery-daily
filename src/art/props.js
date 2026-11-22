@@ -1,6 +1,6 @@
 // Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
-// Stage sets and props, built like painted wooden toys. Positions are in scene units
+// Stage sets and props, cut from printed card like the dolls. Positions are in scene units
 // (400 by 280); for anything standing on the floor, y is where it touches the boards.
 
 import { C, rect, ell, circ, path, line, blob, dot, bar, g, sway, gloss, shadow, shade, label } from './kit.js';

@@ -7,7 +7,7 @@
 // the thief by the way out with a bag and the tools beside the door. Half of them are
 // mirrored. The picture never carries a clue the text does not state.
 
-import { C } from './kit.js';
+import { C, PAPER_DEFS } from './kit.js';
 import { doll } from './doll.js';
 import * as P from './props.js';
 
@@ -230,5 +230,5 @@ export function stagePins(spec) {
 export function stageSvg(spec) {
   const s = spec.kind === 'switch' ? switchScene(spec) : theftScene(spec);
   const inner = spec.mirror ? P.g(`translate(${P.W},0) scale(-1,1)`, s) : s;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${P.W} ${P.H}" class="scene" role="img" aria-label="The scene inside the cabinet">${inner}${P.valance()}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${P.W} ${P.H}" class="scene" role="img" aria-label="The scene inside the cabinet">${PAPER_DEFS}${inner}${P.valance()}</svg>`;
 }
