@@ -17,14 +17,37 @@ const answers = (c) => E.blanksOf(c).map((b) => b.answer);
 // in src/compose.js and write the new cases here. It is here so a change is never silent.
 test('a date always gives the same case', () => {
   const a = composeDay('2026-11-26');
-  assert.equal(a.title, 'Eight Bells aboard the Kittiwake');
+  assert.equal(a.title, 'Becalmed aboard the Marigold');
   assert.equal(a.where, "The captain's cabin, two days from port");
-  assert.deepEqual(answers(a), ['Osric Tansy', 'Silas Bellamy', 'Mungo Rudge', 'Rufus Vane', 'Mungo Rudge', 'strychnine', 'Silas Bellamy', 'Osric Tansy']);
+  assert.deepEqual(answers(a), ['Leo Voss', 'Ambrose Ruck', 'Edwin Thrale', 'Osric Gill', 'Edwin Thrale', 'arsenic', 'Ambrose Ruck', 'Leo Voss']);
   const b = composeDay('2026-11-27');
-  assert.equal(b.title, 'Death in the Palm House');
-  assert.equal(b.where, 'Kelling Court, half past eight in the evening');
-  assert.deepEqual(answers(b), ['Quentin Nash', 'Edith Sparrow', 'Ambrose Finch', 'Ambrose Finch', 'Quentin Nash', 'spade', 'Ghost Orchid', 'debts']);
+  assert.equal(b.title, 'Found in the Palm House');
+  assert.equal(b.where, 'Slade Priory, twenty past nine at night');
+  assert.deepEqual(answers(b), ['Silas Lark', 'Cordelia Ruck', 'Agnes Pell', 'Agnes Pell', 'Silas Lark', 'spade', 'Blue Lotus', 'rent']);
   assert.equal(composeDay('2026-11-26'), a);
+});
+
+// What a player would notice coming round again is rotated, not drawn: a proofread of a
+// year found 49 cases repeating a setting with the same things as one the week before.
+test('a setting returns only every sixth day, and its contents have moved on', () => {
+  const last = {};
+  const titles = {};
+  for (let i = 0; i < RUN; i++) {
+    const c = composeDay(dateAt(i));
+    const { setting } = c.composed;
+    for (let back = 1; back <= 5 && i - back >= 0; back++) {
+      assert.notEqual(composeDay(dateAt(i - back)).composed.setting, setting, `${dateAt(i)} repeats ${setting} within six days`);
+    }
+    const things = Object.fromEntries(E.blanksOf(c).filter((b) => b.kind !== 'person').map((b) => [b.key, b.answer]));
+    if (last[setting]) {
+      assert.notEqual(things.means, last[setting].means, `${setting} used ${things.means} twice running`);
+      if (things.loot) assert.notEqual(things.loot, last[setting].loot, `${setting} lost ${things.loot} twice running`);
+      assert.notEqual(c.title, last[setting].title, `${setting} repeated its title`);
+    }
+    last[setting] = { ...things, title: c.title };
+    (titles[setting] ||= new Set()).add(c.title);
+  }
+  for (const setting of SETTING_IDS) assert.ok(titles[setting].size >= 9, `${setting} has only ${titles[setting].size} titles`);
 });
 
 test('the two crimes take turns, so two days running never share a shape', () => {

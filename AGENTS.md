@@ -138,9 +138,16 @@ running never share a shape:
   A poison goes into a bottle meant for one man, and another, who kept helping himself,
   drinks it. The trap is the man the bottle was for, who had threatened the drinker.
 
-The lists each crime draws from are at the top of the file. `src/art/stage.js` draws the
-scene from the case's `scene` object: one blocking for each crime, mirrored half the
-time, with costumes fixed by trade.
+What a player would notice coming round again is rotated, not drawn. With two crimes and
+three settings each, a setting returns every sixth day; each time it returns, the thing
+stolen, the weapon or poison, the room's name and the title's wording have moved on. A
+proofread of a year of drawn cases found 49 that repeated a setting with the same things
+as one from the week before; with rotation there are none, and a test keeps it so.
+Names, faces, the witness and the decoys are still drawn by the seeded generator.
+
+The lists each crime uses are at the top of the file. `src/art/stage.js` draws the scene
+from the case's `scene` object: one blocking for each crime, mirrored half the time,
+with costumes fixed by trade.
 
 - Composed cases are on trial. They are listed under **On trial** in the arcade and open
   with `/?date=2026-11-26`; they are not part of the daily run (`src/daily.js` still

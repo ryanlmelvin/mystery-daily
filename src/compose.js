@@ -15,8 +15,12 @@
 //                           who kept helping himself to it, drinks it (dressing room,
 //                           kitchen, ship's cabin)
 //
-// Everything is chosen from the lists below by a generator seeded with the date, so a
-// date always gives the same case. Changing a list or the order of the draws changes
+// What a player would notice coming round again is not left to chance. The setting, and
+// within a setting the thing stolen, the weapon and the poison, are taken in rotation by
+// date: a setting returns every sixth day, and when it does its contents have moved on.
+// Everything else (names, faces, the witness, the wording of the title) is chosen from
+// the lists below by a generator seeded with the date. Either way a date always gives
+// the same case. Changing a list or the order of the draws changes
 // every composed case; bump COMPOSER when that is intended.
 
 import { told } from './tell.js';
@@ -24,7 +28,7 @@ import { lintCase } from './lint.js';
 import { scenePins } from './art/scenes.js';
 import { C, SKIN } from './art/kit.js';
 
-export const COMPOSER = 2;
+export const COMPOSER = 3;
 const ATTEMPTS = 40;
 
 // A small seeded generator (xmur3 into mulberry32): the same text gives the same draws.
@@ -279,14 +283,17 @@ function draws(text) {
 
 // ---------- the interrupted theft ----------
 
-function buildTheft(date, attempt, { pick, chance, shuffled, face }) {
-  const settingId = pick(Object.keys(SETTINGS));
+function buildTheft(date, attempt, turn, { pick, chance, shuffled, face }) {
+  // `turn` counts how many times this crime has come round; `visit`, this setting.
+  const settingIds = Object.keys(SETTINGS);
+  const settingId = settingIds[turn % settingIds.length];
+  const visit = Math.floor(turn / settingIds.length);
   const set = SETTINGS[settingId];
   const witness = WITNESSES[pick(set.witnesses)];
-  const tools = pick(set.tools);
-  const loot = pick(set.loot);
+  const tools = set.tools[visit % set.tools.length];
+  const loot = set.loot[visit % set.loot.length];
   const grievance = pick(GRIEVANCES);
-  const motive = pick(MOTIVES);
+  const motive = MOTIVES[(turn + visit) % MOTIVES.length];
   const belonging = pick(set.belongings);
   const absent = pick(ABSENT);
   const train = pick(TRAINS);
@@ -294,7 +301,7 @@ function buildTheft(date, attempt, { pick, chance, shuffled, face }) {
   const ownerIsWoman = chance(0.6);
   const engraved = chance(0.7); // the keeper's belonging carries his initials
   const labelled = chance(0.4); // the bag has a luggage label, not a stamped clasp
-  const room = pick(set.rooms);
+  const room = set.rooms[visit % set.rooms.length];
 
   // Five people with different first names; the thief and the owner are family.
   const surnames = shuffled(SURNAMES);
@@ -435,7 +442,8 @@ function buildTheft(date, attempt, { pick, chance, shuffled, face }) {
 
   return {
     id: composedId(date),
-    title: pick(TITLES).replace('{room}', room),
+    // Room and wording move on together, so a setting shows nine titles before one returns.
+    title: TITLES[Math.floor(visit / set.rooms.length) % TITLES.length].replace('{room}', room),
     where: `${pick(HALLS)}, ${pick(HOURS)}`,
     scene,
     composed: { date, attempt, crime: 'theft', setting: settingId },
@@ -450,12 +458,18 @@ function buildTheft(date, attempt, { pick, chance, shuffled, face }) {
 
 // ---------- the wrong glass ----------
 
-function buildSwitch(date, attempt, { pick, chance, shuffled, face }) {
-  const settingId = pick(Object.keys(SWITCHES));
+function buildSwitch(date, attempt, turn, { pick, chance, shuffled, face }) {
+  const settingIds = Object.keys(SWITCHES);
+  const settingId = settingIds[turn % settingIds.length];
+  const visit = Math.floor(turn / settingIds.length);
   const set = SWITCHES[settingId];
   const { lead, second, drinker, fourth, absent, vessel, coveted } = set;
-  const [used, spare, other] = shuffled(Object.keys(POISONS));
-  const room = pick(set.rooms);
+  // The poison used moves on one each time the crime comes round, and each setting sees
+  // all six before any returns. The two on the shelf are drawn from the rest.
+  const poisons = Object.keys(POISONS);
+  const used = poisons[(turn + 2 * visit) % poisons.length];
+  const [spare, other] = shuffled(poisons.filter((x) => x !== used));
+  const room = set.rooms[visit % set.rooms.length];
   const head = pick(set.heads);
 
   // Five people with different names: three men, a fourth of either sex, and one not here.
@@ -566,7 +580,7 @@ function buildSwitch(date, attempt, { pick, chance, shuffled, face }) {
 
   return {
     id: composedId(date),
-    title: pick(set.titles).replace('{room}', room),
+    title: set.titles[Math.floor(visit / set.rooms.length) % set.titles.length].replace('{room}', room),
     where: pick(set.where),
     scene,
     composed: { date, attempt, crime: 'switch', setting: settingId },
@@ -586,7 +600,8 @@ const CRIMES = [['theft', buildTheft], ['switch', buildSwitch]];
 function build(date, attempt) {
   const day = Math.floor(Date.parse(date + 'T00:00:00Z') / 86400000);
   const [crime, make] = CRIMES[day % CRIMES.length];
-  return make(date, attempt, draws(`penny-tableau|${COMPOSER}|${crime}|${date}|${attempt}`));
+  const turn = Math.floor(day / CRIMES.length);
+  return make(date, attempt, turn, draws(`penny-tableau|${COMPOSER}|${crime}|${date}|${attempt}`));
 }
 
 export const crimeOf = (date) => CRIMES[Math.floor(Date.parse(date + 'T00:00:00Z') / 86400000) % CRIMES.length][0];
