@@ -236,6 +236,11 @@ function draw() {
     const targets = { inspect: '.pin:not(.read)', gap: '.slot:enabled', word: '.tray-row:not(.dim) .tile', penny: '#drop', done: '#leave-tutorial' };
     const target = ui.open ? $('.card') : $(targets[move]);
     target?.focus({ preventScroll: true });
+    if (target && (move === 'word' || move === 'gap')) {
+      const choices = target.closest('.tray-row') || target;
+      choices.style.scrollMarginBottom = `${$('.dock').offsetHeight + 4}px`;
+      choices.scrollIntoView({ block: 'nearest' });
+    }
   }
 }
 
