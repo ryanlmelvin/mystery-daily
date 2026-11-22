@@ -52,6 +52,7 @@ export function newGame(c) {
     given: [],
     tries: [],
     tips: 0,
+    firstTipPaid: false,
     status: 'play',
     t0: null,
     t1: null,
@@ -131,11 +132,12 @@ export function dropPenny(c, s, now) {
   return { ok: true, attempt, status: s.status };
 }
 
-// Three tips, each blunter than the last. The first is free; the others show on the playbill.
+// The attendant gives two written tips, then sets a tile with each further tip.
 export function takeTip(c, s, now) {
   if (s.status !== 'play') return null;
   const tier = s.tips;
   if (tier < 2) {
+    if (tier === 0) s.firstTipPaid = true;
     s.tips += 1;
     note(s, now, `tip ${tier + 1}`);
     return { tier: tier + 1, text: c.tips[tier] };
@@ -149,10 +151,11 @@ export function takeTip(c, s, now) {
   if (!s.bank.includes(blanks[i].answer)) s.bank.push(blanks[i].answer);
   s.given.push(i);
   note(s, now, `tip set ${i}`);
-  return { tier: 3, text: 'The attendant has set one tile for you.', blank: i };
+  return { tier: 3, text: `The attendant has set the “${s.fills[i]}” tile for you.`, blank: i };
 }
 
-export const paidTips = (s) => Math.max(0, s.tips - 1);
+// Older saves have no firstTipPaid flag. Honour a first tip taken while it was free.
+export const paidTips = (s) => s.firstTipPaid ? s.tips : Math.max(0, s.tips - 1);
 
 export function seconds(s, now) {
   if (s.t0 === null) return 0;

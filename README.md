@@ -16,8 +16,8 @@ moment of a death. Nothing is explained. You work out who everyone is and what h
 3. **Insert penny.** The machine tells you only how many tiles are wrong on each plate,
    never which. A plate with nothing wrong locks. You have four pennies.
 
-Looking costs nothing. The attendant has three tips: the first is free, and the other two
-are marked on your playbill. Win or lose, the cabinet then shows how it was done.
+Looking costs nothing. Each tip you take adds one mark to your playbill. You can reread
+your tips for free. Win or lose, the cabinet then shows how it was done.
 
 After a case, **Share playbill** opens your device’s share sheet. If sharing is
 unavailable, you can copy the result by hand. Each row shows one penny, with the

@@ -107,15 +107,30 @@ test('tips: two written ones, then the attendant sets a story tile', () => {
   const s = E.newGame(toy);
   openAll(s);
   assert.deepEqual(E.takeTip(toy, s, 1), { tier: 1, text: 'Look at the rope.' });
-  assert.equal(E.paidTips(s), 0);
-  assert.equal(E.takeTip(toy, s, 2).text, 'Compare A with B.');
   assert.equal(E.paidTips(s), 1);
+  assert.equal(E.takeTip(toy, s, 2).text, 'Compare A with B.');
+  assert.equal(E.paidTips(s), 2);
   const third = E.takeTip(toy, s, 3);
   assert.equal(third.tier, 3);
   assert.equal(third.blank, 2);
+  assert.match(third.text, /Bob/);
   assert.equal(s.fills[2], 'Bob');
   assert.equal(E.isFixed(toy, s, 2), true);
-  assert.equal(E.paidTips(s), 2);
+  assert.equal(E.paidTips(s), 3);
+  fill(s, ['Ann', 'Bob', null, 'rope']);
+  assert.equal(E.takeTip(toy, s, 4).text, 'Every tile on the plates is already right.');
+  assert.equal(E.paidTips(s), 3);
+});
+
+test('older saves only keep the first tip free if it was already taken', () => {
+  for (const [previousTips, previousMarks] of [[0, 0], [1, 0], [2, 1]]) {
+    const s = E.newGame(toy);
+    delete s.firstTipPaid;
+    s.tips = previousTips;
+    assert.equal(E.paidTips(s), previousMarks);
+    E.takeTip(toy, s, 1);
+    assert.equal(E.paidTips(JSON.parse(JSON.stringify(s))), previousMarks + 1);
+  }
 });
 
 test('the playbill shows one row per penny and spoils nothing', () => {
@@ -131,6 +146,6 @@ test('the playbill shows one row per penny and spoils nothing', () => {
   fill(s, [null, 'Bob']);
   E.dropPenny(toy, s, 5000);
   const text = E.shareText(toy, s, 7, 'https://example.test/');
-  assert.equal(text, ['The Penny Murders · No. 7 · 3/4 🪙 💡', '🟩⬛ 🟩⬛', '🟩⬛ 🟩🟩', '🟩🟩 🟩🟩', 'https://example.test/'].join('\n'));
+  assert.equal(text, ['The Penny Murders · No. 7 · 3/4 🪙 💡💡', '🟩⬛ 🟩⬛', '🟩⬛ 🟩🟩', '🟩🟩 🟩🟩', 'https://example.test/'].join('\n'));
   for (const w of Object.keys(toy.words)) assert.equal(text.includes(w), false);
 });

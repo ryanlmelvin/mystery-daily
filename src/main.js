@@ -400,19 +400,22 @@ function startUpdate(discard = false) {
   chrome();
 }
 
-function tipDialog() {
+function tipDialog(result) {
   ui.dialog = 'tip';
   const next = state.tips;
-  const offer = next === 0
-    ? 'The first tip is free.'
-    : next === 1
-      ? 'A second, blunter tip will be marked on your playbill.'
-      : 'The attendant can set one tile for you. It will be marked on your playbill.';
-  const told = c.tips.slice(0, Math.min(next, 2)).map((t) => `<li>${esc(t)}</li>`).join('');
+  const offer = next < 2 ? 'Each tip adds one mark to your playbill.'
+    : 'The attendant can set one tile for one mark on your playbill.';
+  const told = c.tips.slice(0, next).map((t) => `<li>${esc(t)}</li>`).join('');
   dialog(`<h3>Ask the attendant</h3>
     ${told ? `<ul class="told">${told}</ul>` : ''}
+    ${result?.tier === 3 ? `<p class="tip-result">${esc(result.text)}</p>` : ''}
     <p class="small">${offer}</p>
-    <div class="actions"><button class="lever" id="take-tip">${next === 0 ? 'Free tip' : next === 1 ? 'Second tip' : 'Set a tile'}</button><button class="plain" data-close>Not now</button></div>`);
+    <div class="actions"><button class="lever" id="take-tip">${next === 0 ? 'First tip' : next === 1 ? 'Second tip' : 'Set a tile'}</button><button class="plain" data-close>Close</button></div>`);
+  if (result) {
+    const revealed = $('#dialog .tip-result') || $('#dialog .told li:last-child');
+    revealed.tabIndex = -1;
+    revealed.focus();
+  }
 }
 
 // ---------- moves ----------
@@ -521,10 +524,15 @@ app.addEventListener('click', (ev) => {
     case 'tip': return tipDialog();
     case 'take-tip': {
       const tip = E.takeTip(c, state, Date.now());
+      if (!tip) return;
       save();
-      document.getElementById('dialog').close();
-      if (tip) { ui.message = tip.text; ui.sel = null; }
-      return draw();
+      if (tip.blank !== undefined) {
+        ui.sel = null;
+        ui.message = '';
+        draw();
+        ui.returnFocus = $('#tip');
+      }
+      return tipDialog(tip);
     }
     case 'share': return share();
     case 'again': state = E.newGame(c); save(); Object.assign(ui, { sel: null, open: null, fresh: [], message: '' }); return draw();
