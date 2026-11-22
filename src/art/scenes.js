@@ -1,6 +1,6 @@
 // Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
-// The five cabinets. Each scene paints itself back to front and says where the
+// The hand-made cabinets. Each scene paints itself back to front and says where the
 // numbered inspection tags sit, keyed by exhibit id.
 
 import { C, SKIN, PAPER_DEFS } from './kit.js';
@@ -8,9 +8,15 @@ import { doll, head } from './doll.js';
 import * as P from './props.js';
 import { stageFocus, stagePins, stageSvg } from './stage.js';
 
+import * as foxes from './foxes.js';
+import * as seance from './seance.js';
+import * as encore from './encore.js';
+import * as fanciers from './fanciers.js';
+
 const S = 1.18;
 
 const SCENES = {
+  foxes, seance, encore, fanciers,
   vicarage: {
     focus: { notice: [84, 106], herbal: [180, 88], cup: [258, 250] },
     pins: { vicar: [206, 206], cup: [276, 256], notice: [84, 84], tray: [126, 206], visitor: [322, 204], letter: [272, 172], herbal: [180, 64] },

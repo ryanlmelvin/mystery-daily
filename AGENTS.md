@@ -7,7 +7,7 @@ coin-operated arcade cabinet of cut-paper dolls, jammed at the moment of a death
 The player reads numbered tags in the cabinet window, collects the words they find,
 sets them as tiles into two brass plates (who the dolls are, and what happened), and
 drops a penny to test the plates. Four pennies; each says only how many tiles are wrong
-on each plate. This is a playable prototype with five hand-written cases.
+on each plate. The daily rotation uses five hand-written cases. The arcade also offers composed cases and four hand-written approval samples.
 
 Static site, no server. Vanilla JS (ES modules), built with Vite. No framework, no
 TypeScript, no linter.
@@ -25,6 +25,8 @@ npm run build          # vite build into dist/ (never committed)
 Dev pages and switches:
 
 - `/?case=study` (or `?case=5`) opens a cabinet other than today's, as practice.
+- `/?case=brooch` opens the fixed composer sample. `?case=foxes`, `seance`, `encore` and
+  `fanciers` open the other samples under **On trial → Samples for review**.
 - `/art.html` shows every scene with its tags; `?scene=train`, `?big=1`, `?nopins=1`.
 
 ## Architecture
@@ -126,7 +128,9 @@ that the servant has paid a debt.
 
 To add a kind of clue, add a fact type and its rule to `src/logic.js`, with a test in
 `tests/logic.test.js` showing both that it settles an answer and that leaving it out is
-caught.
+caught. For family-specific observations, register a module in `src/rules/index.js`.
+The case selects its vocabulary with `ruleSet`. Its module declares fact arities,
+bindings for the telling and deductions over the observed facts. The case stays plain data.
 
 ## Composed cases
 
@@ -137,7 +141,7 @@ checks the telling, proof, size and tags. If a case fails, the composer tries a 
 salt, up to 40 attempts. Each date and composer version gives the same case and has
 its own save ID.
 
-Version 4 alternates two crimes by date (`crimeOf`).
+Version 5 rotates three crimes by date (`crimeOf`).
 
 - **The interrupted theft** (`buildTheft`) has three dolls in a glasshouse, library
   or plate room. Either the visitor or the servant holds the missing item. Either
@@ -149,17 +153,16 @@ Version 4 alternates two crimes by date (`crimeOf`).
   A receipt, an empty container, or a trace matching an opened poison on the shelf
   ties them to the means. An innocent suspect can have a receipt for a sealed
   poison or a dismissal that was taken back.
+- **The Mourning Brooch** (`src/brooch.js`) has three mourners at a memorial
+  supper and a guest on the floor. A numbered button identifies the assailant.
+  The constable’s inventory and the admission tickets establish a later theft.
+  Each mourner can kill and either other mourner can take the jewel.
 
-Each setting returns every sixth day. The room and title rotate, along with the
-stolen item and pair of wall tools for thefts or the poison used in a wrong glass.
-The date seeds the remaining choices, including which suspect did it. A year's
-run from 2026-11-26 passed on the first attempt for all 365 dates. It covered 16
-combinations of crime, culprit position, evidence source and presence of an extra
-wrong-glass red herring, with 23 distinct weapons and poisons and 124–175 words
-of reading per case. The owner timed two
-earlier composed cabinets at 3:35 and 3:10.
+Each setting returns every ninth day. The room, title and principal objects rotate.
+The date seeds the remaining choices. The year-long test checks that all six ordered
+killer–thief pairings occur in every Brooch setting.
 
-The lists for each crime live in `src/compose.js`. `src/art/stage.js` draws the
+The crime builders live in `src/compose.js` and `src/brooch.js`. `src/art/stage.js` draws the
 scene from the case's `scene` object. Each crime has one arrangement that can be
 mirrored. A doll's trade determines its costume. Expressions and free-hand poses
 are drawn independently of guilt. A doll carrying the tray or cloak keeps its carry pose.

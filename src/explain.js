@@ -38,7 +38,7 @@ const CLEARS = {
   'it only fits another story': 'that only fits a story the rest rules out'
 };
 
-const HEAD = { culprit: 'Who did it', victim: 'Who died', means: 'With what', loot: 'What was taken', motive: 'Why', intended: 'Who it was meant for', framed: 'Who was blamed', before: 'Where' };
+const HEAD = { thief: 'Who took it afterward', culprit: 'Who did it', victim: 'Who died', means: 'With what', loot: 'What was taken', motive: 'Why', intended: 'Who it was meant for', framed: 'Who was blamed', before: 'Where' };
 
 const list = (items) => (items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`);
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -87,6 +87,8 @@ export function explain(c) {
     if (s.role === 'culprit') say = `${s.value} ${list(uniq(s.how.map((h) => did(h))))}`;
     else if (s.role === 'victim') say = `${s.value} is the one who has stopped for good`;
     else if (s.role === 'means') say = `${cap(the(s.value))} would leave the mark on the body`;
+    else if (s.role === 'thief') say = `${s.value} first entered after the constable recorded the ${answer.loot} on the body. It turned up inside their glove`;
+    else if (s.role === 'loot' && c.ruleSet === 'brooch') say = `The constable recorded the ${s.value} still pinned to the guest. Only torn crape and pinholes remain`;
     else if (s.role === 'loot') say = `${cap(the(s.value))} is missing from its place`;
     else if (s.role === 'motive') say = `${cap(the(s.value))}: that was ${answer.culprit ? `${answer.culprit}'s` : 'the'} reason`;
     else if (s.role === 'intended') say = `The label says it was for ${s.value}`;
@@ -176,5 +178,9 @@ export function explain(c) {
     real ? 'Someone here looks guilty and is not. Ask what clears them.' : 'Look for something that fits the mark on the body and shows signs of use.',
     pair.length === 2 ? `Set ${pair[0]} beside ${pair[1]}.` : 'Ask who is tied to the thing that did it, not who had a reason.'
   ];
+  if (c.ruleSet === 'brooch') {
+    tips[0] = 'When did the jewel disappear? Read the inventory before you accuse its new owner.';
+    tips[1] = 'Compare the first admission on each ticket with the constable’s time. Then match the button in the guest’s fist to a cuff.';
+  }
   return { path, traps, tips, proof };
 }

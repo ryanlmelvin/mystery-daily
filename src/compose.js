@@ -6,7 +6,7 @@
 // (lint.js, which runs the telling and the proof); a refused case is tried again with the
 // next salt, never patched.
 //
-// It knows two kinds of crime, and takes them turn about by date:
+// It knows three kinds of crime, and takes them turn about by date:
 //
 //   the interrupted theft   someone is caught by the keeper of the thing being stolen,
 //                           strikes the keeper down, and still has the thing
@@ -14,6 +14,9 @@
 //   the wrong glass         a poison is put in a bottle meant for one man, and another,
 //                           who kept helping himself to it, drinks it (dressing room,
 //                           kitchen, ship's cabin)
+//
+//   the mourning brooch     an assault at a memorial supper, then a theft from the body
+//                           (station parlour, assembly rooms, hotel)
 //
 // Within a crime the parts move. No doll's place, pose or face says who did it: in a
 // theft it may be the visitor by the door or the servant in the doorway; in the wrong
@@ -24,18 +27,19 @@
 //
 // What a player would notice coming round again is not left to chance: the setting, and
 // in it the thing stolen, the pair of tools, the poison and the title, are taken in
-// rotation, so a setting returns every sixth day with its contents moved on. Everything
+// rotation, so a setting returns every ninth day with its contents moved on. Everything
 // else is chosen by a generator seeded with the date. Either way a date always gives the
 // same case. Changing a list or the order of the draws changes every composed case; bump
 // COMPOSER when that is intended.
 
+import { MOURNING_ROOMS, buildBrooch } from './brooch.js';
 import { told } from './tell.js';
 import { lintCase } from './lint.js';
 import { explain } from './explain.js';
 import { scenePins } from './art/scenes.js';
 import { C, SKIN } from './art/kit.js';
 
-export const COMPOSER = 4;
+export const COMPOSER = 5;
 const ATTEMPTS = 40;
 
 // A small seeded generator (xmur3 into mulberry32): the same text gives the same draws.
@@ -269,7 +273,7 @@ const SWITCHES = {
   }
 };
 
-export const SETTING_IDS = [...Object.keys(SETTINGS), ...Object.keys(SWITCHES)];
+export const SETTING_IDS = [...Object.keys(SETTINGS), ...Object.keys(SWITCHES), ...Object.keys(MOURNING_ROOMS)];
 
 // A composed case's id carries the composer's version. A save is kept under the id, so
 // when the composer changes and a date gives a different case, the old save is simply
@@ -624,7 +628,13 @@ function buildSwitch(date, attempt, turn, { pick, chance, shuffled, face }) {
 }
 
 // The crimes take turns by date, so two days running never share a shape.
-const CRIMES = [['theft', buildTheft], ['switch', buildSwitch]];
+function mourningSupper(date, attempt, turn, draws) {
+  const surnames = draws.shuffled(SURNAMES);
+  const names = draws.shuffled([...WOMEN, ...MEN]).slice(0, 4).map((first, i) => first + ' ' + surnames[i]);
+  return { id: composedId(date), ...buildBrooch(date, attempt, turn, draws, names) };
+}
+
+const CRIMES = [['theft', buildTheft], ['switch', buildSwitch], ['brooch', mourningSupper]];
 
 // One attempt at the case for a date. Pure: the same date and attempt give the same case.
 export function build(date, attempt) {

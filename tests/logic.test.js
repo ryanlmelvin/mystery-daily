@@ -171,3 +171,20 @@ test('train: without the key to the sample case, the standing man could be the g
   assert.ok(has(p, 'traveller: Amos Pike'));
   assert.ok(caseById('train').exhibits.find((e) => e.id === 'traveller').lines[0][1].includes('key to a sample case'));
 });
+
+test('the brooch needs evidence for both the fatal struggle and the later theft', () => {
+  const sample = caseById('brooch');
+  for (const [tag, fact, role] of [
+    ['witness', 'witnessedButton', 'culprit'], ['body', 'grippedButton', 'culprit'],
+    [sample.composed.culprit, 'cuffNumber', 'culprit'], ['body', 'bare', 'loot'],
+    ['inventory', 'inventory', 'loot'], [sample.composed.thief, 'admitted', 'thief'],
+    [sample.composed.thief, 'has', 'thief']
+  ]) {
+    const c = structuredClone(sample);
+    drop(c, tag, fact);
+    c.exhibits = c.exhibits.filter((ex) => ex.facts.length);
+    const p = proveCase(c);
+    assert.equal(p.ok, false, fact);
+    assert.ok(p.story.stalled.includes(role), fact);
+  }
+});

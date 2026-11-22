@@ -3,13 +3,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { composeDay, composedId, gate, crimeOf, SETTING_IDS, COMPOSER } from '../src/compose.js';
-import { caseById, trialCases, CASES } from '../src/cases/index.js';
+import { caseById, trialCases, reviewCases, CASES } from '../src/cases/index.js';
 import { tellExhibit } from '../src/tell.js';
 import { proveCase } from '../src/logic.js';
 import { sceneFocus, scenePins, sceneSvg } from '../src/art/scenes.js';
 import * as E from '../src/engine.js';
 
-const RUN = 120;
+const RUN = 365;
 const dateAt = (i) => new Date(Date.UTC(2026, 10, 26 + i)).toISOString().slice(0, 10);
 const answers = (c) => E.blanksOf(c).map((b) => b.answer);
 
@@ -26,33 +26,33 @@ function culpritAndMeans(c) {
 // in src/compose.js and write the new cases here. It is here so a change is never silent.
 test('a date always gives the same case', () => {
   const a = composeDay('2026-11-26');
-  assert.equal(a.title, 'Becalmed aboard the Marigold');
-  assert.equal(a.id, 'day-2026-11-26-c4');
-  assert.equal(a.where, "The captain's cabin, the first night out");
-  assert.deepEqual(answers(a), ['Amos Thrale', 'Dorian Voss', 'Godfrey Tull', 'Elias Hobb', 'Elias Hobb', 'arsenic', 'Dorian Voss', 'Amos Thrale']);
+  assert.equal(a.title, 'The Cameo at the Royal Waiting Room');
+  assert.equal(a.id, 'day-2026-11-26-c5');
+  assert.equal(a.where, "A memorial supper in the Royal Waiting Room");
+  assert.deepEqual(answers(a), ['Linus Marsh', 'Edwin Fisk', 'Olive Nash', 'Rufus Dove', 'Olive Nash', 'Linus Marsh', 'Rufus Dove', 'coral cameo']);
   const b = composeDay('2026-11-27');
-  assert.equal(b.title, 'Found in the Palm House');
-  assert.equal(b.id, 'day-2026-11-27-c4');
-  assert.equal(b.where, 'Yarrow House, half past eight in the evening');
-  assert.deepEqual(answers(b), ['Gideon Crane', 'Hester Moss', 'Odile Tull', 'Odile Tull', 'Gideon Crane', 'spade', 'Blue Lotus', 'rent']);
+  assert.equal(b.title, 'A Dark Night in the Book Room');
+  assert.equal(b.id, 'day-2026-11-27-c5');
+  assert.equal(b.where, 'Orme Park, a little after ten at night');
+  assert.deepEqual(answers(b), ['Cornelius Thrale', 'Barnaby Hobb', 'Edwin Sparrow', 'Edwin Sparrow', 'Cornelius Thrale', 'paperweight', 'Black Herbal', 'debts']);
   assert.equal(composeDay('2026-11-26'), a);
 });
 
 // What a player would notice coming round again is rotated, not drawn: a proofread of a
 // year found 49 cases repeating a setting with the same things as one the week before.
-test('a setting returns only every sixth day, and its contents have moved on', () => {
+test('a setting returns only every ninth day, and its contents have moved on', () => {
   const last = {};
   const titles = {};
   for (let i = 0; i < RUN; i++) {
     const c = composeDay(dateAt(i));
     const { setting } = c.composed;
-    for (let back = 1; back <= 5 && i - back >= 0; back++) {
-      assert.notEqual(composeDay(dateAt(i - back)).composed.setting, setting, `${dateAt(i)} repeats ${setting} within six days`);
+    for (let back = 1; back < SETTING_IDS.length && i - back >= 0; back++) {
+      assert.notEqual(composeDay(dateAt(i - back)).composed.setting, setting, `${dateAt(i)} repeats ${setting} too soon`);
     }
     const things = Object.fromEntries(E.blanksOf(c).filter((b) => b.kind !== 'person').map((b) => [b.key, b.answer]));
     if (last[setting]) {
       if (things.loot) {
-        assert.notDeepEqual(c.scene.tools, last[setting].tools, `${setting} repeated its wall tools`);
+        if (c.scene.tools) assert.notDeepEqual(c.scene.tools, last[setting].tools, `${setting} repeated its wall tools`);
         assert.notEqual(things.loot, last[setting].loot, `${setting} lost ${things.loot} twice running`);
       } else {
         assert.notEqual(things.means, last[setting].means, `${setting} used ${things.means} twice running`);
@@ -65,9 +65,9 @@ test('a setting returns only every sixth day, and its contents have moved on', (
   for (const setting of SETTING_IDS) assert.ok(titles[setting].size >= 9, `${setting} has only ${titles[setting].size} titles`);
 });
 
-test('the two crimes take turns, so two days running never share a shape', () => {
+test('the three crimes take turns, so two days running never share a shape', () => {
   for (let i = 0; i < 30; i++) {
-    assert.notEqual(crimeOf(dateAt(i)), crimeOf(dateAt(i + 1)));
+    assert.deepEqual(new Set([0, 1, 2].map((n) => crimeOf(dateAt(i + n)))), new Set(['theft', 'switch', 'brooch']));
     assert.equal(composeDay(dateAt(i)).composed.crime, crimeOf(dateAt(i)));
   }
   const story = (c) => c.panels[1].parts.filter((p) => typeof p === 'string').join('_');
@@ -188,7 +188,7 @@ test('a composed case has one solution and answers each temptation', () => {
 });
 
 test('the same poses and expressions turn up on guilty and innocent dolls', () => {
-  for (const part of ['doorway', 'exit', 'door', 'left']) {
+  for (const part of ['doorway', 'exit', 'door', 'left', 'window', 'clock']) {
     const guilty = { pose: new Set(), mood: new Set() };
     const innocent = { pose: new Set(), mood: new Set() };
     for (let i = 0; i < RUN; i++) {
@@ -217,7 +217,7 @@ test('a composed case plays: reading every tag and setting the answers wins', ()
 });
 
 test('in the wrong glass, naming the man the bottle was for as the poisoner is wrong', () => {
-  const c = composeDay('2026-11-26');
+  const c = composeDay('2026-11-28');
   const blanks = E.blanksOf(c);
   const s = E.newGame(c);
   for (const ex of c.exhibits) E.openExhibit(c, s, ex.id, 1000);
@@ -229,7 +229,7 @@ test('in the wrong glass, naming the man the bottle was for as the poisoner is w
 });
 
 test('its text is rendered from its facts, and its end screen is filled in', () => {
-  for (const i of [4, 5]) {
+  for (const i of [3, 4, 5]) {
     const c = composeDay(dateAt(i));
     for (const ex of c.exhibits) assert.deepEqual(ex.lines, tellExhibit(c, ex).lines);
     assert.equal(c.tips.length, 2);
@@ -248,7 +248,7 @@ test('its scene has a tag for every exhibit, mirrored or not', () => {
     assert.ok(svg.startsWith('<svg') && !svg.includes('NaN') && !svg.includes('undefined'));
     (seen[c.composed.crime] ||= {})[c.scene.mirror] = pins.roster[0];
   }
-  for (const crime of ['theft', 'switch']) {
+  for (const crime of ['theft', 'switch', 'brooch']) {
     assert.equal(seen[crime].true + seen[crime].false, 400, `${crime} tags do not mirror`);
   }
 });
@@ -268,7 +268,10 @@ test('composed close looks frame the printed props on either side of the window'
     const { scene } = composeDay(dateAt(i));
     const focus = sceneFocus({ ...scene, mirror: false });
     const mirrored = sceneFocus({ ...scene, mirror: true });
-    const items = scene.kind === 'switch' ? ['roster', 'book', 'shelf', 'vessel'] : ['roster', 'stand', 'bag', 'tools'];
+    const items = {
+      switch: ['roster', 'book', 'shelf', 'vessel'], theft: ['roster', 'stand', 'bag', 'tools'],
+      brooch: ['roster', 'inventory', 'witness']
+    }[scene.kind];
     for (const id of items) {
       const [x, y] = focus[id];
       assert.deepEqual(mirrored[id], [400 - x, y], `${scene.setting} ${id}`);
@@ -278,7 +281,7 @@ test('composed close looks frame the printed props on either side of the window'
       // and the bottom of the cabin notice's frame (99).
       const [, y] = focus.roster;
       assert.ok(y - 37.5 <= 44 && y + 37.5 >= 99, 'wall notice cropped');
-    } else {
+    } else if (scene.kind === 'theft') {
       const [, y] = focus.stand;
       assert.ok(y - 37.5 <= 167 && y + 37.5 >= 233, 'empty stand cropped');
     }
@@ -290,4 +293,34 @@ test('composed close looks frame the printed props on either side of the window'
 test('a composed case carries the composer version in its id', () => {
   assert.equal(composeDay('2026-11-26').id, `day-2026-11-26-c${COMPOSER}`);
   assert.notEqual(composeDay('2026-11-26').id, 'day-2026-11-26');
+});
+
+test('every mourner can be the killer with either other mourner as thief, in each setting', () => {
+  const pairs = new Map();
+  for (let i = 0; i < RUN; i++) {
+    const c = composeDay(dateAt(i));
+    if (c.composed.crime !== 'brooch') continue;
+    const proof = proveCase(c);
+    const { culprit, thief, setting } = c.composed;
+    assert.notEqual(culprit, thief);
+    assert.equal(proof.story.fill.culprit, proof.cast.ids[culprit]);
+    assert.equal(proof.story.fill.thief, proof.cast.ids[thief]);
+    const temptation = proof.story.traps.find((t) => t.role === 'culprit' && t.value === proof.story.fill.thief);
+    assert.ok(temptation?.answeredBy.includes('inventory') && temptation.answeredBy.includes(thief));
+    if (!pairs.has(setting)) pairs.set(setting, new Set());
+    pairs.get(setting).add(culprit + '/' + thief);
+  }
+  assert.equal(pairs.size, 3);
+  for (const ordered of pairs.values()) assert.equal(ordered.size, 6);
+});
+
+test('all five review cabinets open as practice independently of the daily edition', () => {
+  const reviews = reviewCases();
+  assert.equal(reviews.length, 5);
+  assert.equal(caseById('brooch'), reviews[0]);
+  assert.equal(reviews[0].title, 'The Mourning Brooch');
+  for (const sample of reviews) {
+    assert.equal(caseById(sample.id), sample);
+    assert.ok(!CASES.includes(sample));
+  }
 });

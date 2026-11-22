@@ -41,6 +41,7 @@
 //   ['stops', [[place, time]]]   the timetable
 //   ['boarded', who, place]      where who got on
 
+import { rulesFor } from './rules/index.js';
 import { blanksOf, PENNIES } from './engine.js';
 
 const peopleOf = (c) => Object.keys(c.words).filter((w) => c.words[w] === 'person');
@@ -74,10 +75,12 @@ export const ARITY = {
 
 function gather(c, without = []) {
   const atoms = [];
+  const extra = rulesFor(c)?.factArity;
   for (const ex of c.exhibits) {
     if (without.includes(ex.id)) continue;
     for (const f of ex.facts || []) {
-      if (f[0] in ARITY) atoms.push({ type: f[0], a: f.slice(1, 1 + ARITY[f[0]]), ex: ex.id, fact: f });
+      const count = ARITY[f[0]] ?? extra?.[f[0]];
+      if (count !== undefined) atoms.push({ type: f[0], a: f.slice(1, 1 + count), ex: ex.id, fact: f });
     }
   }
   return atoms;
@@ -255,6 +258,8 @@ function solveStory(c, atoms, cast) {
       if (stop && minutes(stop[1]) > t) exc('culprit', person(b.a[0]), { rule: 'not yet aboard', from: [b.ex, died.ex, stops.ex, ...about(b.a[0])] });
     }
   }
+
+  rulesFor(c)?.deduce({ of, person, about, sup, exc, minutes });
 
   const domain = (g) => Object.keys(c.words).filter((w) => c.words[w] === g.kind);
   const holds = (when, fill) => !when || Object.entries(when).every(([r, v]) => fill[r] === v);

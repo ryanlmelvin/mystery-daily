@@ -11,6 +11,7 @@
 // servant in the inner doorway, the empty stand in the middle, the body in front, and a
 // visitor by the way out with a bag at their feet and the tools beside the door.
 
+import * as brooch from './brooch.js';
 import { C, PAPER_DEFS } from './kit.js';
 import { doll } from './doll.js';
 import * as P from './props.js';
@@ -227,7 +228,7 @@ function switchScene(spec) {
   return s;
 }
 
-export const settingIds = [...Object.keys(SETS), ...Object.keys(SWITCH_SETS)];
+export const settingIds = [...Object.keys(SETS), ...Object.keys(SWITCH_SETS), ...brooch.settingIds];
 
 function stagePoints(spec, points) {
   const out = {};
@@ -237,6 +238,7 @@ function stagePoints(spec, points) {
 
 // Each exhibit names its spot. Leave unknown spots for the gate to flag as missing tags.
 export function stagePins(spec) {
+  if (spec.kind === 'brooch') return stagePoints(spec, brooch.pins);
   const spots = spec.kind === 'switch' ? SWITCH_SPOTS : SPOTS;
   const points = {};
   for (const [id, spot] of Object.entries(spec.pins || {})) {
@@ -247,6 +249,7 @@ export function stagePins(spec) {
 
 // Close looks follow the printed props. The tags sit clear of them in the window.
 export function stageFocus(spec) {
+  if (spec.kind === 'brooch') return stagePoints(spec, brooch.focus);
   if (spec.kind === 'switch') {
     return stagePoints(spec, {
       roster: [34, 72], vessel: [240, 196], book: [286, 197], shelf: [216, 138]
@@ -259,7 +262,8 @@ export function stageFocus(spec) {
 }
 
 export function stageSvg(spec) {
-  const s = spec.kind === 'switch' ? switchScene(spec) : theftScene(spec);
+  const draw = { brooch: brooch.draw, switch: switchScene, theft: theftScene };
+  const s = draw[spec.kind](spec);
   const inner = spec.mirror ? P.g(`translate(${P.W},0) scale(-1,1)`, s) : s;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${P.W} ${P.H}" class="scene" role="img" aria-label="The scene inside the cabinet">${PAPER_DEFS}${inner}${P.valance()}</svg>`;
 }

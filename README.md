@@ -42,9 +42,9 @@ arcade, where the other four can be played as practice.
 
 ## Composed cabinets on trial
 
-The arcade's **On trial** list offers six more cabinets. The composer builds the cast,
+The arcade’s **On trial** menu offers a composed cabinet in each of nine settings. The composer builds the cast,
 clues and scene from a date, then uses the same proof as the hand-written cases to
-check that the clues lead to one solution. Two kinds of crime alternate.
+check that the clues lead to one solution. Three crimes rotate.
 
 - **The interrupted theft** takes place in a glasshouse, library or plate room.
   The same eight tags let you investigate both the visitor and the servant.
@@ -52,8 +52,16 @@ check that the clues lead to one solution. Two kinds of crime alternate.
 - **The wrong glass** takes place in a dressing room, kitchen or ship's cabin.
   A man drinks from a bottle intended for someone else. A chemist's receipt tells
   you who bought a poison. The seal on the shelf may tell you whether anyone used it.
+- **The Mourning Brooch** takes place at a memorial supper. Three mourners can each be the
+  killer, the thief who arrived afterward, or the bystander.
 
-Each date gives everyone the same cabinet. Try [The wrong glass](https://ryanlmelvin.github.io/mystery-daily/?date=2026-11-26)
+**Samples for review** opens five fixed playtests. Play [The Mourning Brooch](https://ryanlmelvin.github.io/mystery-daily/?case=brooch),
+[Death at the Foxes’ Ball](https://ryanlmelvin.github.io/mystery-daily/?case=foxes),
+[The Shilling Séance](https://ryanlmelvin.github.io/mystery-daily/?case=seance),
+[An Encore for Nobody](https://ryanlmelvin.github.io/mystery-daily/?case=encore), or
+[First Prize at the Fanciers’ Hall](https://ryanlmelvin.github.io/mystery-daily/?case=fanciers).
+
+Each date gives everyone the same cabinet. Try [The wrong glass](https://ryanlmelvin.github.io/mystery-daily/?date=2026-11-28)
 or [The interrupted theft](https://ryanlmelvin.github.io/mystery-daily/?date=2026-11-27).
 The end playbill follows that cabinet's proof and names the exhibits that clear its
 red herrings. One player timed two earlier composed cabinets at 3:35 and 3:10.

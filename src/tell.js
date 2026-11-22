@@ -25,6 +25,7 @@
 // What this cannot check: the connecting words. "Thick with dust" is this game's way of
 // saying untouched only because the author wrote it on an untouched fact.
 
+import { rulesFor } from './rules/index.js';
 import { ARITY } from './logic.js';
 
 // Which argument each hole reads, by kind of fact.
@@ -58,14 +59,13 @@ const collect = (word, shown) => (shown && shown !== word ? `{${word}|${shown}}`
 const patternText = (p) => (typeof p === 'string' ? p : p.full || p.initials || p.surname || p.abbr || '');
 const mentions = (text, word) => new RegExp('(?<![\\w-])' + word.replace(SPECIAL, '\\$&') + '(?![\\w-])', 'i').test(text);
 
-function token(type, hole, args) {
+function token(hole, v) {
   if (hole === 'stops') return 'the timetable';
-  const v = args[HOLES[type][hole]];
   return v && typeof v === 'object' ? patternText(v) : String(v);
 }
 
-export function factParts(f) {
-  const n = ARITY[f[0]];
+export function factParts(f, rules) {
+  const n = ARITY[f[0]] ?? rules?.factArity[f[0]];
   return { type: f[0], args: f.slice(1, 1 + n), say: f[1 + n] };
 }
 
@@ -78,13 +78,18 @@ export function tellExhibit(c, ex) {
   const bank = Object.keys(c.words);
   const fail = (msg) => errors.push(`${ex.id}: ${msg}`);
 
+  const rules = rulesFor(c);
   for (const f of ex.facts || []) {
-    if (!(f[0] in ARITY)) {
+    if (!(f[0] in ARITY) && rules?.factArity[f[0]] === undefined) {
       fail(`"${f[0]}" is not a kind of fact.`);
       continue;
     }
-    const { type, args, say } = factParts(f);
-    for (const hole of MUST[type]) owed.push({ type, hole, tok: token(type, hole, args) });
+    const { type, args, say } = factParts(f, rules);
+    const bindings = rules?.factBindings[type]?.(args) ??
+      Object.fromEntries(Object.entries(HOLES[type]).map(([hole, i]) => [hole, args[i]]));
+    for (const hole of MUST[type] ?? Object.keys(bindings)) {
+      owed.push({ type, hole: hole === 'who' ? 'name' : hole, tok: token(hole, bindings[hole]) });
+    }
     if (say === undefined) {
       fail(`the ${type} fact has no telling.`);
       continue;
@@ -110,11 +115,11 @@ export function tellExhibit(c, ex) {
       text = text.replace(HOLE, (whole, name, veil, alt) => {
         const hole = name.toLowerCase();
         const upper = name[0] !== name[0].toLowerCase();
-        if (!(hole in HOLES[type])) {
+        if (!(hole in bindings)) {
           fail(`the ${type} fact has no $${name} to show.`);
           return whole;
         }
-        const v = args[HOLES[type][hole]];
+        const v = bindings[hole];
         if (hole === 'stops') {
           shown.add('stops:the timetable');
           return v.map(([place, at], i) => `${collect(place)}${i === 0 ? ' depart' : i === v.length - 1 ? ' arrive' : ''} ${at}.`).join(' ');
@@ -135,7 +140,7 @@ export function tellExhibit(c, ex) {
           shown.add('name:' + patternText(v));
           return v.full ? collect(v.full) : patternText(v);
         }
-        if (hole === 'thing' || hole === 'place') {
+        if (hole === 'thing' || hole === 'other' || hole === 'place') {
           shown.add(hole + ':' + v);
           if (veil) return alt || '';
           return collect(v, alt || (upper ? cap(v) : v));

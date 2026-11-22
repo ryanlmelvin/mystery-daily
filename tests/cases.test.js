@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CASES } from '../src/cases/index.js';
+import { CASES, SAMPLES } from '../src/cases/index.js';
 import { lintCase, BUDGET } from '../src/lint.js';
 import { scenePins, sceneSvg } from '../src/art/scenes.js';
 import * as E from '../src/engine.js';
 import { LAUNCH, editionFor, caseForEdition, today } from '../src/daily.js';
 
-for (const c of CASES) {
+for (const c of [...CASES, ...SAMPLES]) {
   test(`${c.id}: passes the case checker`, () => {
     const { errors, stats } = lintCase(c, scenePins(c.scene));
     assert.deepEqual(errors, []);

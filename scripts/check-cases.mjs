@@ -3,14 +3,14 @@
 // Check every case (src/lint.js) and prove it (src/logic.js), then print its size.
 // Add --why to print how the proof reaches each answer and what it makes of each exhibit,
 // and --text to print every exhibit's text as it is rendered from its facts.
-import { CASES } from '../src/cases/index.js';
+import { CASES, reviewCases } from '../src/cases/index.js';
 import { lintCase } from '../src/lint.js';
 import { scenePins } from '../src/art/scenes.js';
 
 const why = process.argv.includes('--why');
 const text = process.argv.includes('--text');
 let failed = false;
-for (const c of CASES) {
+for (const c of [...CASES, ...reviewCases()]) {
   const { errors, warnings, stats, proof } = lintCase(c, scenePins(c.scene));
   const size = `${stats.exhibits} exhibits, ${stats.blanks} blanks, ${stats.words} words, ${stats.reading} words of reading`;
   console.log(`${errors.length ? 'FAIL' : 'ok  '} ${c.id.padEnd(11)} ${size}`);
