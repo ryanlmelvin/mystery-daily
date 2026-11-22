@@ -27,7 +27,7 @@ for (const c of [...CASES, ...SAMPLES]) {
     for (const ex of c.exhibits) E.openExhibit(c, s, ex.id, 1000);
     E.blanksOf(c).forEach((b, i) => assert.equal(E.place(c, s, i, b.answer, 2000).ok, true, `placing ${b.answer}`));
     assert.equal(E.dropPenny(c, s, 3000).status, 'won');
-    assert.equal(E.shareText(c, s, 1).split('\n').length, 2);
+    assert.equal(E.shareText(c, s, LAUNCH).split('\n').length, 2);
   });
 
   test(`${c.id}: a plausible wrong story does not win`, () => {

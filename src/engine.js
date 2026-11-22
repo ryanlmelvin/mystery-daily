@@ -164,19 +164,38 @@ export function seconds(s, now) {
 
 export const clock = (secs) => `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
 
+function tipMarksByPenny(s) {
+  const rows = [];
+  let marks = '';
+  for (const [, move] of s.log) {
+    if (move.startsWith('tip ') && (move !== 'tip 1' || s.firstTipPaid)) marks += '💡';
+    if (move.startsWith('penny ')) {
+      rows.push(marks);
+      marks = '';
+    }
+  }
+  return rows;
+}
+
+function shareDate(date) {
+  if (!date) return 'Practice';
+  const day = new Date(date + 'T00:00:00Z');
+  const weekday = day.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' });
+  return weekday + ' ' + day.toLocaleDateString('en-US', { timeZone: 'UTC' });
+}
+
 // The spoiler-free playbill: one row per penny, one square per tile, cast then story.
-export function shareText(c, s, edition, link = '') {
+export function shareText(c, s, date, link = '') {
   const blanks = blanksOf(c);
-  const rows = s.tries.map((t) => {
+  const tips = tipMarksByPenny(s);
+  const rows = s.tries.map((t, n) => {
     let row = '';
     t.marks.forEach((ok, i) => {
       if (i > 0 && blanks[i].panel !== blanks[i - 1].panel) row += ' ';
       row += ok ? '🟩' : '⬛';
     });
-    return row;
+    return tips[n] ? row + ' ' + tips[n] : row;
   });
-  const score = s.status === 'won' ? `${s.tries.length}/${PENNIES}` : `X/${PENNIES}`;
-  const tips = '💡'.repeat(paidTips(s));
-  const head = `The Penny Murders · No. ${edition} · ${score} 🪙${tips ? ' ' + tips : ''}`;
+  const head = `The Penny Murders · ${shareDate(date)}`;
   return [head, ...rows, link].filter(Boolean).join('\n');
 }

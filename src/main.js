@@ -540,7 +540,7 @@ function drop() {
 
 async function share() {
   const link = location.origin + location.pathname;
-  const text = E.shareText(c, state, practice ? 'practice' : daily.edition, link.startsWith('http://localhost') || link.startsWith('http://127.') ? '' : link);
+  const text = E.shareText(c, state, practice ? null : daily.date, link.startsWith('http://localhost') || link.startsWith('http://127.') ? '' : link);
   const fallback = $('#share-fallback');
   fallback.hidden = true;
   if (typeof navigator.share === 'function') {

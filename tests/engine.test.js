@@ -133,19 +133,33 @@ test('older saves only keep the first tip free if it was already taken', () => {
   }
 });
 
-test('the playbill shows one row per penny and spoils nothing', () => {
+test('the shared playbill dates the case and puts each tip on the penny that used it', () => {
   const s = E.newGame(toy);
   openAll(s);
   fill(s, ['Ann', 'Cy', 'Bob', 'key']);
+  E.takeTip(toy, s, 3000);
   E.dropPenny(toy, s, 3000);
-  fill(s, [null, null, null, 'rope']);
-  s.fills[1] = 'Cy';
+  E.takeTip(toy, s, 3000);
+  E.takeTip(toy, s, 3000);
   E.dropPenny(toy, s, 4000);
-  E.takeTip(toy, s, 4100);
-  E.takeTip(toy, s, 4200);
   fill(s, [null, 'Bob']);
   E.dropPenny(toy, s, 5000);
-  const text = E.shareText(toy, s, 7, 'https://example.test/');
-  assert.equal(text, ['The Penny Murders · No. 7 · 3/4 🪙 💡💡', '🟩⬛ 🟩⬛', '🟩⬛ 🟩🟩', '🟩🟩 🟩🟩', 'https://example.test/'].join('\n'));
+  const text = E.shareText(toy, s, '2026-11-21', 'https://example.test/');
+  assert.equal(text, [
+    'The Penny Murders · Saturday 11/21/2026',
+    '🟩⬛ 🟩⬛ 💡',
+    '🟩⬛ 🟩🟩 💡💡',
+    '🟩🟩 🟩🟩',
+    'https://example.test/'
+  ].join('\n'));
   for (const w of Object.keys(toy.words)) assert.equal(text.includes(w), false);
+
+  // A practice save from before the first tip was charged.
+  delete s.firstTipPaid;
+  assert.equal(E.shareText(toy, s, null), [
+    'The Penny Murders · Practice',
+    '🟩⬛ 🟩⬛',
+    '🟩⬛ 🟩🟩 💡💡',
+    '🟩🟩 🟩🟩'
+  ].join('\n'));
 });

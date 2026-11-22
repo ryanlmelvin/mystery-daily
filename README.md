@@ -21,12 +21,14 @@ your tips for free. Win or lose, the cabinet then shows how it was done.
 
 After a case, **Share playbill** opens your device’s share sheet. If sharing is
 unavailable, you can copy the result by hand. Each row shows one penny, with the
-cast tiles on the left and the story tiles on the right. The answers stay secret.
+cast tiles on the left and the story tiles on the right. A 💡 marks each tip
+taken since the previous penny. The answers stay secret.
 
 ```
-The Penny Murders · No. 1 · 2/4 🪙
-🟩🟩🟩 ⬛⬛🟩⬛
+The Penny Murders · Saturday 11/21/2026
+🟩🟩🟩 ⬛⬛🟩⬛ 💡
 🟩🟩🟩 🟩🟩🟩🟩
+https://ryanlmelvin.github.io/mystery-daily/
 ```
 
 ## The five cabinets
