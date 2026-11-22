@@ -18,78 +18,74 @@ export default {
     crown: 'thing'
   },
   exhibits: [
-    { id: 'playbill', title: 'Playbill on the wall',
+    {
+      id: 'playbill',
+      title: 'Playbill on the wall',
       facts: [
-        ['listed', 'Hector Bellamy', 'the King'],
-        ['listed', 'Leo Sparrow', 'understudy'],
-        ['listed', 'Amos Tull', 'prompter'],
-        ['listed', 'Ida Crewe', 'wardrobe']
-      ],
-      lines: [
-      ['print', "Tonight: The Tyrant's Supper. The King: Mr {Hector Bellamy}. His understudy: Mr {Leo Sparrow}. Prompter: Mr {Amos Tull}. Wardrobe: Mrs {Ida Crewe}."]
-    ] },
-    { id: 'fallen', title: 'The man on the floor',
+        ['listed', 'Hector Bellamy', 'the King', "print: Tonight: The Tyrant's Supper. $Key: Mr $name."],
+        ['listed', 'Leo Sparrow', 'understudy', 'print: His $key: Mr $name.'],
+        ['listed', 'Amos Tull', 'prompter', 'print: $Key: Mr $name.'],
+        ['listed', 'Ida Crewe', 'wardrobe', 'print: $Key: Mrs $name.']
+      ]
+    },
+    {
+      id: 'fallen',
+      title: 'The man on the floor',
       facts: [
-        ['fits', 'fallen', 'prompter'],
-        ['dead', 'fallen'],
-        ['sign', 'poisoned']
-      ],
-      lines: [
-      ['see', 'Shirt-sleeves, a prompt-book under his arm, foam on his lips. A green bottle in his fist, nearly empty.']
-    ] },
-    { id: 'bottle', title: 'The green bottle',
+        ['fits', 'fallen', 'prompter', 'Shirt-sleeves, a prompt-book under his arm,'],
+        ['dead', 'fallen', null],
+        ['sign', 'foam on his lips', '$mark. A green bottle in his fist, nearly empty.']
+      ]
+    },
+    {
+      id: 'bottle',
+      title: 'The green bottle',
       facts: [
-        ['meantFor', { surname: 'Bellamy' }]
-      ],
-      lines: [
-      ['print', 'Throat {tonic}. For Mr Bellamy ONLY. Hands off.'],
-      ['see', 'It smells of bitter almonds.']
-    ] },
-    { id: 'king', title: 'The gentleman in the crown',
+        ['meantFor', { surname: 'Bellamy' }, 'print: Throat {tonic}. For Mr $name ONLY. Hands off. | It smells of bitter almonds.']
+      ]
+    },
+    {
+      id: 'king',
+      title: 'The gentleman in the crown',
       facts: [
-        ['fits', 'king', 'the King'],
-        ['tag', 'king', { initials: 'H.B.' }],
-        ['lead', 'king', 'threatened the dead man']
-      ],
-      lines: [
-      ['see', 'Robe and crown, powdered for the stage. Tucked in his sleeve, a note not yet pinned up:'],
-      ['hand', 'Tull: drink my tonic once more and I will have you sacked. H.B.']
-    ] },
-    { id: 'exit', title: 'The young man at the door',
+        ['fits', 'king', 'the King', 'Robe and {crown}, powdered for the stage.'],
+        ['lead', 'king', 'threatened the dead man', 'Tucked in his sleeve, a note not yet pinned up: | hand: Tull: drink my {tonic} once more and I will have you sacked.'],
+        ['tag', 'king', { initials: 'H.B.' }, 'hand: $name']
+      ]
+    },
+    {
+      id: 'exit',
+      title: 'The young man at the door',
       facts: [
-        ['tag', 'exit', { abbr: 'L. Sparrow' }],
-        ['has', 'exit', 'prussic acid'],
-        ['makes', 'prussic acid', 'poisoned']
-      ],
-      lines: [
-      ['see', "Street coat, hat already on. In his pocket, a chemist's receipt:"],
-      ['print', '{prussic acid|Prussic acid}, one phial. Signed for: L. Sparrow.']
-    ] },
-    { id: 'script', title: 'Script on the chair',
+        ['has', 'exit', 'prussic acid', "Street coat, hat already on. In his pocket, a chemist's receipt: | print: $Thing, one phial."],
+        ['makes', 'prussic acid', 'foam on his lips', 'print: Poison.'],
+        ['tag', 'exit', { abbr: 'L. Sparrow' }, 'print: Signed for: $name.']
+      ]
+    },
+    {
+      id: 'script',
+      title: 'Script on the chair',
       facts: [
-        ['wants', { listed: 'understudy' }, 'crown']
-      ],
-      lines: [
-      ['see', "Every one of the King's lines is underlined. Pencilled on the cover:"],
-      ['hand', 'The {crown} at last. Tonight.']
-    ] },
-    { id: 'wardrobe', title: 'The woman with the pins',
+        ['wants', { listed: 'understudy' }, 'crown', "Every one of the King's lines is underlined. Pencilled on the cover: | hand: The $thing at last. Tonight."]
+      ]
+    },
+    {
+      id: 'wardrobe',
+      title: 'The woman with the pins',
       facts: [
-        ['fits', 'wardrobe', 'wardrobe']
-      ],
-      lines: [
-      ['see', "Pincushion at her wrist, tape about her neck. Over her arm, the King's second-act cloak, half hemmed."]
-    ] },
-    { id: 'table', title: 'The dressing table',
+        ['fits', 'wardrobe', 'wardrobe', "Pincushion at her wrist, tape about her neck. Over her arm, the King's second-act cloak, half hemmed."]
+      ]
+    },
+    {
+      id: 'table',
+      title: 'The dressing table',
       facts: [
-        ['makes', 'laudanum', 'poisoned'],
-        ['untouched', 'laudanum'],
-        ['makes', 'rat poison', 'poisoned'],
-        ['untouched', 'rat poison']
-      ],
-      lines: [
-      ['see', 'Greasepaint and powder. A phial of {laudanum}, full to the cork. A tin of {rat poison} for the mice, its lid rusted shut.']
-    ] }
+        ['makes', 'laudanum', 'foam on his lips', 'Greasepaint and powder. A phial of $thing,'],
+        ['untouched', 'laudanum', 'full to the cork.'],
+        ['makes', 'rat poison', 'foam on his lips', 'A tin of $thing for the mice,'],
+        ['untouched', 'rat poison', 'its lid rusted shut.']
+      ]
+    }
   ],
   panels: [
     { id: 'cast', title: 'The cast', parts: ['On the floor, ', ['person', 'Amos Tull', 'fallen'], '. In the crown, ', ['person', 'Hector Bellamy', 'king'], '. At the door, ', ['person', 'Leo Sparrow', 'exit'], '. With the pins, ', ['person', 'Ida Crewe', 'wardrobe'], '.'] },

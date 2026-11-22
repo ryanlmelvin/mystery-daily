@@ -32,7 +32,9 @@ Dev pages and switches:
 - `src/engine.js`: the rules, pure and deterministic: collecting words, placing tiles,
   dropping a penny, locking a plate, tips, the share ticket. No DOM, no clock of its own.
 - `src/cases/*.js`: one case per file, as data. `src/cases/index.js` lists them in order
-  of difficulty.
+  of difficulty and renders their text.
+- `src/tell.js`: the telling. Renders each exhibit's text from its facts, and checks
+  that every fact is told.
 - `src/logic.js`: the proof. From the facts a case states, it finds every way to name
   the cast and every story that fits, and reasons step by step as a person would.
 - `src/lint.js`: the case checker: structure, size, tags, then the proof.
@@ -50,21 +52,36 @@ Dev pages and switches:
 
 ## Writing a case
 
-A case has two halves that must agree: what the player reads, and what the proof reads.
+A case file has `words` (each a person, thing or place); `exhibits`; two `panels` (`cast`,
+then `story`), each a sentence with gaps; the `path` and `traps` shown at the end; and two
+`tips`. The scene and tag positions live in `src/art/scenes.js`.
 
-**What the player reads.** `words` (each a person, thing or place); `exhibits`, each with
-short `lines` of text in which `{word}` or `{word|shown text}` marks a collectable word;
-two `panels` (`cast`, then `story`), each a sentence with gaps; the `path` and `traps`
-shown at the end; and two `tips`. The scene and tag positions live in `src/art/scenes.js`.
-
-**What the proof reads.** Each exhibit also lists `facts`: plain observations in the fixed
+**An exhibit is a list of facts, and nothing else.** It has an `id`, a `title` and
+`facts`; it has no text of its own. Each fact is a plain observation in the fixed
 vocabulary at the top of `src/logic.js` (a name on a belonging, a description on a list,
 what the body shows, what would leave that mark, what is untouched, who holds what, who
-boarded where). Each gap is `[kind, answer, key]`, where `key` is a doll's id on the cast
-plate or a part of the story (`culprit`, `victim`, `means`, `loot`, `motive`, `intended`,
-`framed`, `before`). Never write a conclusion as a fact. State what the exhibit shows and
-let the rules in `src/logic.js` decide what follows; that is what lets the proof disagree
-with you.
+boarded where), followed by its telling: the sentence the player reads.
+
+```js
+['tag', 'body', { initials: 'S.C.' }, 'In his waistcoat, a {watch} engraved: | cut: $name Thirty years among the roses'],
+['untouched', 'shears', 'straight blades, thick with dust.'],
+['dead', 'body', null]
+```
+
+`src/tell.js` renders an exhibit's text from its facts, in order, when the cases load.
+In a telling, `$name`, `$thing`, `$place`, `$key`, `$mark`, `$value`, `$time` and `$stops`
+are written in from the fact, so the text cannot name a different person, thing, place or
+time than the proof reasons about. `$Thing` capitalises, `$thing[hatpins]` shows other
+words, and `$thing~[a white orchid]` shows a thing without naming it. `{word}` makes any
+other tray word collectable. `|` starts a new line, which may begin `cut:`, `hand:` or
+`print:`; facts told in the same hand run on as one line. The top of `src/tell.js` has
+the full list.
+
+Never write a conclusion as a fact. State what the exhibit shows and let the rules in
+`src/logic.js` decide what follows; that is what lets the proof disagree with you. Each
+gap is `[kind, answer, key]`, where `key` is a doll's id on the cast plate or a part of
+the story (`culprit`, `victim`, `means`, `loot`, `motive`, `intended`, `framed`,
+`before`).
 
 `npm run check:cases` (and `npm test`) fails a case unless:
 
@@ -72,6 +89,8 @@ with you.
 - exactly one story fits the facts, and it can be settled one step at a time;
 - every tempting wrong answer is refuted by something in the cabinet;
 - every exhibit states facts, and none is idle;
+- every fact is told (only `dead` may be `null`), what a fact asserts is shown in its
+  exhibit, and no tray word is mentioned where it cannot be collected;
 - the `path` shown to the player rests on exhibits the proof actually uses;
 - every answer can be collected, and every gap has at least two rival words of its kind;
 - it fits the size budget: at most 9 exhibits, 9 gaps, 16 words, 175 words of reading;
@@ -81,11 +100,13 @@ with you.
 what answers it, and what each exhibit is for. It also notes answers settled by a single
 exhibit and cases with no real trap; those are judgement calls, not failures.
 
-What the proof cannot do: it reasons about the facts, not the sentences. It cannot tell
-whether a line of text really says what its fact claims, or whether a person finds the
-chain fair. When you change an exhibit's text, change its facts to match, and playtest.
-A clue must be stated in words: the first run of the proof caught a doll whose identity
-only the picture gave away.
+What this cannot do. The names, things, places and times in the text come from the
+facts, but the connecting words are the author's: "thick with dust" means untouched only
+because it was written on an `untouched` fact. Nothing checks that a telling's wording
+fits its kind of fact, or that a person finds the chain fair. Read the rendered text
+(`npm run check:cases -- --text`, or play the case) and playtest. A clue must be stated
+in words: the first run of the proof caught a doll whose identity only the picture
+gave away.
 
 Rules to keep by hand:
 

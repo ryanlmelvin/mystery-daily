@@ -1,12 +1,14 @@
 // Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
 // SPDX-License-Identifier: GPL-3.0-only
 // Check every case (src/lint.js) and prove it (src/logic.js), then print its size.
-// Add --why to print how the proof reaches each answer and what it makes of each exhibit.
+// Add --why to print how the proof reaches each answer and what it makes of each exhibit,
+// and --text to print every exhibit's text as it is rendered from its facts.
 import { CASES } from '../src/cases/index.js';
 import { lintCase } from '../src/lint.js';
 import { scenePins } from '../src/art/scenes.js';
 
 const why = process.argv.includes('--why');
+const text = process.argv.includes('--text');
 let failed = false;
 for (const c of CASES) {
   const { errors, warnings, stats, proof } = lintCase(c, scenePins(c.scene));
@@ -30,6 +32,12 @@ for (const c of CASES) {
     for (const s of proof.story ? proof.story.steps : []) console.log(`       round ${s.round}  ${s.role} is ${s.value}: ${s.how.join('; ')} (${s.from.join(', ')})`);
     for (const t of proof.story ? proof.story.traps : []) console.log(`       trap   ${t.role} = ${t.value}: ${t.why.join('; ')} (${t.from.join(', ')}); answered: ${t.how.join('; ')}${t.answeredBy.length ? ' (' + t.answeredBy.join(', ') + ')' : ''}`);
     console.log(`       exhibits  ${Object.entries(proof.exhibits).map(([k, v]) => `${k}: ${v}`).join(' | ')}`);
+  }
+  if (text) {
+    for (const ex of c.exhibits) {
+      console.log(`       ${ex.id}: ${ex.title}`);
+      for (const [style, line] of ex.lines) console.log(`         ${style.padEnd(5)} ${line}`);
+    }
   }
   if (errors.length) failed = true;
 }

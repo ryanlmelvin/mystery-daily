@@ -7,6 +7,7 @@
 
 import { blanksOf, wordsIn, segments } from './engine.js';
 import { proveCase } from './logic.js';
+import { tellErrors } from './tell.js';
 
 export const BUDGET = { exhibits: 9, blanks: 9, words: 16, reading: 175, dolls: 4 };
 export const KINDS = ['person', 'thing', 'place'];
@@ -105,6 +106,9 @@ export function lintCase(c, pins = null) {
       }
     }
   }
+
+  // The telling: is every fact told, with its names and things written in from the fact?
+  for (const e of tellErrors(c)) errors.push(`Telling: ${e}`);
 
   // The proof: do the stated facts give exactly one answer, reachable without a guess?
   const proof = proveCase(c);

@@ -18,80 +18,77 @@ export default {
     pen: 'thing'
   },
   exhibits: [
-    { id: 'uncle', title: 'The old gentleman at the desk',
+    {
+      id: 'uncle',
+      title: 'The old gentleman at the desk',
       facts: [
-        ['link', 'uncle', 'desk'],
-        ['dead', 'uncle'],
-        ['sign', 'a weal round the neck'],
-        ['habit', 'writing hand', 'left'],
-        ['found', 'writing hand', 'right']
-      ],
-      lines: [
-      ['see', 'Dead in his chair, a red weal around his neck. A {pen} is pushed into his right hand. His left cuff is black with years of ink.']
-    ] },
-    { id: 'note', title: 'Note under his hand',
+        ['link', 'uncle', 'desk', 'Dead at his desk,'],
+        ['dead', 'uncle', null],
+        ['sign', 'red weal', 'a $mark around his neck.'],
+        ['found', 'writing hand', 'right', 'A {pen} is pushed into his $value hand.'],
+        ['habit', 'writing hand', 'left', 'His $value cuff is black with years of ink.']
+      ]
+    },
+    {
+      id: 'note',
+      title: 'Note under his hand',
       facts: [
-        ['accused', { surname: 'Wren' }],
-        ['habit', 'writing hand', 'left']
-      ],
-      lines: [
-      ['hand', 'Wren has done this'],
-      ['see', 'The ink is still wet. The inkwell stands at his left.']
-    ] },
-    { id: 'will', title: 'Paper on the desk, unsigned',
+        ['accused', { surname: 'Wren' }, 'hand: $name has done this'],
+        ['habit', 'writing hand', 'left', 'The ink is still wet. The inkwell stands at his $value.']
+      ]
+    },
+    {
+      id: 'will',
+      title: 'Paper on the desk, unsigned',
       facts: [
-        ['owner', 'desk', { full: 'Jocelyn Hale' }],
-        ['listed', 'Agnes Wren', 'secretary'],
-        ['listed', 'Cornelius Pym', 'solicitor'],
-        ['wants', 'Felix Hale', 'will']
-      ],
-      lines: [
-      ['print', 'I, Sir {Jocelyn Hale}, leave my nephew {Felix Hale} nothing. All I own goes to my secretary, Miss {Agnes Wren}. Drawn up by Mr {Cornelius Pym}.']
-    ] },
-    { id: 'bellpull', title: 'Bell-pull by the fire',
+        ['owner', 'desk', { full: 'Jocelyn Hale' }, 'print: I, Sir $name,'],
+        ['wants', 'Felix Hale', 'will', 'print: by this $thing leave my nephew $who nothing.'],
+        ['listed', 'Agnes Wren', 'secretary', 'print: All I own goes to my $key, Miss $name.'],
+        ['listed', 'Cornelius Pym', 'solicitor', 'print: Drawn up by my $key, Mr $name.']
+      ]
+    },
+    {
+      id: 'bellpull',
+      title: 'Bell-pull by the fire',
       facts: [
-        ['makes', 'bell-pull', 'a weal round the neck'],
-        ['makes', 'curtain cord', 'a weal round the neck'],
-        ['untouched', 'curtain cord']
-      ],
-      lines: [
-      ['see', 'The cord of the {bell-pull} has been cut off short, and the cut is fresh. By the window, the {curtain cord} hangs whole.']
-    ] },
-    { id: 'nephew', title: 'The young man by the fire',
+        ['makes', 'bell-pull', 'red weal', 'The cord of the $thing has been cut off short, and the cut is fresh.'],
+        ['makes', 'curtain cord', 'red weal', 'By the window, the $thing'],
+        ['untouched', 'curtain cord', 'hangs whole.']
+      ]
+    },
+    {
+      id: 'nephew',
+      title: 'The young man by the fire',
       facts: [
-        ['has', 'nephew', 'bell-pull'],
-        ['wrote', 'nephew']
-      ],
-      lines: [
-      ['see', 'Fresh ink on the fingers of his right hand. In his coat pocket, a coil of tasselled cord.']
-    ] },
-    { id: 'portrait', title: 'Portrait over the mantel',
+        ['wrote', 'nephew', 'Fresh ink on the fingers of his right hand.'],
+        ['has', 'nephew', 'bell-pull', 'In his coat pocket, $thing~[a coil of tasselled cord].']
+      ]
+    },
+    {
+      id: 'portrait',
+      title: 'Portrait over the mantel',
       facts: [
-        ['tag', 'uncle', { surname: 'Hale' }],
-        ['tag', 'nephew', { surname: 'Hale' }]
-      ],
-      lines: [
-      ['cut', 'Sir Jocelyn Hale, Bart.'],
-      ['see', 'The same red whiskers as the gentleman at the desk, and as the young man by the fire.']
-    ] },
-    { id: 'secretary', title: 'The woman with the notebook',
+        ['tag', 'uncle', { surname: 'Hale' }, 'cut: Sir Jocelyn $name, Bart. | The same red whiskers as the gentleman at the desk,'],
+        ['tag', 'nephew', { surname: 'Hale' }, 'and as the young man by the fire.']
+      ]
+    },
+    {
+      id: 'secretary',
+      title: 'The woman with the notebook',
       facts: [
-        ['fits', 'secretary', 'secretary']
-      ],
-      lines: [
-      ['see', "Shorthand notebook, pencil behind her ear. Today's page:"],
-      ['hand', "3 o'clock. Mr Pym to witness the signing."]
-    ] },
-    { id: 'bag', title: 'The gentleman with the bag',
+        ['fits', 'secretary', 'secretary', "Shorthand notebook, pencil behind her ear. Today's page: | hand: 3 o'clock. Mr Pym to witness the signing."]
+      ]
+    },
+    {
+      id: 'bag',
+      title: 'The gentleman with the bag',
       facts: [
-        ['tag', 'bag', { surname: 'Pym' }],
-        ['fits', 'bag', 'solicitor'],
-        ['makes', 'necktie', 'a weal round the neck'],
-        ['untouched', 'necktie']
-      ],
-      lines: [
-      ['see', 'His {necktie} is neatly knotted. His brief-bag is stamped Pym & Pym. Inside, a seal and a spare copy of the {will}.']
-    ] }
+        ['makes', 'necktie', 'red weal', 'His $thing'],
+        ['untouched', 'necktie', 'is neatly knotted.'],
+        ['tag', 'bag', { surname: 'Pym' }, 'His brief-bag is stamped $name & $name.'],
+        ['fits', 'bag', 'solicitor', 'Inside, a seal and a spare copy of the {will}.']
+      ]
+    }
   ],
   panels: [
     { id: 'cast', title: 'The cast', parts: ['At the desk, ', ['person', 'Jocelyn Hale', 'uncle'], '. By the fire, ', ['person', 'Felix Hale', 'nephew'], '. With the notebook, ', ['person', 'Agnes Wren', 'secretary'], '. With the bag, ', ['person', 'Cornelius Pym', 'bag'], '.'] },

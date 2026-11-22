@@ -22,78 +22,73 @@ export default {
     shears: 'thing'
   },
   exhibits: [
-    { id: 'body', title: 'The man on the floor',
+    {
+      id: 'body',
+      title: 'The man on the floor',
       facts: [
-        ['tag', 'body', { initials: 'S.C.' }],
-        ['fits', 'body', 'gardener'],
-        ['dead', 'body'],
-        ['sign', 'a crescent gash']
-      ],
-      lines: [
-      ['see', 'Soil under his nails. One crescent-shaped gash behind the ear. In his waistcoat, a {watch} engraved:'],
-      ['cut', 'S.C. Thirty years among the roses']
-    ] },
-    { id: 'wagebook', title: 'Wage book on the bench',
+        ['fits', 'body', 'gardener', 'Soil under his nails.'],
+        ['dead', 'body', null],
+        ['sign', 'crescent-shaped gash', 'One $mark behind the ear.'],
+        ['tag', 'body', { initials: 'S.C.' }, 'In his waistcoat, a {watch} engraved: | cut: $name Thirty years among the roses']
+      ]
+    },
+    {
+      id: 'wagebook',
+      title: 'Wage book on the bench',
       facts: [
-        ['listed', 'Silas Crane', 'gardener'],
-        ['listed', 'Nell Fisk', 'housemaid'],
-        ['listed', 'Tobias Ruck', 'groom'],
-        ['wants', 'Silas Crane', 'wages']
-      ],
-      lines: [
-      ['print', '{Silas Crane}, head gardener: {wages} three months unpaid. {Nell Fisk}, housemaid. {Tobias Ruck}, groom.']
-    ] },
-    { id: 'maid', title: 'The woman in the doorway',
+        ['listed', 'Silas Crane', 'gardener', 'print: $name, head $key:'],
+        ['wants', 'Silas Crane', 'wages', 'print: $thing three months unpaid.'],
+        ['listed', 'Nell Fisk', 'housemaid', 'print: $name, $key.'],
+        ['listed', 'Tobias Ruck', 'groom', 'print: $name, $key.']
+      ]
+    },
+    {
+      id: 'maid',
+      title: 'The woman in the doorway',
       facts: [
-        ['fits', 'maid', 'housemaid'],
-        ['untouched', 'lamp']
-      ],
-      lines: [
-      ['see', 'Cap and apron. A ring of {house keys} at her belt. Her {lamp} is lit, its glass unbroken.']
-    ] },
-    { id: 'youth', title: 'The young man by the garden door',
+        ['fits', 'maid', 'housemaid', 'Cap and apron. A ring of {house keys} at her belt.'],
+        ['untouched', 'lamp', 'Her $thing is lit, its glass unbroken.']
+      ]
+    },
+    {
+      id: 'youth',
+      title: 'The young man by the garden door',
       facts: [
-        ['lead', 'youth', 'dressed to leave tonight']
-      ],
-      lines: [
-      ['see', 'Travelling coat, buttoned to leave. In the pocket, a third-class ticket:'],
-      ['print', 'The 9.40 to London. Tonight only.']
-    ] },
-    { id: 'letter', title: 'Letter in his breast pocket',
+        ['lead', 'youth', 'dressed to leave tonight', 'Travelling coat, buttoned to leave. In the pocket, a third-class ticket: | print: The 9.40 to London. Tonight only.']
+      ]
+    },
+    {
+      id: 'letter',
+      title: 'Letter in his breast pocket',
       facts: [
-        ['tag', 'youth', { full: 'Jasper Vane' }],
-        ['wants', 'Jasper Vane', 'debts']
-      ],
-      lines: [
-      ['hand', '{Jasper Vane}: I have paid your {debts} for the last time. The {Ghost Orchid} goes to the Society on Friday. Your aunt, {Cordelia Vane}.']
-    ] },
-    { id: 'bag', title: 'Carpet bag at his feet',
+        ['tag', 'youth', { full: 'Jasper Vane' }, 'hand: $name:'],
+        ['wants', 'Jasper Vane', 'debts', 'hand: I have paid your $thing for the last time. The {Ghost Orchid} goes to the Society on Friday. Your aunt, {Cordelia Vane}.']
+      ]
+    },
+    {
+      id: 'bag',
+      title: 'Carpet bag at his feet',
       facts: [
-        ['tag', 'youth', { initials: 'J.V.' }],
-        ['has', 'youth', 'Ghost Orchid']
-      ],
-      lines: [
-      ['see', 'The clasp is stamped:'],
-      ['cut', 'J.V.'],
-      ['see', 'Inside, a white orchid, its roots wrapped in wet newspaper.']
-    ] },
-    { id: 'stand', title: 'The empty stand',
+        ['tag', 'youth', { initials: 'J.V.' }, 'The clasp is stamped: | cut: $name'],
+        ['has', 'youth', 'Ghost Orchid', 'Inside, $thing~[a white orchid], its roots wrapped in wet newspaper.']
+      ]
+    },
+    {
+      id: 'stand',
+      title: 'The empty stand',
       facts: [
-        ['taken', 'Ghost Orchid']
-      ],
-      lines: [
-      ['see', 'A ring of fresh soil where a pot stood. On the brass plate:'],
-      ['cut', '{Ghost Orchid}. Not to be moved.']
-    ] },
-    { id: 'tools', title: 'Tools by the garden door',
+        ['taken', 'Ghost Orchid', 'A ring of fresh soil where a pot stood. On the brass plate: | cut: $thing. Not to be moved.']
+      ]
+    },
+    {
+      id: 'tools',
+      title: 'Tools by the garden door',
       facts: [
-        ['makes', 'spade', 'a crescent gash'],
-        ['makes', 'shears', 'a straight cut'],
-        ['untouched', 'shears']
-      ],
-      lines: [
-      ['see', 'A {spade}, its curved blade wiped clean but dark at the socket. On a hook, {shears}: straight blades, thick with dust.']
-    ] }
+        ['makes', 'spade', 'crescent-shaped gash', 'A $thing, its curved blade wiped clean but dark at the socket.'],
+        ['makes', 'shears', 'a straight cut', 'On a hook, $thing:'],
+        ['untouched', 'shears', 'straight blades, thick with dust.']
+      ]
+    }
   ],
   panels: [
     { id: 'cast', title: 'The cast', parts: ['On the floor, ', ['person', 'Silas Crane', 'body'], '. In the doorway, ', ['person', 'Nell Fisk', 'maid'], '. By the garden door, ', ['person', 'Jasper Vane', 'youth'], '.'] },

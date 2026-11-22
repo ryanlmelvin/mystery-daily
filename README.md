@@ -57,9 +57,10 @@ budget; add `-- --why` to see how each answer is reached.
 
 - Only five cases, all hand-written. There is no case generator.
 - Each case is proved to have exactly one answer, but only inside a model: every exhibit
-  states its facts in a fixed vocabulary, and the proof reasons from those. It cannot
-  tell whether the written sentences really say what the facts claim.
-- No streaks, statistics, archive, sound, or offline install.
+  is a list of facts in a fixed vocabulary, and the proof reasons from those. The text
+  is rendered from the same facts, so its names, things, places and times cannot differ
+  from them. The connecting words are still the author's, and nothing checks those.
+- No streaks, statistics, archive or sound.
 - The five-minute target is an estimate. Nobody has been timed on these cases.
 
 ## Publish

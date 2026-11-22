@@ -13,8 +13,9 @@
 // This is a proof inside the model. It cannot tell whether the written sentences say
 // what the facts claim, or whether a person finds the chain fair. Playtest does that.
 //
-// Facts (each is an array on an exhibit; `who` is a doll id, a name, {listed: key} or a
-// name pattern; a pattern is {full}, {initials}, {surname} or {abbr: 'L. Sparrow'}):
+// Facts (each is an array on an exhibit, followed by its telling, the sentence the player
+// reads; `who` is a doll id, a name, {listed: key} or a name pattern; a pattern is {full},
+// {initials}, {surname} or {abbr: 'L. Sparrow'}; a `fits` key may be a list of keys):
 //
 //   ['tag', doll, pattern]       a belonging on the doll bears a name
 //   ['link', doll, item]         the doll is tied to an item (holds its key, wears its hat)
@@ -62,11 +63,21 @@ export function matches(name, pat) {
   return false;
 }
 
+// How many arguments each kind of fact takes. Whatever follows them is the fact's
+// telling: the sentence the player reads (see tell.js). The proof never reads it.
+export const ARITY = {
+  tag: 2, link: 2, owner: 2, fits: 2, listed: 2, dead: 1, sign: 1, makes: 2, untouched: 1, taken: 1,
+  has: 2, wants: 2, excused: 2, lead: 2, accused: 1, habit: 2, found: 2, wrote: 1, meantFor: 1,
+  died: 1, stops: 1, boarded: 2
+};
+
 function gather(c, without = []) {
   const atoms = [];
   for (const ex of c.exhibits) {
     if (without.includes(ex.id)) continue;
-    for (const f of ex.facts || []) atoms.push({ type: f[0], a: f.slice(1), ex: ex.id });
+    for (const f of ex.facts || []) {
+      if (f[0] in ARITY) atoms.push({ type: f[0], a: f.slice(1, 1 + ARITY[f[0]]), ex: ex.id });
+    }
   }
   return atoms;
 }
@@ -89,7 +100,9 @@ function solveCast(c, atoms) {
     }
   }
   for (const f of of('fits')) {
-    const listed = of('listed').filter((l) => l.a[1] === f.a[1]);
+    // A doll may fit more than one description: a clerical collar suits vicar or curate.
+    const keys = [].concat(f.a[1]);
+    const listed = of('listed').filter((l) => keys.includes(l.a[1]));
     if (listed.length) add(f.a[0], listed.map((l) => l.a[0]), 'a description on a list', [f.ex, ...listed.map((l) => l.ex)]);
   }
 
