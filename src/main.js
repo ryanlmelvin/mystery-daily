@@ -15,6 +15,7 @@ import { restoreTutorial, tutorialCase } from './tutorial.js';
 import { caseIdForDate, dailyForDate, utcDate } from './daily.js';
 import { archiveCalendar } from './archive.js';
 import * as E from './engine.js';
+import { revealSolution } from './reveal.js';
 import { sceneSvg, scenePins, sceneFocus } from './art/scenes.js';
 import { cogStrip } from './art/cogs.js';
 import * as P from './pwa.js';
@@ -36,7 +37,8 @@ let c; // the case in the cabinet
 let state; // its saved game
 let edition; // the selected dated edition, or null for practice
 let returnTo = null; // the cabinet set aside while the practice penny is in play
-const ui = { sel: null, open: null, fresh: [], message: '', won: false, dialog: null, hideUpdate: false };
+let lossReveal = null; // active only while the last penny is showing the solution
+const ui = { sel: null, open: null, fresh: [], message: '', admiring: false, dialog: null, hideUpdate: false };
 const RELEASE = typeof __RELEASE__ === 'string' ? __RELEASE__ : 'dev';
 
 const esc = (t) => String(t).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
@@ -77,6 +79,7 @@ function editionLabel() {
 }
 
 function loadLocation(firstVisit = false) {
+  cancelLossReveal();
   returnTo = null;
   const params = new URLSearchParams(location.search);
   const latest = utcDate();
@@ -89,18 +92,19 @@ function loadLocation(firstVisit = false) {
   const saved = savedGame(c.id, edition);
   state = saved?.fills?.length === E.blanksOf(c).length ? saved : E.newGame(c);
   E.collectReadWords(c, state);
-  Object.assign(ui, { sel: null, open: null, fresh: [], message: '', won: false, dialog: null });
+  Object.assign(ui, { sel: null, open: null, fresh: [], message: '', admiring: false, dialog: null });
   if (firstVisit) startTutorial(true);
   else frame();
 }
 
 function startTutorial(firstRun = false) {
-  returnTo = { c, state, sel: ui.sel, open: ui.open, fresh: ui.fresh, message: ui.message, firstRun };
+  cancelLossReveal();
+  returnTo = { c, state, sel: ui.sel, open: ui.open, fresh: ui.fresh, message: ui.message, admiring: ui.admiring, firstRun };
   c = tutorialCase;
   const saved = firstRun && read('seen')?.tutorial;
   state = restoreTutorial(saved);
   E.collectReadWords(c, state);
-  Object.assign(ui, { sel: null, open: null, fresh: [], message: '', dialog: null });
+  Object.assign(ui, { sel: null, open: null, fresh: [], message: '', admiring: false, dialog: null });
   frame();
 }
 
@@ -110,7 +114,7 @@ function leaveTutorial() {
   write('seen', 1);
   c = previous.c;
   state = previous.state;
-  Object.assign(ui, { sel: previous.sel, open: previous.open, fresh: previous.fresh, message: previous.message });
+  Object.assign(ui, { sel: previous.sel, open: previous.open, fresh: previous.fresh, message: previous.message, admiring: previous.admiring });
   frame();
   (previous.firstRun ? $('.pin') : $('#menu')).focus({ preventScroll: true });
   window.scrollTo(0, 0);
@@ -236,20 +240,26 @@ function draw() {
   $('#window').classList.toggle('running', state.status === 'won');
   $('#window').classList.toggle('stopped', state.status === 'lost');
   for (const pin of app.querySelectorAll('.pin')) {
+    pin.disabled = !!lossReveal;
     pin.classList.toggle('read', state.opened.includes(pin.dataset.ex));
     pin.classList.toggle('on', ui.open === pin.dataset.ex);
     if (move === 'inspect') pin.setAttribute('aria-describedby', 'tag-prompt');
     else pin.removeAttribute('aria-describedby');
   }
   const banner = $('#banner');
-  banner.hidden = !over;
+  banner.hidden = !over || ui.admiring;
   if (over) banner.textContent = state.status === 'won' ? 'The machine runs' : 'Out of pennies';
   if (returnTo) {
     $('#tag-prompt').hidden = move !== 'inspect';
     $('.tutorial').dataset.move = move;
     $('.skip-tutorial').hidden = over && !ui.open;
   }
-  if (ui.open) $('#works').innerHTML = card();
+  if (lossReveal) {
+    $('#works').innerHTML = plates() + '<p class="sr-only" id="reveal-reading" role="status" tabindex="-1">Out of pennies. Revealing the correct plates.</p>';
+  } else if (ui.admiring) {
+    $('#works').innerHTML = plates() + (ui.open ? card() : '') +
+      '<div class="actions"><button class="plain" id="back-to-playbill">Back to playbill</button></div>';
+  } else if (ui.open) $('#works').innerHTML = card();
   else if (over && !returnTo) $('#works').innerHTML = plates() + playbill();
   else $('#works').innerHTML = plates(move) + (over ? '' : tray(move)) + coinbar(move);
   if (returnTo) {
@@ -271,7 +281,7 @@ function plates(move) {
   let i = 0;
   const slot = (part, where = '') => {
     const k = i++;
-    const shown = state.status === 'lost' ? blanks[k].answer : state.fills[k];
+    const shown = state.status === 'play' ? state.fills[k] : blanks[k].answer;
     const fixed = state.status !== 'play' || E.isFixed(c, state, k);
     const cls = ['slot', 'k-' + part[0], shown ? 'filled' : 'empty', ui.sel === k ? 'sel' : '', fixed ? 'fixed' : ''].join(' ');
     const described = move === 'gap' && !fixed ? ` aria-describedby="gap-prompt${last ? ' guess-' + blanks[k].panel : ''}"` : '';
@@ -382,15 +392,15 @@ function card() {
   const n = c.exhibits.indexOf(ex) + 1;
   const lines = ex.lines.map(([style, text]) => `<p class="line ${style}">${E.segments(text).map((part) =>
     part.word ? `<mark class="k-${c.words[part.word]}">${esc(part.text)}</mark>` : esc(part.text)).join('')}</p>`).join('');
-  return `<div class="card" role="dialog" tabindex="-1" aria-label="${esc(ex.title)}">
+  return `<div class="card" role="${ui.admiring ? 'region' : 'dialog'}" tabindex="-1" aria-label="${esc(ex.title)}">
       ${PAPER_BACK}
       <div class="card-details">
         <div class="card-head"><span class="badge">${n}</span><h3>${esc(ex.title)}</h3><button class="close" id="close" aria-label="Put it back">×</button></div>
         <div class="card-body">${lines}</div>
         ${ui.fresh.length ? `<p class="got"><span>Words added</span>${ui.fresh.map((w) => `<i class="k-${c.words[w]}">${esc(w)}</i>`).join('')}</p>` : ''}
-        <div class="card-foot">
+        ${ui.admiring ? '' : `<div class="card-foot">
           <button class="plain wide" id="back">Back</button>
-        </div>
+        </div>`}
       </div>
       ${closeup(ex)}
     </div>`;
@@ -410,12 +420,12 @@ function playbill() {
       <div class="canopy" aria-hidden="true"></div>
       ${BILL_HEADING}
       <div class="stub"><span>Tonight's bill</span><span>${editionLabel()}</span></div>
-      <h3>${won ? 'Solved!' : 'The machine keeps your pennies'}</h3>
+      <h3 tabindex="-1">${won ? 'Solved!' : 'The machine keeps your pennies'}</h3>
       <div class="grid" role="img" aria-label="${state.tries.length === 1 ? '1 penny' : state.tries.length + ' pennies'} used">${grid}</div>
       <p class="meta">${E.clock(secs)} · ${paid ? paid + (paid === 1 ? ' tip' : ' tips') : 'no tips'}</p>
       <div class="actions">
         <button class="lever" id="share">Share playbill</button>
-        <button class="plain" id="again">Play again</button>
+        <button class="plain" id="admire-scene">Admire scene</button>
         <button class="plain" id="others">Archive</button>
       </div>
       <label id="share-fallback" hidden>Copy this result to share it.
@@ -534,14 +544,28 @@ function tipDialog(result) {
 // ---------- moves ----------
 
 function openExhibit(id) {
-  const before = state.bank.length;
-  E.openExhibit(c, state, id, Date.now());
-  ui.fresh = state.bank.slice(before);
+  if (state.status === 'play') {
+    const before = state.bank.length;
+    E.openExhibit(c, state, id, Date.now());
+    ui.fresh = state.bank.slice(before);
+    save();
+  } else {
+    ui.admiring = !returnTo;
+    ui.fresh = [];
+  }
   ui.open = id;
   ui.message = '';
-  save();
   draw();
+  if (ui.admiring) $('.card').focus({ preventScroll: true });
   $('.card-details').scrollIntoView({ block: 'nearest' });
+}
+
+function closeExhibit() {
+  const pin = $('.pin.on');
+  ui.open = null;
+  ui.fresh = [];
+  draw();
+  if (ui.admiring) pin?.focus();
 }
 
 function tapSlot(i) {
@@ -592,8 +616,28 @@ function drop() {
   const left = E.PENNIES - state.tries.length;
   ui.message = res.status === 'play' ? `Clunk. ${left === 1 ? 'One penny' : left + ' pennies'} left.` : '';
   save();
+  if (!returnTo && res.status === 'lost') return showLossReveal();
   draw();
   if (res.status !== 'play') $('#works').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function cancelLossReveal() {
+  lossReveal?.abort();
+  lossReveal = null;
+}
+
+async function showLossReveal() {
+  const controller = new AbortController();
+  lossReveal = controller;
+  draw();
+  $('#reveal-reading').focus({ preventScroll: true });
+  const board = $('.plates');
+  board.scrollIntoView({ block: 'nearest' });
+  await revealSolution(board, controller.signal);
+  if (controller.signal.aborted) return;
+  lossReveal = null;
+  draw();
+  if (!$('#dialog').open) $('.playbill h3').focus();
 }
 
 async function share() {
@@ -639,11 +683,11 @@ app.addEventListener('click', (ev) => {
   }
   if (el.dataset.date) return navigate(el.dataset.date === utcDate() ? '' : '?edition=' + el.dataset.date);
   if (el.dataset.case) return navigate('?case=' + encodeURIComponent(el.dataset.case));
-  if (el.dataset.ex) return ui.open === el.dataset.ex ? (ui.open = null, draw()) : openExhibit(el.dataset.ex);
+  if (el.dataset.ex) return ui.open === el.dataset.ex ? closeExhibit() : openExhibit(el.dataset.ex);
   if (el.dataset.i !== undefined) return tapSlot(Number(el.dataset.i));
   if (el.dataset.w) return tapTile(el.dataset.w);
   switch (el.id) {
-    case 'close': case 'back': ui.open = null; ui.fresh = []; return draw();
+    case 'close': case 'back': return closeExhibit();
     case 'drop': return drop();
     case 'tip': return tipDialog();
     case 'take-tip': {
@@ -659,11 +703,16 @@ app.addEventListener('click', (ev) => {
       return tipDialog(tip);
     }
     case 'share': return share();
-    case 'again':
-      edition = null;
-      state = E.newGame(c);
-      save();
-      return navigate('?case=' + encodeURIComponent(c.id));
+    case 'admire-scene':
+      ui.admiring = true;
+      draw();
+      $('.pin').focus({ preventScroll: true });
+      return window.scrollTo(0, 0);
+    case 'back-to-playbill':
+      ui.admiring = false;
+      ui.open = null;
+      draw();
+      return $('#admire-scene').focus();
     case 'today': return navigate('');
     case 'others': case 'menu': return others();
     case 'trials': return trials();
@@ -675,7 +724,7 @@ app.addEventListener('click', (ev) => {
 });
 
 document.addEventListener('keydown', (ev) => {
-  if (ev.key === 'Escape' && ui.open) { ui.open = null; draw(); }
+  if (ev.key === 'Escape' && ui.open && !$('#dialog').open) closeExhibit();
 });
 
 P.initUpdates(chrome);
