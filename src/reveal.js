@@ -14,8 +14,9 @@ function pause(ms, signal) {
 }
 
 // Size the slots with their answers from the outset so later tiles never reflow
-// a half-read sentence. Only the display changes as each word lands.
-export async function revealSolution(plates, signal) {
+// a half-read sentence. Only the display changes as each word lands. `onSeat` is told
+// as each tile lands (the cabinet makes a noise).
+export async function revealSolution(plates, signal, { onSeat = () => {} } = {}) {
   if (signal.aborted) return;
   const reading = plates.ownerDocument.getElementById('reveal-reading');
   plates.classList.add('revealing');
@@ -29,6 +30,7 @@ export async function revealSolution(plates, signal) {
       if (signal.aborted) return;
       slot.removeAttribute('aria-hidden');
       slot.classList.add('seated');
+      onSeat();
       beat = 700;
     }
     if (reading) {

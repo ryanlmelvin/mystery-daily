@@ -55,6 +55,14 @@ Dev pages and switches:
   plus where each exhibit's tag sits. `src/art/cogs.js`: the cog strip under the window.
 - `src/main.js`: the cabinet front (window, tags, plates, tray, lever, playbill, dialogs)
   and local saves. `src/style.css`: all styling.
+- `src/show.js`: what the cabinet does with a penny, in order: the coin drops, the cogs
+  strain, each plate is marked in turn. `src/reveal.js` sets the right tiles one by one
+  after the last penny. Both only uncover a result the engine has already decided and
+  `main.js` has already saved and drawn, so stopping at any step leaves the page right.
+- `src/sound.js`: every noise, built from oscillators and filtered noise when it is
+  needed. No audio files ship.
+- `src/record.js`: the player's record (streak, best run, pennies per edition), one line
+  per finished edition, kept by date.
 - `src/pwa.js`: install prompt and the update controller. `scripts/sw-template.js` is
   the service worker; `scripts/sw-build.mjs` (run by the Vite build) writes `dist/sw.js`
   with a version hashed from every shipped file. `public/update.html` is the standalone
@@ -233,6 +241,24 @@ ink. Fonts are Abril Fatface (signs), Fraunces (text), Cinzel (engraving) and Ca
 - The machine never says which tile is wrong, only how many on each plate.
 - A plate with nothing wrong locks.
 - The solution and its reasoning are always shown at the end, win or lose.
+- A penny is a moment, not a wait. The coin drops, the cogs lurch, and each plate is
+  marked in turn (about a second and a half); a solved machine then runs with the stage
+  to itself before the playbill is handed over. A tap skips the penny, **Skip to
+  playbill** skips the reveal, and `prefers-reduced-motion` shows every result at once.
+  The game is saved before any of it plays.
+- Everything answers a touch. Tiles travel from the tray to their gap, a doll rocks when
+  flicked, the lever shakes its head at a penny it will not take. None of it carries a
+  clue, and none of it adds a standing element to the play screen.
+- Sound only ever answers something the player did; the cabinet is silent when left
+  alone. It is on by default and the menu has the switch (`penny:v1:sound`). A new sound
+  is a recipe in `SOUNDS` in `src/sound.js`. Check its level by rendering it through an
+  `OfflineAudioContext`: a peak near a quarter of full scale is the loudest any sound
+  should be, and there is no compressor to catch a mistake.
+- Once a case is over, a sign hangs over the doll the story plate names as `culprit`.
+  A story with no such gap gets no sign.
+- A moving piece may pass the edge of the screen but must not widen the page: `html`
+  clips sideways overflow. Check `document.documentElement.scrollWidth` after adding an
+  animation that scales or shifts something near an edge.
 - Phone first. The play screen has no standing header: the case marquee sits on the
   window frame, and the game name, subtitle, edition and awning live on the end playbill and in
   the menu. The coins, lever and status sit in a dock pinned to the bottom of the
@@ -297,3 +323,10 @@ It is an installable PWA following `../GITHUB_PAGES_PWA_TIPS.md` (in the parent
 Saves on the development machine are disposable (`localStorage`, keys `penny:v1:*`).
 The archive reads progress by case ID, which includes the composer version for composed editions.
 Wipe or seed them freely while testing.
+
+`penny:v1:record` holds the player's record: one line per finished daily edition, by
+date. It is separate from the saves on purpose. A composed case's save is filed under the
+composer's version, so bumping `COMPOSER` hides older saves from the archive; the record
+keeps the streak through that. `main.js` fills it from existing saves the first time, and
+writes a line when an edition is finished. A streak is editions solved in a row by date,
+whenever they were played, so catching up on a missed day from the archive mends it.

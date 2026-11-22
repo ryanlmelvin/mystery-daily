@@ -18,6 +18,12 @@ moment of a death. Nothing is explained. You work out who everyone is and what h
 Looking costs nothing. Each tip you take adds one mark to your playbill. You can reread
 your tips for free. Win or lose, the cabinet then shows how it was done.
 
+The cabinet answers back. The penny rings into its slot, the cogs strain, and each plate
+is marked in turn; tap to skip ahead. Solve it and the machine runs: the cogs turn, a
+musical box plays, and a sign drops over the guilty doll. Flick a doll and it rocks on
+its base. The sounds are made in the browser, with no recordings, and **Sound** in the
+**?** menu turns them off.
+
 After a case, **Share playbill** opens your device’s share sheet. If sharing is
 unavailable, you can copy the result by hand. Each row shows one penny, with the
 cast tiles on the left and the story tiles on the right. A 💡 marks each tip
@@ -46,6 +52,12 @@ run from November 21 through 25, 2026.
 Starting November 26, each edition is composed for its date. Open the calendar with
 the **?** button or **Archive** on a finished playbill. Choose a released date to
 resume its case. The calendar shows your progress on this device.
+
+A finished playbill shows your record: your streak, your best run, how many editions
+you have solved, and which penny solved each. A streak counts editions solved in a row
+by date. An edition you missed can be played from the archive, and solving it mends
+the run. Today's playbill counts down to the next cabinet. The record is kept on this
+device.
 
 ## Composed cabinets and practice
 
@@ -92,7 +104,9 @@ budget; add `-- --why` to see how each answer is reached.
   is a list of facts in a fixed vocabulary, and the proof reasons from those. The text
   is rendered from the same facts, so its names, things, places and times cannot differ
   from them. The connecting words are still the author's, and nothing checks those.
-- No streaks, statistics or sound.
+- The record lives in one browser. There are no accounts and nothing syncs between
+  devices.
+- The sounds were tuned by measuring their levels, not by ear on a range of phones.
 
 ## Publish
 

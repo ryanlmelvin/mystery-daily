@@ -53,7 +53,8 @@
 
 * { box-sizing: border-box; }
 
-html { -webkit-text-size-adjust: 100%; background: var(--page); }
+/* A piece in motion may pass the edge of the screen; it must never widen the page. */
+html { -webkit-text-size-adjust: 100%; background: var(--page); overflow-x: hidden; }
 
 body {
   margin: 0;
@@ -81,6 +82,10 @@ button:focus-visible { outline: 3px solid var(--paper); outline-offset: 2px; }
 h1, h2, h3, h4, p { margin: 0; }
 
 .cabinet {
+  /* How a scrap sits on the sheet under it: pasted flat, or lying loose. */
+  --cut-edge: #fff8e6;
+  --pasted: 1px 1px 0 rgba(63, 38, 20, .26), 1px 2px 2px rgba(51, 29, 15, .16);
+  --loose: 0 0 0 1px var(--cut-edge), 1px 2px 0 1px rgba(85, 54, 27, .38), 2px 4px 4px rgba(51, 29, 15, .22);
   max-width: 470px;
   margin: 0 auto;
 }
@@ -310,6 +315,9 @@ h1, h2, h3, h4, p { margin: 0; }
   animation: announce 3.2s ease both;
 }
 
+/* The solved machine's sign makes way sooner: the running scene is the thing to watch. */
+.running .banner { animation-duration: 1.9s; }
+
 .stopped .banner { background: var(--red-dark); box-shadow: 0 4px 0 var(--ink), inset 0 0 0 2.5px var(--red-dark), inset 0 0 0 4px var(--mustard); }
 
 /* The sign pops up, holds, and gets out of the way so the machine can be watched. */
@@ -351,9 +359,6 @@ h1, h2, h3, h4, p { margin: 0; }
 /* ---------- the works: plates, tray, coins ---------- */
 
 .works {
-  --cut-edge: #fff8e6;
-  --pasted: 1px 1px 0 rgba(63, 38, 20, .26), 1px 2px 2px rgba(51, 29, 15, .16);
-  --loose: 0 0 0 1px var(--cut-edge), 1px 2px 0 1px rgba(85, 54, 27, .38), 2px 4px 4px rgba(51, 29, 15, .22);
   position: relative;
   padding: 10px 10px calc(24px + env(safe-area-inset-bottom, 0px));
 }
@@ -381,11 +386,12 @@ h1, h2, h3, h4, p { margin: 0; }
 
 .plate {
   --sheet: var(--paper);
+  --tilt: .5deg;
   padding: 7px 12px 9px;
-  transform: rotate(.5deg);
+  transform: rotate(var(--tilt));
 }
 
-.plate + .plate { --sheet: #e8f4ff; transform: rotate(-.5deg); }
+.plate + .plate { --sheet: #e8f4ff; --tilt: -.5deg; }
 
 .plate-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 19px; margin-bottom: 4px; padding-bottom: 2px; border-bottom: 1px solid rgba(65, 39, 25, .45); }
 
@@ -543,7 +549,7 @@ h1, h2, h3, h4, p { margin: 0; }
 
 .coins { display: flex; gap: 4px; }
 
-.coin {
+.coin, .fall {
   width: 22px;
   height: 22px;
   border-radius: 50%;
@@ -552,9 +558,12 @@ h1, h2, h3, h4, p { margin: 0; }
   box-shadow: inset 1px 1px 0 #ffe4b5, inset -1px -1px 0 #ae5e27, var(--loose);
 }
 
+.coin { position: relative; }
+
 .coin.spent { background: rgba(87, 17, 10, .17); border: 1px dashed #ffdfbb; box-shadow: inset 1px 2px 2px rgba(62, 14, 8, .28); }
 
 .lever {
+  position: relative;
   flex: 1;
   height: 44px;
   padding: 0 16px 2px;
@@ -892,7 +901,7 @@ dialog h3 { font-family: var(--show); font-weight: 400; font-size: 24px; margin-
   .slot { min-width: 72px; }
   .coinbar { gap: 7px; }
   .coins { gap: 3px; }
-  .coin { width: 18px; height: 18px; }
+  .coin, .fall { width: 18px; height: 18px; }
   .lever { padding: 0 10px 2px; font-size: 16.5px; }
   .knob.small { padding: 0 11px; }
   .plate p { font-size: 14.5px; }
@@ -918,3 +927,228 @@ dialog h3 { font-family: var(--show); font-weight: 400; font-size: 24px; margin-
   from { transform: translateY(-7px) rotate(-3deg); }
   to { transform: none; }
 }
+
+/* ---------- the penny: it drops, the works take the strain, each plate is marked ---------- */
+
+/* The slot in the lever the penny goes into. */
+.mouth {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  width: 5px;
+  height: 22px;
+  margin-top: -12px;
+  border-radius: 3px;
+  background: #3a1c10;
+  box-shadow: inset 1px 1px 2px #000, 0 0 0 2px var(--brass), 0 0 0 3px #705022;
+}
+
+.lever.pressed { transform: rotate(-.6deg) translate(1px, 2px); box-shadow: var(--pasted); }
+
+.lever.refused { animation: refuse .32s ease-out; }
+
+@keyframes refuse {
+  25% { transform: rotate(-.6deg) translateX(-5px); }
+  50% { transform: rotate(-.6deg) translateX(4px); }
+  75% { transform: rotate(-.6deg) translateX(-2px); }
+}
+
+/* The spent penny, drawn over its empty place: it spins up and across, and goes into
+   the slot edge on. --dx is the distance to the slot, measured when the penny drops. */
+.fall { position: absolute; inset: -1px; z-index: 2; }
+
+.fall.going { animation: penny-in .36s both; }
+
+@keyframes penny-in {
+  0% { transform: translate(0, 0) rotateY(0deg); animation-timing-function: cubic-bezier(.2, .6, .5, 1); }
+  52% { transform: translate(calc(var(--dx, 60px) * .5), -24px) rotateY(450deg); animation-timing-function: cubic-bezier(.5, 0, .9, .6); }
+  94% { transform: translate(var(--dx, 60px), 0) rotateY(810deg); opacity: 1; }
+  100% { transform: translate(var(--dx, 60px), 0) rotateY(810deg); opacity: 0; }
+}
+
+/* Until its turn, a plate's new mark waits. The machine's remark and the new line in
+   the log take no room until the penny is weighed, so nothing moves before the result. */
+.judging .plate:not(.stamped) .flag { visibility: hidden; }
+
+.judging .status, .judging .log li:last-child { display: none; }
+
+.plate.locks .flag, .plate.jolts .flag { transform-origin: 100% 50%; animation: stamp .3s cubic-bezier(.2, 1.6, .4, 1) both; }
+
+@keyframes stamp { from { transform: scale(2.4) rotate(-9deg); opacity: 0; } }
+
+.plate.jolts { animation: jolt .34s ease-out; }
+
+@keyframes jolt {
+  18% { transform: translateX(-5px) rotate(var(--tilt)); }
+  40% { transform: translateX(4px) rotate(var(--tilt)); }
+  62% { transform: translateX(-3px) rotate(var(--tilt)); }
+  82% { transform: translateX(2px) rotate(var(--tilt)); }
+}
+
+/* A plate with nothing wrong: its tiles are pressed home one after another. */
+.plate.locks .slot { --r: 0deg; box-shadow: none; animation: press .36s ease-out calc(var(--n, 0) * 45ms) both; }
+
+@keyframes press {
+  0%, 100% { transform: scale(1); filter: none; }
+  40% { transform: scale(1.14); filter: brightness(1.16); }
+}
+
+/* The cogs try to turn and spring back; the scene shakes with them. */
+.lurch .cog { animation: lurch .48s cubic-bezier(.3, 0, .3, 1) both; }
+
+@keyframes lurch {
+  0%, 100% { transform: rotate(0deg); }
+  55% { transform: rotate(calc(var(--d) * 58deg)); }
+  70% { transform: rotate(calc(var(--d) * 50deg)); }
+}
+
+.lurch .scene { animation: shudder .4s ease-out; }
+
+@keyframes shudder {
+  20% { transform: translate(1.5px, -1px); }
+  45% { transform: translate(-1.5px, 1px); }
+  70% { transform: translate(1px, 0); }
+}
+
+/* ---------- tiles in the hand ---------- */
+
+.flights { position: fixed; inset: 0; z-index: 30; pointer-events: none; }
+
+.ghost { position: fixed; display: grid; place-items: center; margin: 0; }
+
+/* A gap whose tile is still on its way shows its empty recess. */
+.slot.incoming {
+  color: transparent;
+  border-color: rgba(75, 50, 30, .46);
+  background: color-mix(in srgb, var(--k) 17%, var(--sheet));
+  box-shadow: inset 1px 2px 2px rgba(63, 38, 20, .19), 0 1px 0 var(--cut-edge);
+  transform: none;
+}
+
+.slot.landed { animation: seat .24s cubic-bezier(.2, 1.5, .4, 1); }
+
+@keyframes seat { from { transform: scale(1.16) rotate(calc(var(--r, 0deg) - 3deg)); } }
+
+/* "Fill every gap first": the empty gaps show themselves. */
+.slot.nudge { animation: nudge .5s ease-out; }
+
+@keyframes nudge { 30% { transform: scale(1.1); box-shadow: 0 0 0 3px var(--red); } }
+
+.got i { animation-delay: calc(.12s + var(--n, 0) * 90ms); }
+
+/* ---------- the dolls answer a finger ---------- */
+
+.scene .poked, .scene .poked-flat { transform-box: fill-box; }
+
+.scene .poked { transform-origin: 50% 100%; animation: wobble .8s cubic-bezier(.3, 0, .3, 1); }
+
+.scene .poked-flat { transform-origin: 50% 50%; animation: hop .5s ease-out; }
+
+@keyframes wobble {
+  14% { transform: rotate(-8deg); }
+  34% { transform: rotate(6deg); }
+  54% { transform: rotate(-3.5deg); }
+  74% { transform: rotate(1.8deg); }
+  90% { transform: rotate(-.6deg); }
+}
+
+@keyframes hop {
+  25% { transform: translateY(-4px) rotate(-2deg); }
+  55% { transform: translateY(0) rotate(1.5deg); }
+  80% { transform: rotate(-.6deg); }
+}
+
+/* ---------- the machine runs ---------- */
+
+/* Scraps of the tiles' paper falling through the window. */
+.confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+
+.confetti i {
+  position: absolute;
+  top: -6%;
+  left: var(--x);
+  width: var(--w);
+  height: var(--h);
+  background: var(--tint);
+  box-shadow: 0 0 0 .6px rgba(43, 27, 23, .55);
+  border-radius: 1px 2px 1px 2px;
+  animation: flutter var(--t) linear var(--delay) both;
+}
+
+@keyframes flutter {
+  from { transform: translate(0, 0) rotate(0deg) rotateX(0deg); }
+  to { transform: translate(var(--drift), var(--fall)) rotate(var(--turn)) rotateX(900deg); }
+}
+
+/* A sign let down on a string over the doll the story names. */
+.guilty { position: absolute; top: 0; width: 0; pointer-events: none; animation: sign-drop .7s cubic-bezier(.3, 1.35, .5, 1) .45s both; }
+
+.hang { position: absolute; inset: 0; transform-origin: 50% 0; animation: sign-sway 3.6s ease-in-out 1.15s infinite; }
+
+.hang::before { content: ''; position: absolute; left: -.5px; top: 0; bottom: 0; width: 1px; background: var(--ink); }
+
+.hang b {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  padding: 0 7px 2px;
+  transform: translate(-50%, -3px) rotate(-3deg);
+  border-radius: 2px 4px 2px 3px;
+  background: var(--red);
+  box-shadow: 0 0 0 1.5px var(--paper), 1.5px 3px 1px var(--cast);
+  color: var(--paper);
+  font: 400 12px/1.35 var(--show);
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+@keyframes sign-drop { from { transform: translateY(-115%); } }
+
+@keyframes sign-sway {
+  0%, 50%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(2.4deg); }
+  75% { transform: rotate(-2.4deg); }
+}
+
+/* ---------- the record ---------- */
+
+.figures { display: flex; justify-content: center; gap: 20px; margin: 10px 0 0; }
+
+.figures div { display: grid; gap: 1px; }
+
+.figures dt { font-family: var(--cut); font-weight: 700; font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--red-dark); }
+
+.figures dd { margin: 0; font-family: var(--show); font-size: 25px; line-height: 1; font-variant-numeric: lining-nums; }
+
+.figures small { font-family: var(--body); font-size: 12px; font-weight: 600; }
+
+.next { margin-top: 10px; font-size: 14px; font-style: italic; }
+
+.next b { font-style: normal; font-weight: 700; font-variant-numeric: lining-nums tabular-nums; }
+
+.next button { font-style: normal; }
+
+.tally { list-style: none; margin: 0 auto 6px; padding: 0; max-width: 250px; display: grid; gap: 4px; }
+
+.tally li { display: grid; grid-template-columns: 14px 1fr; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; font-variant-numeric: lining-nums; }
+
+.tally i {
+  box-sizing: border-box;
+  min-width: 24px;
+  width: var(--w);
+  height: 19px;
+  padding: 0 7px 0 0;
+  border-radius: 2px 4px 2px 3px;
+  background: var(--teal-deep);
+  box-shadow: var(--pasted);
+  color: var(--paper);
+  font-style: normal;
+  line-height: 18px;
+  text-align: right;
+}
+
+.tally .now i { background: var(--red-dark); }
+
+.record-line { margin-top: 3px; font-size: 13.5px; font-style: italic; text-align: center; }
+
+#sound[aria-pressed="false"] { background: var(--cream); color: var(--wood-dark); }
