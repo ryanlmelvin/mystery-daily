@@ -1,3 +1,5 @@
+// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// SPDX-License-Identifier: GPL-3.0-only
 // The planted note: a left-handed man with a pen in his right hand.
 export default {
   id: 'study',

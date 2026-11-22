@@ -1,3 +1,5 @@
+// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// SPDX-License-Identifier: GPL-3.0-only
 // The cabinet front: window, numbered tags, brass plates, tile tray and coin lever.
 // All rules live in engine.js; this file draws the state and turns taps into moves.
 

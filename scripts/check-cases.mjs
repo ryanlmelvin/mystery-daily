@@ -1,3 +1,5 @@
+// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// SPDX-License-Identifier: GPL-3.0-only
 // Check every case against the rules in src/lint.js and print its size.
 import { CASES } from '../src/cases/index.js';
 import { lintCase } from '../src/lint.js';

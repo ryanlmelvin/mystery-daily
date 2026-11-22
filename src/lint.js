@@ -1,3 +1,5 @@
+// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// SPDX-License-Identifier: GPL-3.0-only
 // The case checker. It does not prove a mystery has one answer: it checks that a case is
 // well formed, that the author's chain of deductions reaches every blank, that no exhibit
 // is dead weight, and that the case fits the five-minute size budget.

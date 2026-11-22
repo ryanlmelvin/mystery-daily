@@ -1,3 +1,5 @@
+// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// SPDX-License-Identifier: GPL-3.0-only
 // The five cabinets. Each scene paints itself back to front and says where the
 // numbered inspection tags sit, keyed by exhibit id.
 

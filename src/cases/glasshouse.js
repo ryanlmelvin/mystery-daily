@@ -1,3 +1,5 @@
+// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// SPDX-License-Identifier: GPL-3.0-only
 // The thief dressed to leave, and the tool that fits the wound.
 export default {
   id: 'glasshouse',

@@ -97,6 +97,14 @@ Fonts are Abril Fatface (signs), Fraunces (text), Cinzel (engraving) and Caveat
   with the lever in view; larger cases scroll a little to reach the lever. Check both
   when changing the layout.
 
+## Licence
+
+The project is GPL-3.0-only (`LICENSE`, and `license` in `package.json`). New source
+files (`src`, `tests`, `scripts`) start with the copyright line and
+`SPDX-License-Identifier: GPL-3.0-only`, as the existing ones do. Original drawings and
+text only; anything bundled from elsewhere needs a compatible licence and its notice in
+`public/licenses/`.
+
 ## Publishing
 
 Publishing is a push to `main`: `.github/workflows/deploy.yml` runs `npm test` and

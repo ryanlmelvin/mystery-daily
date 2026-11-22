@@ -1,3 +1,5 @@
+// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// SPDX-License-Identifier: GPL-3.0-only
 // The rules of one cabinet, with no DOM and no clock of its own: every function takes
 // the case, the saved state and (where time matters) the current time in milliseconds.
 

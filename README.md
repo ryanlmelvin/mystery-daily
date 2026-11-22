@@ -65,11 +65,12 @@ Open http://127.0.0.1:4331. `npm test` runs the rules and case tests, and
 Push to `main`. `.github/workflows/deploy.yml` runs the tests, builds, and deploys `dist/`
 to GitHub Pages. Asset paths are relative, so the site works under the project path.
 
-## Credits
+## License
 
-Drawings are original SVG built in code. Fonts are Abril Fatface, Fraunces, Cinzel and
-Caveat, each under the SIL Open Font License 1.1; their notices ship in
-`public/licenses/`.
+Copyright © 2026 Ryan L. Melvin. Source, cases and original drawings are licensed under
+**GNU GPL version 3 only**; see [LICENSE](LICENSE). The drawings are original SVG built in
+code. The fonts are Abril Fatface, Fraunces, Cinzel and Caveat, each under the SIL Open
+Font License 1.1; their notices ship in `public/licenses/`.
 
 [AGENTS.md](AGENTS.md) has the architecture, the rules for writing a case, and the art
 direction.

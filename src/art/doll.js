@@ -1,3 +1,5 @@
+// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// SPDX-License-Identifier: GPL-3.0-only
 // The cast: turned wooden automaton dolls with painted faces and riveted arms.
 // A doll is drawn in its own space, base at the origin, head up the negative y axis,
 // about 105 units tall before its hat: a third of that is head, as on a peg doll. Everything a clue relies on (cap, apron, crown, whiskers)

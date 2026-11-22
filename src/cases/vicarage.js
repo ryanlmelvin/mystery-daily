@@ -1,3 +1,5 @@
+// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// SPDX-License-Identifier: GPL-3.0-only
 // Monday-sized: two men in the same collar, and a herbal that names the poison.
 export default {
   id: 'vicarage',

@@ -1,3 +1,5 @@
+// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// SPDX-License-Identifier: GPL-3.0-only
 // The strip of brass cogs under the cabinet window. They twitch while the machine is
 // jammed and spin once the plates are right (see .cog in style.css).
 

@@ -1,3 +1,5 @@
+// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// SPDX-License-Identifier: GPL-3.0-only
 // Which cabinet is today's. One edition per UTC day, the same for everyone.
 import { CASES } from './cases/index.js';
 

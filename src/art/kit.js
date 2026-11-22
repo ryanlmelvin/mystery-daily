@@ -1,3 +1,5 @@
+// Penny Tableau — Copyright (C) 2026 Ryan L. Melvin
+// SPDX-License-Identifier: GPL-3.0-only
 // Paint box and drawing primitives for the cabinet scenes.
 // Every helper returns SVG markup; a scene is a string of them, painted back to front.
 // The look: turned and painted wooden toys. Flat enamel colours, one warm outline,
