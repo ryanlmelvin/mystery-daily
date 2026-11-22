@@ -211,6 +211,11 @@ succeeded. Do not stop to ask whether to commit or publish.
 Other sessions push to `main` too. Fetch and rebase onto `origin/main` before pushing,
 and never force-push.
 
+Another session may be working in this same folder at the same moment. Run
+`git status` before committing and stage only the files you changed, by name (never
+`git add -A`). Do not stash, restore or discard a change you did not make; if someone
+else's uncommitted change blocks a rebase, leave it and try again once it is committed.
+
 Publishing is a push to `main`: `.github/workflows/deploy.yml` runs `npm test` and
 `npm run build`, then deploys `dist/` to GitHub Pages. `dist/` is never committed. The
 live site is https://ryanlmelvin.github.io/mystery-daily/.
