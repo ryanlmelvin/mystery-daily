@@ -78,7 +78,7 @@ const SCENES = {
     }
   },
   glasshouse: {
-    pins: { body: [236, 262], wagebook: [51, 160], maid: [146, 188], youth: [316, 94], letter: [316, 192], bag: [360, 236], stand: [226, 152], tools: [385, 158] },
+    pins: { body: [236, 262], wagebook: [51, 160], maid: [146, 188], youth: [340, 112], letter: [316, 192], bag: [360, 236], stand: [226, 152], tools: [385, 158] },
     draw() {
       let s = P.glasshouse();
       s += P.pot(112, 196, 8, 'tall') + P.pot(190, 196, 7, 'fern') + P.pot(270, 196, 8, 'bush');

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // The cast: cut-paper automaton dolls, printed faces, arms pinned at shoulder and elbow.
 // A doll is drawn in its own space, base at the origin, head up the negative y axis,
-// about 105 units tall before its hat: a third of that is head, as on a peg doll. Everything a clue relies on (cap, apron, crown, whiskers)
+// about 110 units tall before its hat, a fifth of that head, as a person stands. Everything a clue relies on (cap, apron, crown, whiskers)
 // is a named option here, so a case can describe its cast in data.
 
 import { C, SKIN, rect, ell, circ, path, line, dot, bar, g, sway, gloss, shadow, shade } from './kit.js';
@@ -57,19 +57,25 @@ const thin = `stroke="${C.ink}" stroke-width=".8"`;
 // A brass split pin through both pieces, its slit across the head.
 const rivet = (x, y) => dot(x, y, 2, C.brass, thin) + line(`M${x - 1.2} ${y} h2.4`, 0.6, C.brassDark);
 
-// A riveted paddle arm: shoulder at the origin, elbow part way down, a ball for a hand.
+// A jointed arm: shoulder at the origin, a split pin at the elbow, a ball for a hand.
 function arm(side, [a1, a2], sleeve, skin, held, wave) {
   const fore =
-    rect(-3.4, -2, 6.8, 16, sleeve, 3.4) +
-    circ(0, 15.5, 4.3, skin) +
-    (held ? g(`translate(0,18) rotate(${side * (a1 + a2)})`, held) : '');
+    rect(-2.8, -2, 5.6, 20, sleeve, 2.8) +
+    circ(0, 19.5, 3.8, skin) +
+    (held ? g(`translate(0,22) rotate(${side * (a1 + a2)})`, held) : '');
   let inner =
-    rect(-3.9, -3, 7.8, 18, sleeve, 3.9) +
-    g(`translate(0,13.5) rotate(${-side * a2})`, fore + rivet(0, 0)) +
+    rect(-3.3, -3, 6.6, 23, sleeve, 3.3) +
+    g(`translate(0,18) rotate(${-side * a2})`, fore + rivet(0, 0)) +
     rivet(0, 0);
   if (wave) inner = sway(inner, wave[0], wave[1], wave[2], wave[3] || 0);
   return g(`translate(${side * 15.5},-55) rotate(${-side * a1})`, inner);
 }
+
+// How much taller than the old peg doll the body stands, how much slimmer, and the head's scale.
+const LIFT = 18;
+const SIT_LIFT = 6;
+const SLIM = 0.88;
+const HEAD = 0.92;
 
 const HEADS = { egg: [12.5, 14.5], ball: [13.5, 13.5], long: [10.5, 16], wide: [15, 12.5] };
 
@@ -243,11 +249,11 @@ function lower(d) {
     line('M-12 -0.6 Q0 2.4 12 -0.6', 0.9, C.wood);
   const shoes = ell(-6.6, -5, 6.4, 3.3, C.black) + ell(6.6, -5, 6.4, 3.3, C.black);
   if (d.body === 'robe') {
-    let s = base + path('M-23 -5 L-15 -46 Q-15 -62 -6 -64 L6 -64 Q15 -62 15 -46 L23 -5 Q0 -1 -23 -5Z', p);
-    s += rect(-5, -60, 10, 56, d.trim, 0);
-    for (let y = -52; y < -10; y += 11) s += line(`M-1.6 ${y} l3.2 3.4`, 1.6);
-    s += path('M-14.6 -59 Q0 -50 14.6 -59 L15.2 -50 Q0 -39 -15.2 -50Z', d.trim) + line('M-8 -51 l2 3 M-1 -48 l2 3 M7 -51 l2 3', 1.5);
-    return s;
+    let r = path('M-23 -5 L-15 -46 Q-15 -62 -6 -64 L6 -64 Q15 -62 15 -46 L23 -5 Q0 -1 -23 -5Z', p);
+    r += rect(-5, -60, 10, 56, d.trim, 0);
+    for (let y = -52; y < -10; y += 11) r += line(`M-1.6 ${y} l3.2 3.4`, 1.6);
+    r += path('M-14.6 -59 Q0 -50 14.6 -59 L15.2 -50 Q0 -39 -15.2 -50Z', d.trim) + line('M-8 -51 l2 3 M-1 -48 l2 3 M7 -51 l2 3', 1.5);
+    return base + g(`scale(1,${((64 + LIFT) / 64).toFixed(3)})`, r);
   }
   if (d.body === 'dress') {
     const fold = shade(p, -0.25);
@@ -255,14 +261,14 @@ function lower(d) {
       return path('M-13 -30 L13 -30 Q26 -20 22 -5 Q0 -1 -22 -5 Q-26 -20 -13 -30Z', p) +
         (d.apron ? path('M-8.5 -30 L8.5 -30 L12 -8 Q0 -5.5 -12 -8Z', C.white) : line('M-6 -25 Q-9 -16 -9.5 -7 M6 -25 Q9 -16 9.5 -7', 1, fold));
     }
-    return base + path('M-11.5 -42 L11.5 -42 Q25 -28 23 -5 Q0 -1 -23 -5 Q-25 -28 -11.5 -42Z', p) +
-      (d.apron ? path('M-8 -42 L8 -42 L13 -8 Q0 -5.5 -13 -8Z', C.white) : line('M-6 -36 Q-9 -22 -10 -7 M6 -36 Q9 -22 10 -7', 1, fold));
+    return base + path('M-11.5 -60 L11.5 -60 Q26 -36 24 -5 Q0 -1 -24 -5 Q-26 -36 -11.5 -60Z', p) +
+      (d.apron ? path('M-8 -60 L8 -60 L14 -8 Q0 -5.5 -14 -8Z', C.white) : line('M-6 -53 Q-10 -30 -11 -7 M6 -53 Q10 -30 11 -7', 1, fold));
   }
   if (d.sit) {
     return rect(-11, -22, 8, 17, d.legs, 3) + rect(3, -22, 8, 17, d.legs, 3) +
       ell(-7, -4.5, 6.4, 3.3, C.black) + ell(7, -4.5, 6.4, 3.3, C.black);
   }
-  return base + path('M-14.8 -28 L14.8 -28 L14 -5 Q0 -2 -14 -5Z', d.legs) + line('M0 -27 V-4', 1, shade(d.legs, -0.4)) + shoes;
+  return base + path('M-14.6 -47 L14.6 -47 L13.6 -5 L1.6 -5 L0 -30 L-1.6 -5 L-13.6 -5Z', d.legs) + shoes;
 }
 
 export function doll(opts) {
@@ -282,10 +288,13 @@ export function doll(opts) {
     arm(-d.dir, pose.off, sleeve, d.skin, null, null) +
     arm(d.dir, pose.act, sleeve, d.skin, d.hold, d.wave) +
     (d.carry ? d.carry : '') +
-    g(`translate(0,-64) rotate(${tilt}) scale(1.32)`, headSvg);
+    g(`translate(0,-64) rotate(${tilt}) scale(${(HEAD / SLIM).toFixed(3)},${HEAD})`, headSvg);
   const knees = d.sit && d.body !== 'dress' ? circ(-7, -23, 6.6, d.legs) + circ(7, -23, 6.6, d.legs) : '';
 
-  let body = lower(d) + g(`translate(0,${d.sit ? 12 : 0}) rotate(${slumped ? d.dir * 8 : 0} 0 -28)`, top) + knees;
+  // Human proportions: the body stands LIFT taller than the old peg doll and a little
+  // slimmer, and the head is about a fifth of the whole.
+  const rise = d.sit ? 12 - SIT_LIFT : -LIFT;
+  let body = g(`scale(${SLIM},1)`, lower(d) + g(`translate(0,${rise}) rotate(${slumped ? d.dir * 8 : 0} 0 -28)`, top) + knees);
   if (d.rock) body = sway(body, d.rock[0], d.rock[1], d.rock[2], d.rock[3] || 0);
 
   if (fallen) return g(`translate(${d.x},${d.y - 16}) rotate(${d.dir * 90}) scale(${d.s})`, body);

@@ -173,7 +173,7 @@ with costumes fixed by trade.
 
 The look is a Victorian penny-in-the-slot working model, cut from printed card: a scene
 of jointed paper dolls in the manner of engraved cut-out collage, in bright hand-tinted
-colours. Big egg heads with engraved faces (almond eyes, a lid line, a nose stroke,
+colours. Human proportions: egg heads about a fifth of the figure, with engraved faces (almond eyes, a lid line, a nose stroke,
 hatching down the shadowed cheek), arms fixed at shoulder and elbow with brass split
 pins, round bases in floor slots, a sprung coil on any doll that has stopped for good.
 Every outlined shape is a cut piece: a white scissor margin, a short crisp shadow on
