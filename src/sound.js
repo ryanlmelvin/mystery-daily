@@ -8,7 +8,7 @@ let ctx = null;
 let out = null; // every voice ends here: the master volume
 let bus = null; // long sounds (the tune) pass through this, so leaving can hush them
 let hiss = null; // one second of white noise, shared by every burst
-let enabled = true;
+let enabled = false; // the cabinet is quiet until the player switches sound on
 
 export const soundOn = () => enabled;
 

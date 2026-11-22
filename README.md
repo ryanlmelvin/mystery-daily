@@ -18,11 +18,14 @@ moment of a death. Nothing is explained. You work out who everyone is and what h
 Looking costs nothing. Each tip you take adds one mark to your playbill. You can reread
 your tips for free. Win or lose, the cabinet then shows how it was done.
 
-The cabinet answers back. The penny rings into its slot, the cogs strain, and each plate
-is marked in turn; tap to skip ahead. Solve it and the machine runs: the cogs turn, a
-musical box plays, and a sign drops over the guilty doll. Flick a doll and it rocks on
-its base. The sounds are made in the browser, with no recordings, and **Sound** in the
-**?** menu turns them off.
+The cabinet answers back. The penny spins into its slot, the cogs strain, and each plate
+is marked in turn; tap to skip ahead. Solve it and the machine runs: the cogs turn,
+scraps of paper fall, and a sign drops over the guilty doll. Flick a doll and it rocks
+on its base.
+
+The cabinet is quiet until you switch on **Sound** in the **?** menu. Then the penny
+rings, a bell marks a plate that locks, and a musical box plays when the machine runs.
+The sounds are made in the browser, with no recordings.
 
 After a case, **Share playbill** opens your device’s share sheet. If sharing is
 unavailable, you can copy the result by hand. Each row shows one penny, with the

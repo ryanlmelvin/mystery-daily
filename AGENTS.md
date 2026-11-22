@@ -250,7 +250,8 @@ ink. Fonts are Abril Fatface (signs), Fraunces (text), Cinzel (engraving) and Ca
   flicked, the lever shakes its head at a penny it will not take. None of it carries a
   clue, and none of it adds a standing element to the play screen.
 - Sound only ever answers something the player did; the cabinet is silent when left
-  alone. It is on by default and the menu has the switch (`penny:v1:sound`). A new sound
+  alone. It is off until the player switches it on in the menu (`penny:v1:sound`), and
+  the short buzz on a phone follows the same switch. A new sound
   is a recipe in `SOUNDS` in `src/sound.js`. Check its level by rendering it through an
   `OfflineAudioContext`: a peak near a quarter of full scale is the loudest any sound
   should be, and there is no compressor to catch a mistake.

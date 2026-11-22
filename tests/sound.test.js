@@ -41,6 +41,19 @@ function fakeContext() {
 
 const reaches = (from, dest) => { for (let n = from, hops = 0; n && hops < 8; n = n.to, hops++) if (n === dest) return true; return false; };
 
+test('the cabinet is quiet until sound is switched on', async () => {
+  // A copy of the module that nothing has switched yet.
+  const fresh = await import('../src/sound.js?untouched');
+  const { ctx, log } = fakeContext();
+  fresh.attach(ctx);
+  assert.equal(fresh.soundOn(), false);
+  assert.equal(fresh.play('coin'), false);
+  assert.equal(fresh.wake(), null, 'no audio is set up for a player who never asked for it');
+  assert.equal(log.voices.length, 0);
+  fresh.setSound(true);
+  assert.equal(fresh.play('coin'), true);
+});
+
 test('every sound is a valid schedule that reaches the speaker', () => {
   setSound(true);
   for (const name of soundNames) {

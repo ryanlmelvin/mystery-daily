@@ -1087,7 +1087,8 @@ setInterval(() => {
   el.textContent = R.countdown(R.untilNext(Date.now()));
 }, 1000);
 
-Sound.setSound(read('sound') !== 0);
+// Sound starts off (see sound.js). It is on only for a player who switched it on.
+if (read('sound') === 1) Sound.setSound(true);
 window.addEventListener('popstate', () => loadLocation());
 // The slip's width changes with the screen, and the title's with its font once loaded.
 window.addEventListener('resize', fitTitle);
