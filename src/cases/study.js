@@ -51,9 +51,9 @@ export default {
       id: 'bellpull',
       title: 'Bell-pull by the fire',
       facts: [
-        ['makes', 'bell-pull', 'red weal', 'The cord of the $thing has been cut off short, and the cut is fresh.'],
+        ['makes', 'bell-pull', 'red weal', 'The cord of the $thing is cut off short, the cut fresh.'],
         ['makes', 'curtain cord', 'red weal', 'By the window, the $thing'],
-        ['untouched', 'curtain cord', 'hangs whole.']
+        ['untouched', 'curtain cord', 'hangs whole, furred with dust.']
       ]
     },
     {
@@ -84,7 +84,8 @@ export default {
       title: 'The gentleman with the bag',
       facts: [
         ['makes', 'necktie', 'red weal', 'His $thing'],
-        ['untouched', 'necktie', 'is neatly knotted.'],
+        // Knotted again proves nothing. Silk wrung round a neck stays wrung.
+        ['untouched', 'necktie', 'is uncreased silk.'],
         ['tag', 'bag', { surname: 'Pym' }, 'His brief-bag is stamped $name & $name.'],
         ['fits', 'bag', 'solicitor', 'Inside, a seal and a spare copy of the {will}.']
       ]
@@ -99,13 +100,13 @@ export default {
     { how: 'Family likeness', from: ['portrait', 'nephew', 'will'], gives: [1], say: 'The young man has the Hale whiskers: he is the nephew, Felix Hale.' },
     { how: 'Trade', from: ['secretary', 'will'], gives: [2], say: 'Shorthand notebook and the day\'s appointments: the secretary, Agnes Wren.' },
     { how: 'A name on a bag', from: ['bag', 'will'], gives: [3], say: 'The brief-bag is stamped Pym & Pym, and Mr Pym drew up the will.' },
-    { how: 'Fit', from: ['uncle', 'bellpull', 'nephew', 'bag'], gives: [5], say: 'A weal around the neck, a bell-pull freshly cut, and a coil of tasselled cord in Felix\'s pocket. The curtain cord and the necktie are untouched.' },
+    { how: 'Fit', from: ['uncle', 'bellpull', 'nephew', 'bag'], gives: [5], say: 'A weal around the neck, a bell-pull freshly cut, and a coil of tasselled cord in Felix\'s pocket. The curtain cord hangs whole under its dust, and the solicitor\'s silk necktie has not a crease.' },
     { how: 'The wrong hand', from: ['uncle', 'note', 'nephew'], gives: [4, 6], say: 'He wrote with his left: the cuff, the inkwell. The pen is in his right, the ink is wet, and Felix\'s right fingers are inked. Felix wrote the note, and it names Wren.' },
     { how: 'Motive', from: ['will', 'secretary'], gives: [7], say: 'At three the new will would be signed and Felix would have nothing.' }
   ],
   traps: [
     { word: 'Agnes Wren', from: ['note'], against: ['uncle', 'will'], say: 'The note is forged, and Miss Wren gains everything once the will is signed. She needed him alive until three.' },
-    { word: 'necktie', from: ['bag'], against: ['bellpull'], say: 'The necktie is neatly knotted; the bell-pull is the cord that was cut.' }
+    { word: 'necktie', from: ['bag'], against: ['bag', 'bellpull'], say: 'Silk pulled tight round a neck stays wrung, and his necktie has not a crease. The bell-pull is the cord that was cut.' }
   ],
   tips: [
     'Which hand did the old gentleman write with?',

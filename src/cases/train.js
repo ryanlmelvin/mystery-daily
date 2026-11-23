@@ -47,16 +47,18 @@ export default {
       facts: [
         ['wants', { surname: 'Quill' }, 'ledger', "hand: Marsh: the Dunmore books are £400 short, all of it on $who's rounds."],
         ['taken', 'ledger', 'hand: Put the $thing in front of him at {Kelling}. | The briefcase has been rifled.'],
-        ['makes', 'paper-knife', 'narrow wound', 'A silver $thing lies in it,'],
-        ['untouched', 'paper-knife', 'clean.']
+        ['makes', 'paper-knife', 'narrow wound', 'A $thing lies in it,'],
+        ['untouched', 'paper-knife', 'rusted into its sheath.']
       ]
     },
     {
       id: 'lady',
       title: 'The lady in the corner seat',
       facts: [
+        // The pins are hers, so they got on where she did. Where they sit clears nothing:
+        // a pin can be put back. The timetable clears them.
         ['makes', 'hatpin', 'narrow wound', 'Travelling cloak. Two pearl $thing[hatpins],'],
-        ['untouched', 'hatpin', 'both still in her hat.'],
+        ['has', 'lady', 'hatpin', 'both in her hat.'],
         ['fits', 'lady', 'plume', 'Fine wire splints a break in her hat feather.'],
         ['boarded', 'lady', 'Ashby', 'Her ticket: | print: $place to {Kelling}. First class.']
       ]
@@ -83,8 +85,8 @@ export default {
       title: 'Sample case on the rack',
       facts: [
         ['owner', 'sample case', { full: 'Barnaby Quill' }, 'cut: $name. Dunmore & Sons, cutlers.'],
-        ['makes', 'carving knife', 'narrow wound', 'Twelve slots for $thing[carving knives].'],
-        ['has', 'Barnaby Quill', 'carving knife', 'One slot is empty.']
+        ['makes', 'carving knife', 'narrow wound', 'Eleven narrow $thing[carving knives].'],
+        ['has', 'Barnaby Quill', 'carving knife', 'The twelfth slot is empty.']
       ]
     }
   ],
@@ -97,11 +99,12 @@ export default {
     { how: 'A milliner’s repair', from: ['hatbox', 'lady'], gives: [1], say: 'Wire splints the feather on her hat. The milliner mended Lavinia Stroud’s plume and reshaped Dora Bly’s brim.' },
     { how: 'A name on a case', from: ['samples', 'traveller', 'letter'], gives: [2], say: "He carries the key to a sample case, and the case on the rack belongs to Barnaby Quill. The missing money is on Quill's rounds." },
     { how: 'Alibi', from: ['victim', 'timetable', 'lady', 'traveller'], gives: [6, 3], say: 'The watch stopped at 9.02, after Thorne and before Ashby. The lady only boarded at Ashby; Quill has been aboard since Marrow.' },
-    { how: 'Fit', from: ['victim', 'samples', 'lady', 'letter'], gives: [5], say: 'A narrow wound, and one carving knife missing from twelve. Both hatpins are in her hat and the paper-knife is clean.' },
+    { how: 'Fit', from: ['victim', 'samples', 'letter', 'lady', 'timetable'], gives: [5], say: "A narrow wound, and one narrow carving knife gone from Quill's twelve. The paper-knife is rusted into its sheath, and the hatpins came aboard with the lady at Ashby." },
     { how: 'Motive', from: ['letter', 'traveller'], gives: [7], say: 'Marsh carried the ledger that would ruin Quill. It is under Quill\'s coat now.' }
   ],
   traps: [
-    { word: 'hatpin', from: ['lady'], against: ['lady', 'timetable'], say: 'Both hatpins are still in her hat, and she was not yet on the train.' },
+    { word: 'hatpin', from: ['lady'], against: ['victim', 'timetable', 'lady'], say: 'A hatpin would leave that wound, but hers came aboard with her at Ashby, eight minutes after his watch stopped.' },
+    { word: 'paper-knife', from: ['letter'], against: ['letter'], say: 'The paper-knife is rusted into its sheath. Nobody drew it tonight.' },
     { word: 'Kelling', from: ['timetable'], against: ['victim'], say: 'Kelling was the end of the line. At 9.02 the train still had Ashby to call at first.' }
   ],
   tips: [

@@ -29,10 +29,11 @@ const DID = {
 // ...and as what clears a tempting wrong answer (each completes "..., but ...").
 const CLEARS = {
   'the dead did not do it': 'the dead did not do it',
-  'plainly untouched': 'it was plainly untouched',
+  'plainly untouched': 'it could not have been used',
   'an innocent reason': 'that is accounted for',
   'nobody poisons his own': 'nobody poisons his own',
   'not yet aboard': 'they were not yet aboard',
+  'came aboard too late': 'it only came aboard after the death',
   'the scene was staged': 'the scene was staged',
   'it only fits another story': 'that only fits a story the rest rules out'
 };
@@ -58,6 +59,15 @@ export function explain(c) {
     const written = lines.filter(([style]) => ['hand', 'print', 'cut'].includes(style));
     const words = written.map(([, line]) => segments(line).map((p) => p.text).join('')).join(' ');
     return words ? `The paper reads “${words}”` : '';
+  };
+
+  // What the cabinet shows of a thing that was not used: the sentence on its tag. A player
+  // should no more have to take "untouched" on trust than what a paper says.
+  const seen = (word) => {
+    const ex = c.exhibits.find((e) => e.facts.some(([type, thing]) => type === 'untouched' && thing === word));
+    if (!ex) return '';
+    const text = tellExhibit(c, ex).lines.map(([, line]) => segments(line).map((p) => p.text).join('')).join(' ');
+    return text.split(/(?<=[.!?])\s+/).find((sentence) => sentence.includes(word)) || '';
   };
 
   // What someone did, said with the thing itself where the rule rests on one.
@@ -147,6 +157,8 @@ export function explain(c) {
       say = uniq(clauses).join('. ');
     } else if (t.role === 'means') {
       say = `${cap(the(t.value))} would leave that mark too, but ${list(t.how.map((h) => CLEARS[h] || h))}`;
+      const shown = t.ruled.includes('plainly untouched') ? seen(t.value) : '';
+      if (shown) say += `: “${shown}”`;
     } else if (t.role === 'motive') {
       // One receipt can clear both a person and their apparent motive. The culprit
       // entry above names both, using the very same fact and sources from the proof.

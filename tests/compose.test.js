@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { composeDay, composedId, gate, crimeOf, SETTING_IDS, COMPOSER } from '../src/compose.js';
 import { caseById, reviewCases, CASES } from '../src/cases/index.js';
-import { tellExhibit } from '../src/tell.js';
+import { tellExhibit, told } from '../src/tell.js';
 import { proveCase } from '../src/logic.js';
 import { sceneFocus, scenePins, sceneSvg } from '../src/art/scenes.js';
 import * as E from '../src/engine.js';
@@ -160,6 +160,29 @@ test('either thief can use either wall tool or the thing they carry, with the sa
   for (const positions of Object.values(sources)) assert.deepEqual(positions, new Set([0, 1, 'carried']));
   assert.deepEqual(used, untouched);
   assert.deepEqual(carried, new Set(['lamp', 'lantern', 'rolling pin', 'cane', 'parasol']));
+});
+
+// The gate holds every "not used" line to showing why the thing cannot have been used
+// (tell.js). A weak line could still hide in a combination the year never draws, so check
+// that each thing the lists can leave idle does turn up idle, and that the gate would
+// have refused it had it only looked clean.
+test('everything the lists can leave unused is seen unused, and must say why', () => {
+  const idle = new Set();
+  for (let i = 0; i < RUN; i++) {
+    for (const ex of composeDay(dateAt(i)).exhibits) for (const [type, word] of ex.facts) if (type === 'untouched') idle.add(word);
+  }
+  assert.deepEqual([...idle].sort(), [
+    'arsenic', 'bookend', 'candlestick', 'cane', 'carving knife', 'coral cameo', 'corkscrew', 'decanter', 'hoe', 'jet brooch',
+    'lamp', 'lantern', 'laudanum', 'paperweight', 'parasol', 'pearl star', 'poker', 'prussic acid', 'rake', 'rat poison',
+    'rolling pin', 'shears', 'spade', 'strychnine', 'tongs', 'weed-killer'
+  ]);
+
+  const c = structuredClone(composeDay('2026-11-27'));
+  const unused = c.exhibits.find((ex) => ex.id === 'tools').facts.find(([type]) => type === 'untouched');
+  unused[2] = 'A $thing, wiped clean.';
+  assert.ok(gate(told(c)).some((e) => e.includes('reads as cleaned up after use')));
+  unused[2] = 'A $thing, back on its hook.';
+  assert.ok(gate(told(c)).some((e) => e.includes('cannot have been used')));
 });
 
 test('either poisoner can leave a receipt, an empty container, or a trace from the open shelf poison', () => {

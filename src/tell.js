@@ -23,10 +23,40 @@
 // player can collect it there.
 //
 // What this cannot check: the connecting words. "Thick with dust" is this game's way of
-// saying untouched only because the author wrote it on an untouched fact.
+// saying untouched only because the author wrote it on an untouched fact. The one thing
+// it does hold the author to is below: an untouched thing must be shown untouched.
 
 import { rulesFor } from './rules/index.js';
 import { ARITY } from './logic.js';
+
+// A thing that was not used has to be shown unusable, not merely tidy. A guilty hand wipes
+// a blade and hangs a cord back up, so "clean" clears nothing: a player reads it as a sign
+// of use, and this game says "wiped clean" of the weapon itself. The sentence that tells an
+// untouched fact must name something tonight's use would have undone and nobody could put
+// back:
+//
+//   a coat that takes weeks to settle    dust, rust, cobweb, soot, cold ash, caked earth,
+//                                        flour from end to end
+//   a closure that use would break       a seal, a cork wired down, a lid rusted shut
+//   none of it gone                      full to the brim; "no $thing" where it would be
+//   what use would spoil past mending    glass unbroken, silk uncreased
+//
+// and must not call the thing clean, bright, neat or anything else a cloth could do.
+// A new way of showing it is a new word here, added on purpose.
+const IDLE = /\b(?:dust|rust|cobweb|soot|seal)\w*|\b(?:ash|caked|flour|floured|unbroken|wired|uncreased|full)\b|\bno \$thing\b/i;
+const TIDY = /\b(?:clean|cleaned|wiped|washed|rinsed|scrubbed|polished|dusted|bright|shining|spotless|neat|neatly|tidy|tidily|unmarked|unstained)\b/i;
+const STOP = /[.!?|]/;
+
+// The sentence a fact is told in. A telling may finish one the fact before began
+// ("A phial of $thing," then "sealed with wax.") or leave one for the next fact to end.
+function sentenceOf(says, n) {
+  const join = (list) => list.filter((s) => typeof s === 'string').join(' ').trim();
+  const before = join(says.slice(0, n));
+  const own = says[n].trim();
+  const head = STOP.test(before.slice(-1)) ? '' : before.split(STOP).pop();
+  const tail = STOP.test(own.slice(-1)) ? '' : join(says.slice(n + 1)).split(STOP)[0];
+  return `${head} ${own} ${tail}`.trim();
+}
 
 // Which argument each hole reads, by kind of fact.
 const HOLES = {
@@ -79,8 +109,10 @@ export function tellExhibit(c, ex) {
   const fail = (msg) => errors.push(`${ex.id}: ${msg}`);
 
   const rules = rulesFor(c);
-  for (const f of ex.facts || []) {
-    if (!(f[0] in ARITY) && rules?.factArity[f[0]] === undefined) {
+  const known = (f) => f[0] in ARITY || rules?.factArity[f[0]] !== undefined;
+  const says = (ex.facts || []).map((f) => (known(f) ? factParts(f, rules).say : null));
+  for (const [n, f] of (ex.facts || []).entries()) {
+    if (!known(f)) {
       fail(`"${f[0]}" is not a kind of fact.`);
       continue;
     }
@@ -152,6 +184,13 @@ export function tellExhibit(c, ex) {
       const last = lines[lines.length - 1];
       if (last && last[0] === style) last[1] += ' ' + text;
       else lines.push([style, text]);
+    }
+
+    if (type === 'untouched') {
+      const sentence = sentenceOf(says, n).replace(/\{[^}]*\}/g, ' ');
+      const tidy = TIDY.exec(sentence.replace(HOLE, ' '));
+      if (tidy) fail(`the untouched fact calls the ${args[0]} "${tidy[0]}", which reads as cleaned up after use. Show what use would have undone: a coat of dust or rust, an unbroken seal.`);
+      else if (!IDLE.test(sentence)) fail(`the untouched fact does not show why the ${args[0]} cannot have been used. Name what use would have undone: a coat of dust or rust, an unbroken seal, none of it gone.`);
     }
   }
 

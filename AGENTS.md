@@ -39,7 +39,7 @@ Dev pages and switches:
 - `src/cases/*.js`: one case per file, as data. `src/cases/index.js` lists them in order
   of difficulty and renders their text.
 - `src/tell.js`: the telling. Renders each exhibit's text from its facts, and checks
-  that every fact is told.
+  that every fact is told and that an untouched thing is shown unusable, not just tidy.
 - `src/compose.js`: the composer. Builds a whole case from a date and puts it through
   the same gate as a hand-written one. `src/art/stage.js` stages its scene.
 - `src/logic.js`: the proof. From the facts a case states, it finds every way to name
@@ -109,6 +109,8 @@ the story (`culprit`, `victim`, `means`, `loot`, `motive`, `intended`, `framed`,
 - every exhibit states facts, and none is idle;
 - every fact is told (only `dead` may be `null`), what a fact asserts is shown in its
   exhibit, and no tray word is mentioned where it cannot be collected;
+- every `untouched` thing is shown to be unusable, not merely tidy (see Fair red
+  herrings);
 - the `path` shown to the player rests on exhibits the proof actually uses;
 - every answer can be collected, and every gap has at least two rival words of its kind;
 - it fits the size budget: at most 9 exhibits, 9 gaps, 16 words, 175 words of reading;
@@ -120,11 +122,12 @@ exhibit and cases with no real trap; those are judgement calls, not failures.
 
 What this cannot do. The names, things, places and times in the text come from the
 facts, but the connecting words are the author's: "thick with dust" means untouched only
-because it was written on an `untouched` fact. Nothing checks that a telling's wording
-fits its kind of fact, or that a person finds the chain fair. Read the rendered text
+because it was written on an `untouched` fact. Apart from the one check on `untouched`
+(see Fair red herrings), nothing checks that a telling's wording fits its kind of fact,
+or that a person finds the chain fair. Read the rendered text
 (`npm run check:cases -- --text`, or play the case) and playtest. A clue must be stated
-in words: the first run of the proof caught a doll whose identity only the picture
-gave away.
+in words: the first run of the proof caught a doll whose identity only the picture gave
+away.
 
 Rules to keep by hand:
 
@@ -143,6 +146,37 @@ To add a kind of clue, add a fact type and its rule to `src/logic.js`, with a te
 caught. For family-specific observations, register a module in `src/rules/index.js`.
 The case selects its vocabulary with `ruleSet`. Its module declares fact arities,
 bindings for the telling and deductions over the observed facts. The case stays plain data.
+
+### Fair red herrings
+
+A red herring is fair when what clears it could not also be a trace of the crime. The
+first player to write in met "A silver paper-knife lies in it, clean" and took *clean*
+for a sign the blade had been wiped. He was right to: the game says "wiped clean but dark
+at the socket" of the spade that did it. Keep the herring and clear it the hard way.
+
+- `untouched` means it could not have been used, never that it looks unused. Its sentence
+  names something tonight's use would have undone and nobody could put back:
+  - a coat that takes weeks to settle: dust, rust, cobweb, soot, cold ash, caked earth,
+    flour from end to end;
+  - a closure that use would break: a seal, a cork wired down, a lid rusted shut;
+  - none of it gone: full to the brim, no sugar in the cup;
+  - what use would spoil past mending: glass unbroken, silk uncreased.
+- Never clear a thing by a state a guilty hand could restore: clean, wiped, bright, neatly
+  knotted, hanging whole, back in her hat. `src/tell.js` refuses the tidy words by name
+  (`TIDY`) and asks for one of the reasons above (`IDLE`). A new reason is a new word in
+  that list, added on purpose.
+- What was not there is cleared by where it was. Say who holds it with `has` and where
+  they got on with `boarded`: the timetable then rules out the hatpins along with the
+  lady, and the proof cites it.
+- What did it shows it. The weapon keeps a trace the cloth missed (dark at the socket,
+  tacky at the pivot, a broken seal) or leaves a gap in a counted set (eleven knives, the
+  twelfth slot empty). Clean belongs to the weapon.
+- A suspect is cleared by a paper or a time (a receipt, an invitation, a ticket, the
+  constable's inventory), never by an impression.
+
+The check reads words, not sense: it cannot tell whether dust would really lie where the
+telling puts it. Read the rendered text and ask of each cleared thing: could the guilty
+one have left it like this?
 
 ## Composed cases
 
@@ -187,6 +221,10 @@ are drawn independently of guilt. A doll carrying the tray or cloak keeps its ca
 - `tests/compose.test.js` checks the gate and the mix of culprits and clues across
   dates. Two dates pin the expected output. When a deliberate change alters a date's
   puzzle, bump `COMPOSER` and update the pins so older saves keep their own version.
+- Every tool, stick and poison in the lists reads two ways, `used` and `idle`, and the
+  two follow the rule for fair red herrings: a trace the cloth missed, or a coat or seal
+  that use would have undone. Rewording a line changes no puzzle and needs no new
+  `COMPOSER`, provided no date goes over the reading budget and rerolls.
 - A new tool needs a drawing in `TOOLS` in `src/art/stage.js`; a new thing a doll carries
   needs one in `CARRIED` or `HELD`; a new way of keeping a poison needs one in `KEPT`. A
   new setting needs an entry in `SETTINGS` or `SWITCHES` and a set in `SETS` or

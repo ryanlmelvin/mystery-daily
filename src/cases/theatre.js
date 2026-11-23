@@ -81,7 +81,7 @@ export default {
       title: 'The dressing table',
       facts: [
         ['makes', 'laudanum', 'foam on his lips', 'Greasepaint and powder. A phial of $thing,'],
-        ['untouched', 'laudanum', 'full to the cork.'],
+        ['untouched', 'laudanum', 'full to its dusty cork.'],
         ['makes', 'rat poison', 'foam on his lips', 'A tin of $thing for the mice,'],
         ['untouched', 'rat poison', 'its lid rusted shut.']
       ]
@@ -97,7 +97,7 @@ export default {
     { how: 'A name on a receipt', from: ['exit', 'playbill'], gives: [2], say: "The chemist's receipt in his pocket is signed L. Sparrow: Leo Sparrow, the understudy." },
     { how: 'Trade', from: ['wardrobe', 'playbill'], gives: [3], say: 'Pins, tape and a half-hemmed cloak: wardrobe, Ida Crewe.' },
     { how: 'The switch', from: ['bottle', 'king'], gives: [6], say: "The tonic was for Bellamy only, and Bellamy's own note says Tull kept drinking it. The poison was meant for Bellamy." },
-    { how: 'The means', from: ['bottle', 'exit', 'table'], gives: [5], say: 'Sparrow signed for prussic acid. The laudanum is full and the rat poison is rusted shut.' },
+    { how: 'The means', from: ['bottle', 'exit', 'table'], gives: [5], say: 'Sparrow signed for prussic acid. The laudanum is full to a dusty cork and the rat poison is rusted shut.' },
     { how: 'Motive', from: ['script', 'exit'], gives: [4], say: "The understudy has learned every line of the King's. With Bellamy gone, the crown is his." }
   ],
   traps: [

@@ -83,8 +83,16 @@ const GRIEVANCES = [
 // Others on the household list who are not in the room.
 const ABSENT = [['groom', MEN], ['coachman', MEN], ['page', MEN], ['laundress', WOMEN], ['scullery maid', WOMEN], ['nurse', WOMEN]];
 
+// How a thing reads when it has been used (`used`) and when it has not (`idle`), here and
+// in every list below. The two must never be mistaken for each other. A used thing has
+// been cleaned up but for a trace the cloth missed: dark at the socket, tacky at the pivot.
+// An idle thing is never just clean, which a player rightly reads as wiped. It wears a
+// coat that takes weeks to settle (dust, rust, cobweb) or keeps a seal that use would
+// break, so it cannot have been used and put back. The gate refuses an idle line that
+// shows less (tell.js).
+
 // The servant in the doorway: what they carry (`held`), the mark it would leave, and how
-// it reads when it has not been used (`idle`) and when it has (`used`).
+// it reads idle and used.
 const SERVANTS = {
   housemaid: {
     trade: 'housemaid', women: true, noun: 'woman', sign: 'Cap and apron.',
@@ -108,8 +116,8 @@ const SERVANTS = {
 
 // What the visitor by the door carries.
 const STICKS = {
-  man: { word: 'cane', a: 'One', mark: 'thin straight welt', held: 'On his arm, a $thing,', idle: 'its varnish unmarked.', used: 'its silver knob dark and tacky.' },
-  woman: { word: 'parasol', a: 'One', mark: 'thin straight welt', held: 'In her hand, a furled $thing,', idle: 'its silk unmarked.', used: 'its ferrule dark and tacky.' }
+  man: { word: 'cane', a: 'One', mark: 'thin straight welt', held: 'On his arm, a $thing,', idle: 'grey with road dust from knob to tip.', used: 'its silver knob dark and tacky.' },
+  woman: { word: 'parasol', a: 'One', mark: 'thin straight welt', held: 'In her hand, a furled $thing,', idle: 'road dust in every fold.', used: 'its ferrule dark and tacky.' }
 };
 
 // Every tool can be the weapon or a bystander. Each says the mark it would leave and how
@@ -123,8 +131,8 @@ const TOOLS = {
   tongs: { a: 'A', mark: 'pair of pinch marks', used: 'On a hook, the $thing: wiped, but tacky at the jaws.', idle: 'On a hook, the $thing: cold, and furred with soot.' },
   bookend: { a: 'One', mark: 'square-cornered wound', used: 'A bronze $thing, wiped clean but tacky at one corner.', idle: 'A bronze $thing under an even coat of dust.' },
   paperweight: { a: 'One', mark: 'round dent', used: 'Beside it, a glass $thing, rinsed but pink in its flaw.', idle: 'Beside it, a glass $thing under an even coat of dust.' },
-  candlestick: { a: 'One', mark: 'ridged dent', used: 'A heavy $thing, wiped clean but dark in the fluting.', idle: 'A heavy $thing, its fluting bright and dusted.' },
-  'carving knife': { a: 'One', mark: 'clean deep cut', used: 'Beside it, a $thing out of its case, wiped but dark at the hilt.', idle: 'Beside it, a $thing in its case: bright, and bedded in dust.' },
+  candlestick: { a: 'One', mark: 'ridged dent', used: 'A heavy $thing, wiped clean but dark in the fluting.', idle: 'A heavy $thing, its fluting furred with dust.' },
+  'carving knife': { a: 'One', mark: 'clean deep cut', used: 'Beside it, a $thing out of its case, wiped but dark at the hilt.', idle: 'Beside it, a $thing in its case, dust thick on its blade.' },
   decanter: { a: 'One', mark: 'ring-shaped bruise', used: 'A cut-glass $thing, rinsed but pink at the base.', idle: 'A cut-glass $thing, full, its stopper dusty.' },
   corkscrew: { a: 'One', mark: 'small deep puncture', used: 'On a hook, a $thing, wiped but dark in the worm.', idle: 'On a hook, a $thing filmed with dust.' }
 };
@@ -199,9 +207,9 @@ const SETTINGS = {
 // in a pocket, or as a trace on someone.
 const POISONS = {
   'prussic acid': { receipt: '$Thing, one phial.', kept: 'phial', empty: 'an empty phial', idle: ['A phial of $thing,', 'sealed with wax.'], used: 'A phial of $thing, its wax broken, smelling of bitter almonds.', trace: 'a smell of bitter almonds on {his} gloves' },
-  arsenic: { receipt: '$Thing, two ounces.', kept: 'packet', empty: 'an empty paper packet', idle: ['A packet of $thing,', "still tied with the chemist's string."], used: 'A packet of $thing, torn open, white powder spilt beside it.', trace: 'white powder on {his} cuff' },
+  arsenic: { receipt: '$Thing, two ounces.', kept: 'packet', empty: 'an empty paper packet', idle: ['A packet of $thing,', "its string under the chemist's seal."], used: 'A packet of $thing, torn open, white powder spilt beside it.', trace: 'white powder on {his} cuff' },
   strychnine: { receipt: '$Thing, ten grains.', kept: 'phial', empty: 'an empty phial', idle: ['A phial of $thing,', 'its cork still wired down.'], used: 'A phial of $thing, its wire cut and the cork out.', trace: 'a cut loop of cork-wire in {his} pocket' },
-  laudanum: { receipt: '$Thing, one phial.', kept: 'phial', empty: 'an empty phial', idle: ['A phial of $thing,', 'full to the cork.'], used: 'A phial of $thing, uncorked and two thirds gone.', trace: 'a brown-stained cork in {his} pocket' },
+  laudanum: { receipt: '$Thing, one phial.', kept: 'phial', empty: 'an empty phial', idle: ['A phial of $thing,', 'full to its dusty cork.'], used: 'A phial of $thing, uncorked and two thirds gone.', trace: 'a brown-stained cork in {his} pocket' },
   'rat poison': { receipt: '$Thing, one tin.', kept: 'tin', empty: 'an empty tin', idle: ['A tin of $thing,', 'its lid rusted shut.'], used: 'A tin of $thing, its lid prised up and grey powder spilt.', trace: 'grey powder on {his} cuff' },
   'weed-killer': { receipt: '$Thing, one can.', kept: 'can', empty: 'a drained flask', idle: ['A can of $thing,', 'its cap sealed with red wax.'], used: 'A can of $thing, the red wax cracked and the cap loose.', trace: 'crumbs of red wax under {his} fingernails' }
 };

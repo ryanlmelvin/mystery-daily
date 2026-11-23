@@ -142,6 +142,43 @@ test('the timetable gives an alibi to whoever boarded after the death', () => {
   assert.deepEqual(p.story.traps.find((t) => t.value === 'Cy Cole').how, ['not yet aboard']);
 });
 
+// A thing in the hands of someone who was not there cannot have done it, wherever it sits
+// now. "Both still in her hat" cleared the hatpins on the train only by looking put away.
+test('what a latecomer holds came aboard with them', () => {
+  const c = toy();
+  // The cook holds a rope that fits the bruise, and nothing shows it unused.
+  drop(c, 'shelf', 'untouched');
+  exhibit(c, 'stove').facts.push(['has', 'stove', 'rope']);
+  assert.ok(has(proveCase(c), 'Nothing answers a temptation: means = rope'));
+  exhibit(c, 'body').facts.push(['died', '9.02']);
+  exhibit(c, 'list').facts.push(['stops', [['Early', '8.40'], ['Late', '9.10']]]);
+  exhibit(c, 'stove').facts.push(['boarded', 'stove', 'Late']);
+  const p = proveCase(c);
+  assert.deepEqual(p.errors, []);
+  const rope = p.story.traps.find((t) => t.role === 'means' && t.value === 'rope');
+  assert.deepEqual(rope.how, ['came aboard too late']);
+  assert.equal(rope.self, false);
+  assert.deepEqual(p.story.traps.find((t) => t.value === 'Cy Cole').ruled, ['not yet aboard']);
+  // A second rope in the hands of someone who was there all along is not cleared by it.
+  exhibit(c, 'door').facts.push(['has', 'door', 'rope']);
+  assert.ok(has(proveCase(c), 'Nothing answers a temptation: means = rope'));
+  exhibit(c, 'door').facts.pop();
+  // And had the cook been aboard from the start, his rope would have no such answer.
+  exhibit(c, 'stove').facts.pop();
+  exhibit(c, 'stove').facts.push(['boarded', 'stove', 'Early']);
+  assert.ok(has(proveCase(c), 'Nothing answers a temptation: means = rope'));
+});
+
+test('train: the hatpins are cleared by the timetable, not by where they sit', () => {
+  const pin = proveCase(caseById('train')).story.traps.find((t) => t.role === 'means' && t.value === 'hatpin');
+  assert.deepEqual(pin.how, ['came aboard too late']);
+  assert.ok(pin.answeredBy.includes('timetable') && pin.answeredBy.includes('victim'));
+  assert.equal(pin.self, false);
+  const c = structuredClone(caseById('train'));
+  drop(c, 'lady', 'boarded');
+  assert.ok(has(proveCase(c), 'Nothing answers a temptation: means = hatpin'));
+});
+
 test('an exhibit whose facts change nothing is called idle', () => {
   const c = toy();
   c.exhibits.push({ id: 'poster', facts: [['listed', 'Di Dove', 'dancer']] });

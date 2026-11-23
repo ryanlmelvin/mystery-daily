@@ -39,7 +39,11 @@
 //   ['meantFor', pattern]        the fatal thing was meant for this name
 //   ['died', time]               when the victim died, as 'h.mm'
 //   ['stops', [[place, time]]]   the timetable
-//   ['boarded', who, place]      where who got on
+//   ['boarded', who, place]      where who got on, and with them whatever they hold
+//
+// A thing is ruled out the hard way or not at all. `untouched` is for what could not have
+// been used (tell.js holds its telling to that); what was simply not there at the time is
+// said with `has` and `boarded`, and the timetable rules it out.
 
 import { rulesFor } from './rules/index.js';
 import { blanksOf, PENNIES } from './engine.js';
@@ -257,9 +261,20 @@ function solveStory(c, atoms, cast) {
     const t = minutes(died.a[0]);
     const next = stops.a[0].find(([, at]) => minutes(at) > t);
     if (next) sup('before', next[0], { rule: 'the timetable', from: [died.ex, stops.ex] });
+    const late = new Map();
     for (const b of of('boarded')) {
       const stop = stops.a[0].find(([place]) => place === b.a[1]);
-      if (stop && minutes(stop[1]) > t) exc('culprit', person(b.a[0]), { rule: 'not yet aboard', from: [b.ex, died.ex, stops.ex, ...about(b.a[0])] });
+      if (!stop || minutes(stop[1]) <= t) continue;
+      const from = [b.ex, died.ex, stops.ex, ...about(b.a[0])];
+      exc('culprit', person(b.a[0]), { rule: 'not yet aboard', from });
+      late.set(person(b.a[0]), from);
+    }
+    // What a latecomer holds came aboard with them, so it did not do it either: unless
+    // someone who was there holds one too.
+    for (const thing of uniq(of('has').map((h) => h.a[1]))) {
+      const holders = of('has').filter((h) => h.a[1] === thing);
+      if (!holders.every((h) => person(h.a[0]) && late.has(person(h.a[0])))) continue;
+      exc('means', thing, { rule: 'came aboard too late', from: holders.flatMap((h) => [h.ex, ...late.get(person(h.a[0]))]) });
     }
   }
 

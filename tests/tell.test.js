@@ -45,9 +45,41 @@ test('a thing can be shown without being named, but only on purpose', () => {
 });
 
 test('one fact may rely on another in the same exhibit to show its thing', () => {
-  const t = tell([['makes', 'rope', 'a weal', 'By the window, the $thing'], ['untouched', 'rope', 'hangs whole.']]);
+  const t = tell([['makes', 'rope', 'a weal', 'By the window, the $thing'], ['untouched', 'rope', 'hangs whole, furred with dust.']]);
   assert.deepEqual(t.errors, []);
-  assert.deepEqual(t.lines, [['see', 'By the window, the {rope} hangs whole.']]);
+  assert.deepEqual(t.lines, [['see', 'By the window, the {rope} hangs whole, furred with dust.']]);
+});
+
+// The first player to write in read "a silver paper-knife lies in it, clean" and took
+// clean for a sign it had been wiped. He was right to: the game says "wiped clean" of the
+// weapon itself. A thing is cleared by what use would have undone, never by looking tidy.
+test('an untouched thing must be shown unusable, not merely tidy', () => {
+  const idle = (say) => tell([['makes', 'rope', 'a weal', 'By the window, the $thing'], ['untouched', 'rope', say]]).errors;
+  assert.match(idle('lies clean.')[0], /calls the rope "clean", which reads as cleaned up after use/);
+  assert.match(idle('is neatly coiled.')[0], /calls the rope "neatly"/);
+  assert.match(idle('lies bright, and bedded in dust.')[0], /calls the rope "bright"/);
+  assert.match(idle('has been freshly dusted.')[0], /calls the rope "dusted"/);
+  assert.match(idle('has its tassel unmarked.')[0], /calls the rope "unmarked"/);
+  // A state anyone could put back is no better, whatever it is called.
+  assert.match(idle('hangs whole.')[0], /does not show why the rope cannot have been used/);
+  assert.match(idle('is still on its hook.')[0], /does not show why the rope cannot have been used/);
+  for (const fair of [
+    'hangs thick with dust.', 'is rusted to its hook.', 'is hung with cobweb.', 'lies grey with ash.', 'is caked in dry earth.',
+    'is under an unbroken wax seal.', 'is still wired to its reel.', 'fills its drum, full to the brim.', 'is uncreased silk.'
+  ]) assert.deepEqual(idle(fair), [], fair);
+  // None of it where it would have to be.
+  assert.deepEqual(tell([['untouched', 'rope', 'Half drunk. No milk in it and no $thing.']]).errors, []);
+});
+
+test('the reason an untouched thing gives is read from its whole sentence', () => {
+  // One sentence told by two facts: the seal covers both.
+  assert.deepEqual(tell([['untouched', 'rope', 'Sealed in the tray, the $thing'], ['untouched', 'vase', 'and the $thing.']]).errors, []);
+  // It does not carry over a full stop to a sentence about something else.
+  const apart = tell([['untouched', 'rope', 'The $thing is thick with dust.'], ['untouched', 'vase', 'The $thing stands beside it.']]);
+  assert.equal(apart.errors.length, 1);
+  assert.match(apart.errors[0], /why the vase cannot have been used/);
+  // Nor does calling a used thing clean in the sentence before taint the idle one after.
+  assert.deepEqual(tell([['makes', 'vase', 'a bruise', 'A $thing, wiped clean but dark at the foot.'], ['untouched', 'rope', 'The $thing is thick with dust.']]).errors, []);
 });
 
 test('a fact cannot go untold, except the one the scene itself shows', () => {
